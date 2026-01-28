@@ -3,12 +3,16 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+import { syncUser } from "@/lib/auth"
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  // Sync user on dashboard access
+  await syncUser()
+
   return (
     <SidebarProvider>
       <AppSidebar />
