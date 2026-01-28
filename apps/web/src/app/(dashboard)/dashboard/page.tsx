@@ -85,14 +85,8 @@ export default async function DashboardPage() {
     },
   })
 
-  const [
-    timeEntriesToday,
-    activeBlockers,
-    clientBlockers,
-    completedTasksToday,
-    inProgressTask,
-    recentProjects,
-  ] = await Promise.all([
+  // Execute all promises in parallel, then await with proper types
+  await Promise.all([
     timeEntriesTodayPromise,
     activeBlockersPromise,
     clientBlockersPromise,
@@ -100,6 +94,14 @@ export default async function DashboardPage() {
     inProgressTaskPromise,
     recentProjectsPromise,
   ])
+
+  // Get results with preserved types
+  const timeEntriesToday = await timeEntriesTodayPromise
+  const activeBlockers = await activeBlockersPromise
+  const clientBlockers = await clientBlockersPromise
+  const completedTasksToday = await completedTasksTodayPromise
+  const inProgressTask = await inProgressTaskPromise
+  const recentProjects = await recentProjectsPromise
 
   const totalMinutes = timeEntriesToday._sum.durationMinutes || 0
   const hours = Math.floor(totalMinutes / 60)
