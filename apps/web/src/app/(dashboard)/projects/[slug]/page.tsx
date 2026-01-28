@@ -88,7 +88,7 @@ export default async function ProjectPage({ params }: PageProps) {
   }
 
   // Calculate total hours
-  const totalMinutes = project.timeEntries.reduce((acc, entry) => acc + entry.durationMinutes, 0)
+  const totalMinutes = project.timeEntries.reduce((acc: number, entry) => acc + entry.durationMinutes, 0)
   const totalHours = Math.floor(totalMinutes / 60)
   const remainingMinutes = totalMinutes % 60
 
