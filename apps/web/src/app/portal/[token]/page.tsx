@@ -16,7 +16,7 @@ import {
   Layers,
   Target,
 } from "lucide-react"
-import { PortalFeedbackForm } from "@/components/portal-feedback-form"
+import { PortalFeedbackForm } from "@/components/forms/portal-feedback-form"
 import { formatDistanceToNow, format } from "date-fns"
 
 const statusColors: Record<string, string> = {

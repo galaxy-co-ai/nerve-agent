@@ -18,8 +18,8 @@ import {
 } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
-import { AddTimeEntryDialog } from "@/components/add-time-entry-dialog"
-import { TimeEntryRow } from "@/components/time-entry-row"
+import { AddTimeEntryDialog } from "@/components/dialogs/add-time-entry-dialog"
+import { TimeEntryRow } from "@/components/timer/time-entry-row"
 
 function formatDuration(minutes: number): string {
   const hours = Math.floor(minutes / 60)

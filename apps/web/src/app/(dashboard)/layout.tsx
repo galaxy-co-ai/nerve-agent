@@ -1,11 +1,11 @@
 export const dynamic = "force-dynamic"
 
-import { AppSidebar } from "@/components/app-sidebar"
-import { ClaudeChat } from "@/components/claude-chat"
-import { CommandPalette } from "@/components/command-palette"
-import { QuickNoteDialog } from "@/components/quick-note-dialog"
-import { QuickTimeDialog } from "@/components/quick-time-dialog"
-import { TimerWrapper } from "@/components/timer-wrapper"
+import { AppSidebar } from "@/components/navigation/app-sidebar"
+import { ClaudeChat } from "@/components/features/claude-chat"
+import { CommandPalette } from "@/components/shared/command-palette"
+import { QuickNoteDialog } from "@/components/dialogs/quick-note-dialog"
+import { QuickTimeDialog } from "@/components/dialogs/quick-time-dialog"
+import { TimerWrapper } from "@/components/timer/timer-wrapper"
 import {
   SidebarInset,
   SidebarProvider,

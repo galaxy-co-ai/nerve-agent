@@ -12,17 +12,16 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Phone,
   Plus,
   FolderKanban,
-  Search,
   TrendingUp,
   TrendingDown,
   Minus,
   Share2,
 } from "lucide-react"
+import { CallSearch } from "@/components/features/call-search"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 import { formatDistanceToNow, format } from "date-fns"
@@ -157,17 +156,7 @@ export default async function CallsPage({ searchParams }: CallsPageProps) {
         </div>
 
         {/* Search */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <form>
-            <Input
-              name="q"
-              placeholder="Search calls..."
-              defaultValue={params.q}
-              className="pl-9"
-            />
-          </form>
-        </div>
+        <CallSearch projectId={params.project} />
 
         {/* Project Filter */}
         {projects.length > 0 && (

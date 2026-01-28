@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
-import { EditNoteForm } from "@/components/edit-note-form"
+import { EditNoteForm } from "@/components/forms/edit-note-form"
 
 interface PageProps {
   params: Promise<{ slug: string }>

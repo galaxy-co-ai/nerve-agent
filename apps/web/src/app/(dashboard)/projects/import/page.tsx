@@ -11,7 +11,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { ImportForm } from "@/components/import-form"
+import { ImportForm } from "@/components/forms/import-form"
 
 export default function ImportProjectPage() {
   return (

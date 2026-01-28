@@ -14,8 +14,8 @@ import { Badge } from "@/components/ui/badge"
 import { Code2, Blocks, Puzzle, Database, Star, TrendingUp } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
-import { AddLibraryItemDialog } from "@/components/add-library-item-dialog"
-import { LibraryItemCard } from "@/components/library-item-card"
+import { AddLibraryItemDialog } from "@/components/dialogs/add-library-item-dialog"
+import { LibraryItemCard } from "@/components/features/library-item-card"
 
 export default async function LibraryPage() {
   const user = await requireUser()

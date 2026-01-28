@@ -17,8 +17,9 @@ import { Badge } from "@/components/ui/badge"
 import { FolderKanban, Clock, Link2, FileText } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
-import { NoteActions } from "@/components/note-actions"
-import { NoteContent } from "@/components/note-content"
+import { NoteActions } from "@/components/features/note-actions"
+import { NoteContent } from "@/components/features/note-content"
+import { NoteGraph } from "@/components/features/note-graph"
 import { formatDistanceToNow } from "date-fns"
 
 interface PageProps {
@@ -58,6 +59,19 @@ export default async function NotePage({ params }: PageProps) {
     }
     return false
   })
+
+  // Find outgoing links - notes this note links to
+  const outgoingLinks: typeof allNotes = []
+  const wikiLinkPattern = /\[\[([^\]]+)\]\]/g
+  let match
+  while ((match = wikiLinkPattern.exec(note.content)) !== null) {
+    const linkedNote = allNotes.find(
+      (n) => n.title.toLowerCase() === match[1].toLowerCase() && n.id !== note.id
+    )
+    if (linkedNote && !outgoingLinks.find((n) => n.id === linkedNote.id)) {
+      outgoingLinks.push(linkedNote)
+    }
+  }
 
   // Get context around the backlink for preview
   function getBacklinkContext(content: string, title: string): string {
@@ -121,12 +135,34 @@ export default async function NotePage({ params }: PageProps) {
           </CardContent>
         </Card>
 
+        {/* Context Graph */}
+        {(outgoingLinks.length > 0 || backlinks.length > 0) && (
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <Link2 className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-base">Connections</CardTitle>
+              </div>
+              <CardDescription>
+                {outgoingLinks.length} outgoing link{outgoingLinks.length !== 1 ? "s" : ""}, {backlinks.length} backlink{backlinks.length !== 1 ? "s" : ""}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <NoteGraph
+                currentNote={{ id: note.id, title: note.title, slug: note.slug }}
+                outgoingLinks={outgoingLinks.map((n) => ({ id: n.id, title: n.title, slug: n.slug }))}
+                backlinks={backlinks.map((n) => ({ id: n.id, title: n.title, slug: n.slug }))}
+              />
+            </CardContent>
+          </Card>
+        )}
+
         {/* Backlinks */}
         {backlinks.length > 0 && (
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
-                <Link2 className="h-4 w-4 text-muted-foreground" />
+                <FileText className="h-4 w-4 text-muted-foreground" />
                 <CardTitle className="text-base">Backlinks</CardTitle>
               </div>
               <CardDescription>

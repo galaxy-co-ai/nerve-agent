@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { FileText, Pin, FolderKanban, Search } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
-import { AddNoteDialog } from "@/components/add-note-dialog"
+import { AddNoteDialog } from "@/components/dialogs/add-note-dialog"
 import { Input } from "@/components/ui/input"
 import { formatDistanceToNow } from "date-fns"
 

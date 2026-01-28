@@ -17,8 +17,8 @@ import { Badge } from "@/components/ui/badge"
 import { Blocks, Puzzle, Database, FolderKanban, Clock, Copy } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
-import { LibraryItemActions } from "@/components/library-item-actions"
-import { CopyCodeButton } from "@/components/copy-code-button"
+import { LibraryItemActions } from "@/components/features/library-item-actions"
+import { CopyCodeButton } from "@/components/shared/copy-code-button"
 import { formatDistanceToNow } from "date-fns"
 
 const typeIcons = {

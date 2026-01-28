@@ -14,8 +14,8 @@ import {
 import { Database } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
-import { AddLibraryItemDialog } from "@/components/add-library-item-dialog"
-import { LibrarySearchSection } from "@/components/library-search-section"
+import { AddLibraryItemDialog } from "@/components/dialogs/add-library-item-dialog"
+import { LibrarySearchSection } from "@/components/features/library-search-section"
 
 interface QueriesPageProps {
   searchParams: Promise<{ q?: string }>

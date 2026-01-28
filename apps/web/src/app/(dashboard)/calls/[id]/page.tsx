@@ -29,7 +29,7 @@ import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 import { format } from "date-fns"
 import { CallSentiment } from "@prisma/client"
-import { CallActions } from "@/components/call-actions"
+import { CallActions } from "@/components/features/call-actions"
 
 interface CallPageProps {
   params: Promise<{ id: string }>

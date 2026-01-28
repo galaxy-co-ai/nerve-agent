@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
-import { NewCallForm } from "@/components/new-call-form"
+import { NewCallForm } from "@/components/forms/new-call-form"
 
 export default async function NewCallPage() {
   const user = await requireUser()

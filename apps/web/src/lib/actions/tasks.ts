@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
+import { createTaskSchema, completeTaskWithExtrasSchema } from "@/lib/validations"
 
 export async function createTask(
   projectSlug: string,
@@ -11,14 +12,19 @@ export async function createTask(
 ) {
   const user = await requireUser()
 
-  const title = formData.get("title") as string
-  const description = formData.get("description") as string | null
-  const estimatedHours = formData.get("estimatedHours") as string
-  const category = formData.get("category") as string | null
+  // Validate input
+  const parsed = createTaskSchema.safeParse({
+    title: formData.get("title"),
+    description: formData.get("description"),
+    estimatedHours: formData.get("estimatedHours"),
+    category: formData.get("category"),
+  })
 
-  if (!title || !estimatedHours) {
-    throw new Error("Title and estimated hours are required")
+  if (!parsed.success) {
+    throw new Error(parsed.error.errors[0].message)
   }
+
+  const { title, description, estimatedHours, category } = parsed.data
 
   const project = await db.project.findFirst({
     where: { slug: projectSlug, userId: user.id },
@@ -56,7 +62,7 @@ export async function createTask(
       title,
       description: description || null,
       order: nextOrder,
-      estimatedHours: parseFloat(estimatedHours),
+      estimatedHours,
       category: category || null,
     },
   })
@@ -68,7 +74,7 @@ export async function createTask(
 
   const totalEstimated = allTasks.reduce(
     (sum, task) => sum + Number(task.estimatedHours),
-    parseFloat(estimatedHours)
+    estimatedHours
   )
 
   await db.sprint.update({
@@ -185,7 +191,13 @@ export async function completeTaskWithExtras(data: {
 }) {
   const user = await requireUser()
 
-  const { taskId, projectId, durationMinutes, notes, startNextTaskId } = data
+  // Validate input
+  const parsed = completeTaskWithExtrasSchema.safeParse(data)
+  if (!parsed.success) {
+    throw new Error(parsed.error.errors[0].message)
+  }
+
+  const { taskId, projectId, durationMinutes, notes, startNextTaskId } = parsed.data
 
   const task = await db.task.findUnique({
     where: { id: taskId },

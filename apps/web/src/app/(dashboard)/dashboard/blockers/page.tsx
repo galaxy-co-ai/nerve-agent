@@ -21,7 +21,7 @@ import {
 } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
-import { BlockerActions } from "@/components/blocker-actions"
+import { BlockerActions } from "@/components/features/blocker-actions"
 
 function formatAge(date: Date): string {
   const now = new Date()

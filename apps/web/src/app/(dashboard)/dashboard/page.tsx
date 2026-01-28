@@ -12,8 +12,8 @@ import {
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Clock, AlertTriangle, Users, CheckCircle2, Zap, Plus, ArrowRight, FileText, Code2 } from "lucide-react"
-import { CompleteTaskButton } from "@/components/complete-task-button"
-import { DashboardInsights } from "@/components/dashboard-insights"
+import { CompleteTaskButton } from "@/components/shared/complete-task-button"
+import { DashboardInsights } from "@/components/features/dashboard-insights"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 

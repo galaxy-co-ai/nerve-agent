@@ -84,6 +84,7 @@ model Project {
   portalFeedback    PortalFeedback[]
   calls             Call[]
   portalMagicLinks  PortalMagicLink[]
+  followUps         FollowUp[]
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -452,6 +453,9 @@ model Call {
   briefShared   Boolean       @default(false)
   briefToken    String?       @unique         // For shareable link
 
+  // Relationships
+  followUps     FollowUp[]
+
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
@@ -494,4 +498,50 @@ model Note {
   @@unique([userId, slug])
   @@index([userId])
   @@index([projectId])
+}
+
+// ============================================================================
+// Follow-Up - Action items from calls requiring follow-up
+// ============================================================================
+
+model FollowUp {
+  id            String         @id @default(cuid())
+  userId        String
+  callId        String?
+  call          Call?          @relation(fields: [callId], references: [id], onDelete: SetNull)
+  projectId     String
+  project       Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Content
+  title         String
+  description   String?
+  sourceType    FollowUpSource @default(CALL)
+  sourceQuote   String?        // Quote from the call that generated this
+
+  // Scheduling
+  dueDate       DateTime?
+  status        FollowUpStatus @default(SUGGESTED)
+  completedAt   DateTime?
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+enum FollowUpSource {
+  CALL
+  MANUAL
+  AI_SUGGESTED
+}
+
+enum FollowUpStatus {
+  SUGGESTED
+  SCHEDULED
+  PENDING
+  COMPLETED
+  DISMISSED
 }

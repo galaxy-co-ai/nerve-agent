@@ -37,7 +37,7 @@ import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 import { updateSprintStatus, deleteSprint } from "@/lib/actions/sprints"
 import { updateTaskStatus, deleteTask } from "@/lib/actions/tasks"
-import { AddTaskDialog } from "@/components/add-task-dialog"
+import { AddTaskDialog } from "@/components/dialogs/add-task-dialog"
 
 const statusColors: Record<string, string> = {
   NOT_STARTED: "bg-gray-500/10 text-gray-400 border-gray-500/20",

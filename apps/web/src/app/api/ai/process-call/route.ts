@@ -22,6 +22,12 @@ interface ProcessedCall {
     decidedBy: string
   }>
   sentiment: "POSITIVE" | "NEUTRAL" | "CONCERNED"
+  followUps: Array<{
+    title: string
+    description?: string
+    sourceQuote?: string
+    dueDate?: string
+  }>
 }
 
 const systemPrompt = `You are an AI assistant that analyzes call transcripts for a software development consultancy. Your job is to extract key information and structure it for easy reference.
@@ -31,12 +37,19 @@ Analyze the transcript and extract:
 2. Action items (tasks that need to be done, with who should do them)
 3. Decisions made during the call (what was decided and by whom)
 4. Overall client sentiment (POSITIVE, NEUTRAL, or CONCERNED)
+5. Follow-ups (things to circle back on, verify, or check in about later)
 
 Guidelines:
 - For action items, assign to either "me" (the developer/consultant) or "client"
 - Include due dates only if explicitly mentioned in the transcript
 - For decisions, note who made or agreed to the decision
 - Sentiment should reflect the client's overall tone and satisfaction level
+- For follow-ups, identify things that need checking back on:
+  - Commitments to verify ("I'll send that by Friday")
+  - Topics to revisit ("Let's discuss the pricing next week")
+  - Waiting items ("Once we hear back from legal...")
+  - Check-ins mentioned ("Let's sync up after the launch")
+- Include a sourceQuote with the relevant text from the transcript
 - Be concise but capture all important details
 
 Respond with a JSON object in this exact format:
@@ -44,7 +57,8 @@ Respond with a JSON object in this exact format:
   "summary": "string",
   "actionItems": [{"text": "string", "assignedTo": "me|client", "dueDate": "optional string"}],
   "decisions": [{"text": "string", "decidedBy": "string"}],
-  "sentiment": "POSITIVE|NEUTRAL|CONCERNED"
+  "sentiment": "POSITIVE|NEUTRAL|CONCERNED",
+  "followUps": [{"title": "string", "description": "optional string", "sourceQuote": "optional string", "dueDate": "optional YYYY-MM-DD"}]
 }
 
 Return ONLY the JSON object, no markdown formatting or additional text.`
@@ -101,6 +115,11 @@ export async function POST(request: NextRequest) {
         throw new Error("Invalid response structure")
       }
 
+      // Ensure followUps array exists
+      if (!Array.isArray(parsed.followUps)) {
+        parsed.followUps = []
+      }
+
       return NextResponse.json(parsed)
     } catch (parseError) {
       console.error("Failed to parse AI response:", result)
@@ -110,6 +129,7 @@ export async function POST(request: NextRequest) {
         actionItems: [],
         decisions: [],
         sentiment: "NEUTRAL",
+        followUps: [],
       })
     }
   } catch (error) {

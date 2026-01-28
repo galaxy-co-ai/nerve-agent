@@ -39,10 +39,10 @@ import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 import { updateProjectStatus, deleteProject } from "@/lib/actions/projects"
 import { resolveBlocker, deleteBlocker } from "@/lib/actions/blockers"
-import { AddSprintDialog } from "@/components/add-sprint-dialog"
-import { AddBlockerDialog } from "@/components/add-blocker-dialog"
-import { PortalSettings } from "@/components/portal-settings"
-import { TrackPageVisit } from "@/components/track-page-visit"
+import { AddSprintDialog } from "@/components/dialogs/add-sprint-dialog"
+import { AddBlockerDialog } from "@/components/dialogs/add-blocker-dialog"
+import { PortalSettings } from "@/components/features/portal-settings"
+import { TrackPageVisit } from "@/components/shared/track-page-visit"
 
 const statusColors: Record<string, string> = {
   PLANNING: "bg-blue-500/10 text-blue-500 border-blue-500/20",
