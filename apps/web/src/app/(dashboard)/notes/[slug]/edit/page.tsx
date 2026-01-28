@@ -42,6 +42,14 @@ export default async function EditNotePage({ params }: PageProps) {
     notFound()
   }
 
+  // Parse tags from JSON
+  const noteTags = Array.isArray(note.tags) ? note.tags as string[] : []
+
+  const noteWithTags = {
+    ...note,
+    tags: noteTags,
+  }
+
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border/40 px-4">
@@ -70,7 +78,7 @@ export default async function EditNotePage({ params }: PageProps) {
           <p className="text-muted-foreground">Update your note content.</p>
         </div>
 
-        <EditNoteForm note={note} projects={projects} />
+        <EditNoteForm note={noteWithTags} projects={projects} />
       </div>
     </>
   )

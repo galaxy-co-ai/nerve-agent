@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic"
 
-import Link from "next/link"
+import { Suspense } from "react"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import {
@@ -11,13 +11,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Blocks, Search } from "lucide-react"
+import { Blocks } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 import { AddLibraryItemDialog } from "@/components/add-library-item-dialog"
-import { LibraryItemCard } from "@/components/library-item-card"
+import { LibrarySearchSection } from "@/components/library-search-section"
 
 interface BlocksPageProps {
   searchParams: Promise<{ q?: string }>
@@ -83,43 +81,18 @@ export default async function BlocksPage({ searchParams }: BlocksPageProps) {
           </div>
         </div>
 
-        {/* Search */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <form>
-            <Input
-              name="q"
-              placeholder="Search blocks..."
-              defaultValue={params.q}
-              className="pl-9"
-            />
-          </form>
-        </div>
-
-        {items.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-16">
-              <div className="rounded-full bg-muted p-4 mb-4">
-                <Blocks className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <h3 className="font-semibold mb-2">
-                {params.q ? "No blocks found" : "No blocks yet"}
-              </h3>
-              <p className="text-muted-foreground text-sm mb-4 text-center max-w-sm">
-                {params.q
-                  ? "Try a different search term or create a new block."
-                  : "Add your first block - a complete auth system, a dashboard layout, or any large reusable implementation."}
-              </p>
-              {!params.q && <AddLibraryItemDialog tags={tags} projects={projects} defaultType="BLOCK" />}
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {items.map((item) => (
-              <LibraryItemCard key={item.id} item={item} />
-            ))}
-          </div>
-        )}
+        <Suspense fallback={<div>Loading...</div>}>
+          <LibrarySearchSection
+            type="BLOCK"
+            items={items}
+            emptyIcon={Blocks}
+            emptyTitle="No blocks yet"
+            emptyDescription="Add your first block - a complete auth system, a dashboard layout, or any large reusable implementation."
+            searchPlaceholder="Search blocks..."
+          >
+            <AddLibraryItemDialog tags={tags} projects={projects} defaultType="BLOCK" />
+          </LibrarySearchSection>
+        </Suspense>
       </div>
     </>
   )

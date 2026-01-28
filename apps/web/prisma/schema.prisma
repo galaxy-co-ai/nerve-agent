@@ -80,6 +80,7 @@ model Project {
   timeEntries       TimeEntry[]
   libraryItems      LibraryItem[]
   notes             Note[]
+  portalFeedback    PortalFeedback[]
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -354,6 +355,52 @@ model LibraryTag {
 }
 
 // ============================================================================
+// Portal Feedback - Client feedback on project portal
+// ============================================================================
+
+model PortalFeedback {
+  id          String              @id @default(cuid())
+  projectId   String
+  project     Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Author info (captured at submission time)
+  authorName  String
+  authorEmail String?
+
+  // Content
+  content     String              @db.Text
+  pageUrl     String?
+  screenshot  String?             // URL to screenshot if provided
+
+  // Categorization
+  type        FeedbackType        @default(SUGGESTION)
+
+  // Status
+  status      FeedbackStatus      @default(NEW)
+  response    String?             @db.Text
+  respondedAt DateTime?
+
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@index([projectId])
+  @@index([status])
+}
+
+enum FeedbackType {
+  BUG
+  SUGGESTION
+  QUESTION
+  APPROVAL
+}
+
+enum FeedbackStatus {
+  NEW
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+// ============================================================================
 // Notes - Project Knowledge Capture
 // ============================================================================
 
@@ -373,6 +420,7 @@ model Note {
 
   // Organization
   isPinned    Boolean   @default(false)
+  tags        Json      @default("[]")  // Array of tag strings
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt

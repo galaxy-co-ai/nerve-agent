@@ -1,12 +1,10 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
   SelectContent,
@@ -14,6 +12,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
+import { AIEditor } from "@/components/ai-editor"
+import { NoteTagSuggester } from "@/components/note-tag-suggester"
 import { updateNote } from "@/lib/actions/notes"
 import Link from "next/link"
 
@@ -23,33 +24,49 @@ interface EditNoteFormProps {
     title: string
     content: string
     projectId: string | null
+    tags: string[]
   }
   projects: { id: string; name: string }[]
 }
 
 export function EditNoteForm({ note, projects }: EditNoteFormProps) {
-  const router = useRouter()
   const [pending, setPending] = useState(false)
+  const [title, setTitle] = useState(note.title)
+  const [content, setContent] = useState(note.content)
+  const [projectId, setProjectId] = useState(note.projectId || "")
+  const [tags, setTags] = useState<string[]>(note.tags)
+  const formRef = useRef<HTMLFormElement>(null)
 
-  async function handleSubmit(formData: FormData) {
+  const selectedProject = projects.find((p) => p.id === projectId)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
     setPending(true)
+
+    const formData = new FormData()
+    formData.set("title", title)
+    formData.set("content", content)
+    formData.set("projectId", projectId)
+    formData.set("tags", JSON.stringify(tags))
+
     try {
       await updateNote(note.slug, formData)
     } catch (error) {
+      console.error("Failed to update note:", error)
       setPending(false)
     }
   }
 
   return (
-    <form action={handleSubmit}>
+    <form ref={formRef} onSubmit={handleSubmit}>
       <Card>
         <CardContent className="pt-6 space-y-4">
           <div className="grid gap-2">
             <Label htmlFor="title">Title</Label>
             <Input
               id="title"
-              name="title"
-              defaultValue={note.title}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               required
             />
           </div>
@@ -57,7 +74,7 @@ export function EditNoteForm({ note, projects }: EditNoteFormProps) {
           {projects.length > 0 && (
             <div className="grid gap-2">
               <Label htmlFor="projectId">Project (optional)</Label>
-              <Select name="projectId" defaultValue={note.projectId || ""}>
+              <Select value={projectId} onValueChange={setProjectId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select project" />
                 </SelectTrigger>
@@ -75,17 +92,27 @@ export function EditNoteForm({ note, projects }: EditNoteFormProps) {
 
           <div className="grid gap-2">
             <Label htmlFor="content">Content</Label>
-            <Textarea
+            <AIEditor
               id="content"
-              name="content"
-              defaultValue={note.content}
-              className="min-h-[400px] font-mono"
-              required
+              value={content}
+              onChange={setContent}
+              placeholder="Start writing..."
+              context={{
+                title,
+                projectName: selectedProject?.name,
+              }}
             />
-            <p className="text-xs text-muted-foreground">
-              Tip: Use [[Note Title]] to create wiki-style links to other notes.
-            </p>
           </div>
+
+          <Separator />
+
+          <NoteTagSuggester
+            tags={tags}
+            onChange={setTags}
+            title={title}
+            content={content}
+            projectName={selectedProject?.name}
+          />
         </CardContent>
         <CardFooter className="flex justify-between">
           <Button asChild variant="outline">

@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic"
 import { AppSidebar } from "@/components/app-sidebar"
 import { ClaudeChat } from "@/components/claude-chat"
 import { CommandPalette } from "@/components/command-palette"
+import { QuickNoteDialog } from "@/components/quick-note-dialog"
 import {
   SidebarInset,
   SidebarProvider,
@@ -43,6 +44,7 @@ export default async function DashboardLayout({
       </SidebarInset>
       <ClaudeChat />
       <CommandPalette projects={projects} notes={notes} />
+      <QuickNoteDialog />
     </SidebarProvider>
   )
 }

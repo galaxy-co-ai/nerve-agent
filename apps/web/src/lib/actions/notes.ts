@@ -67,6 +67,17 @@ export async function updateNote(slug: string, formData: FormData) {
   const title = formData.get("title") as string
   const content = formData.get("content") as string
   const projectId = formData.get("projectId") as string | null
+  const tagsJson = formData.get("tags") as string | null
+
+  // Parse tags
+  let tags: string[] = []
+  if (tagsJson) {
+    try {
+      tags = JSON.parse(tagsJson)
+    } catch {
+      tags = []
+    }
+  }
 
   // Generate new slug if title changed
   let newSlug = note.slug
@@ -88,6 +99,7 @@ export async function updateNote(slug: string, formData: FormData) {
       slug: newSlug,
       content: content || note.content,
       projectId: projectId || null,
+      tags: tags,
     },
   })
 

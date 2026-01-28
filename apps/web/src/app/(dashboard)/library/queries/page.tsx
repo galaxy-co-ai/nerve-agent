@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic"
 
-import Link from "next/link"
+import { Suspense } from "react"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import {
@@ -11,13 +11,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Database, Search } from "lucide-react"
+import { Database } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 import { AddLibraryItemDialog } from "@/components/add-library-item-dialog"
-import { LibraryItemCard } from "@/components/library-item-card"
+import { LibrarySearchSection } from "@/components/library-search-section"
 
 interface QueriesPageProps {
   searchParams: Promise<{ q?: string }>
@@ -83,43 +81,18 @@ export default async function QueriesPage({ searchParams }: QueriesPageProps) {
           </div>
         </div>
 
-        {/* Search */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <form>
-            <Input
-              name="q"
-              placeholder="Search queries..."
-              defaultValue={params.q}
-              className="pl-9"
-            />
-          </form>
-        </div>
-
-        {items.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-16">
-              <div className="rounded-full bg-muted p-4 mb-4">
-                <Database className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <h3 className="font-semibold mb-2">
-                {params.q ? "No queries found" : "No queries yet"}
-              </h3>
-              <p className="text-muted-foreground text-sm mb-4 text-center max-w-sm">
-                {params.q
-                  ? "Try a different search term or create a new query."
-                  : "Add your first query - a complex SQL pattern, a Prisma query, or any database code you reuse."}
-              </p>
-              {!params.q && <AddLibraryItemDialog tags={tags} projects={projects} defaultType="QUERY" />}
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {items.map((item) => (
-              <LibraryItemCard key={item.id} item={item} />
-            ))}
-          </div>
-        )}
+        <Suspense fallback={<div>Loading...</div>}>
+          <LibrarySearchSection
+            type="QUERY"
+            items={items}
+            emptyIcon={Database}
+            emptyTitle="No queries yet"
+            emptyDescription="Add your first query - a complex SQL pattern, a Prisma query, or any database code you reuse."
+            searchPlaceholder="Search queries..."
+          >
+            <AddLibraryItemDialog tags={tags} projects={projects} defaultType="QUERY" />
+          </LibrarySearchSection>
+        </Suspense>
       </div>
     </>
   )

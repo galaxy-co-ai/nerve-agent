@@ -16,6 +16,7 @@ import {
   Layers,
   Target,
 } from "lucide-react"
+import { PortalFeedbackForm } from "@/components/portal-feedback-form"
 import { formatDistanceToNow, format } from "date-fns"
 
 const statusColors: Record<string, string> = {
@@ -342,6 +343,9 @@ export default async function ClientPortalPage({ params }: PageProps) {
           <p className="mt-1">Powered by NERVE AGENT</p>
         </footer>
       </main>
+
+      {/* Feedback Widget */}
+      <PortalFeedbackForm projectId={project.id} portalToken={token} />
     </div>
   )
 }
