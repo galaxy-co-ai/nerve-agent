@@ -22,6 +22,21 @@ type RecentProject = {
   _count: { blockers: number }
 }
 
+type InProgressTaskWithRelations = {
+  id: string
+  title: string
+  description: string | null
+  status: string
+  sprint: {
+    number: number
+    project: {
+      id: string
+      name: string
+      slug: string
+    }
+  }
+}
+
 function getGreeting(): string {
   const hour = new Date().getHours()
   if (hour < 12) return "Good morning"
