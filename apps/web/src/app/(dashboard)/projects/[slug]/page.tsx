@@ -36,7 +36,9 @@ import {
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 import { updateProjectStatus, deleteProject } from "@/lib/actions/projects"
+import { resolveBlocker, deleteBlocker } from "@/lib/actions/blockers"
 import { AddSprintDialog } from "@/components/add-sprint-dialog"
+import { AddBlockerDialog } from "@/components/add-blocker-dialog"
 
 const statusColors: Record<string, string> = {
   PLANNING: "bg-blue-500/10 text-blue-500 border-blue-500/20",
@@ -305,10 +307,7 @@ export default async function ProjectPage({ params }: PageProps) {
                 <CardTitle>Active Blockers</CardTitle>
                 <CardDescription>Issues waiting for resolution</CardDescription>
               </div>
-              <Button size="sm" variant="outline" disabled>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Blocker
-              </Button>
+              <AddBlockerDialog projectSlug={slug} />
             </CardHeader>
             <CardContent>
               {project.blockers.length === 0 ? (
@@ -327,15 +326,42 @@ export default async function ProjectPage({ params }: PageProps) {
                       key={blocker.id}
                       className="flex items-center justify-between rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-3"
                     >
-                      <div>
+                      <div className="flex-1 min-w-0">
                         <div className="font-medium">{blocker.title}</div>
                         <div className="text-sm text-muted-foreground">
                           Waiting on: {blocker.waitingOn}
                         </div>
                       </div>
-                      <Badge variant="outline" className="border-yellow-500/20 text-yellow-500">
-                        {blocker.type.toLowerCase()}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="border-yellow-500/20 text-yellow-500">
+                          {blocker.type.toLowerCase()}
+                        </Badge>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <form action={resolveBlocker.bind(null, blocker.id)}>
+                              <DropdownMenuItem asChild>
+                                <button type="submit" className="w-full cursor-pointer">
+                                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                                  Mark Resolved
+                                </button>
+                              </DropdownMenuItem>
+                            </form>
+                            <DropdownMenuSeparator />
+                            <form action={deleteBlocker.bind(null, blocker.id)}>
+                              <DropdownMenuItem asChild>
+                                <button type="submit" className="w-full cursor-pointer text-red-500">
+                                  Delete
+                                </button>
+                              </DropdownMenuItem>
+                            </form>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </div>
                   ))}
                 </div>
