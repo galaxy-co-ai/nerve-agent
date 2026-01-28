@@ -280,7 +280,7 @@ export default async function DashboardPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {recentProjects.map((project) => (
+                  {recentProjects.map((project: RecentProject) => (
                     <Link
                       key={project.id}
                       href={`/projects/${project.slug}`}
