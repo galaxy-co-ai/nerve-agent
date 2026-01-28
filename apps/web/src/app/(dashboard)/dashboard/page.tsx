@@ -28,6 +28,63 @@ export default async function DashboardPage() {
   const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000)
 
   // Fetch all stats in parallel
+  const timeEntriesTodayPromise = db.timeEntry.aggregate({
+    where: {
+      userId: user.id,
+      startTime: { gte: startOfDay, lt: endOfDay },
+    },
+    _sum: { durationMinutes: true },
+  })
+
+  const activeBlockersPromise = db.blocker.count({
+    where: {
+      status: "ACTIVE",
+      project: { userId: user.id },
+    },
+  })
+
+  const clientBlockersPromise = db.blocker.count({
+    where: {
+      status: "ACTIVE",
+      waitingOn: "client",
+      project: { userId: user.id },
+    },
+  })
+
+  const completedTasksTodayPromise = db.task.count({
+    where: {
+      status: "COMPLETED",
+      completedAt: { gte: startOfDay, lt: endOfDay },
+      sprint: { project: { userId: user.id } },
+    },
+  })
+
+  const inProgressTaskPromise = db.task.findFirst({
+    where: {
+      status: "IN_PROGRESS",
+      sprint: { project: { userId: user.id } },
+    },
+    include: {
+      sprint: {
+        include: { project: true },
+      },
+    },
+    orderBy: { updatedAt: "desc" },
+  })
+
+  const recentProjectsPromise = db.project.findMany({
+    where: { userId: user.id, status: "ACTIVE" },
+    take: 3,
+    orderBy: { updatedAt: "desc" },
+    include: {
+      _count: {
+        select: {
+          blockers: { where: { status: "ACTIVE" } },
+        },
+      },
+    },
+  })
+
   const [
     timeEntriesToday,
     activeBlockers,
@@ -36,63 +93,12 @@ export default async function DashboardPage() {
     inProgressTask,
     recentProjects,
   ] = await Promise.all([
-    // Time tracked today
-    db.timeEntry.aggregate({
-      where: {
-        userId: user.id,
-        startTime: { gte: startOfDay, lt: endOfDay },
-      },
-      _sum: { durationMinutes: true },
-    }),
-    // Active blockers count
-    db.blocker.count({
-      where: {
-        status: "ACTIVE",
-        project: { userId: user.id },
-      },
-    }),
-    // Waiting on client count
-    db.blocker.count({
-      where: {
-        status: "ACTIVE",
-        waitingOn: "client",
-        project: { userId: user.id },
-      },
-    }),
-    // Completed tasks today
-    db.task.count({
-      where: {
-        status: "COMPLETED",
-        completedAt: { gte: startOfDay, lt: endOfDay },
-        sprint: { project: { userId: user.id } },
-      },
-    }),
-    // Current in-progress task
-    db.task.findFirst({
-      where: {
-        status: "IN_PROGRESS",
-        sprint: { project: { userId: user.id } },
-      },
-      include: {
-        sprint: {
-          include: { project: true },
-        },
-      },
-      orderBy: { updatedAt: "desc" },
-    }),
-    // Recent projects with activity
-    db.project.findMany({
-      where: { userId: user.id, status: "ACTIVE" },
-      take: 3,
-      orderBy: { updatedAt: "desc" },
-      include: {
-        _count: {
-          select: {
-            blockers: { where: { status: "ACTIVE" } },
-          },
-        },
-      },
-    }),
+    timeEntriesTodayPromise,
+    activeBlockersPromise,
+    clientBlockersPromise,
+    completedTasksTodayPromise,
+    inProgressTaskPromise,
+    recentProjectsPromise,
   ])
 
   const totalMinutes = timeEntriesToday._sum.durationMinutes || 0
