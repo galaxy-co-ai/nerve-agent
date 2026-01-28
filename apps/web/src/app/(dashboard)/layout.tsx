@@ -4,6 +4,8 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { ClaudeChat } from "@/components/claude-chat"
 import { CommandPalette } from "@/components/command-palette"
 import { QuickNoteDialog } from "@/components/quick-note-dialog"
+import { QuickTimeDialog } from "@/components/quick-time-dialog"
+import { TimerWrapper } from "@/components/timer-wrapper"
 import {
   SidebarInset,
   SidebarProvider,
@@ -21,7 +23,7 @@ export default async function DashboardLayout({
   const user = await requireUser()
 
   // Fetch data for command palette search
-  const [projects, notes] = await Promise.all([
+  const [projects, notes, inProgressTasks] = await Promise.all([
     db.project.findMany({
       where: { userId: user.id },
       orderBy: { updatedAt: "desc" },
@@ -34,17 +36,38 @@ export default async function DashboardLayout({
       select: { id: true, title: true, slug: true },
       take: 10,
     }),
+    db.task.findMany({
+      where: {
+        status: "IN_PROGRESS",
+        sprint: { project: { userId: user.id } },
+      },
+      orderBy: { updatedAt: "desc" },
+      take: 10,
+      select: {
+        id: true,
+        title: true,
+        sprint: {
+          select: {
+            number: true,
+            project: { select: { name: true, slug: true } },
+          },
+        },
+      },
+    }),
   ])
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        {children}
-      </SidebarInset>
-      <ClaudeChat />
-      <CommandPalette projects={projects} notes={notes} />
-      <QuickNoteDialog />
-    </SidebarProvider>
+    <TimerWrapper>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          {children}
+        </SidebarInset>
+        <ClaudeChat />
+        <CommandPalette projects={projects} notes={notes} inProgressTasks={inProgressTasks} />
+        <QuickNoteDialog />
+        <QuickTimeDialog />
+      </SidebarProvider>
+    </TimerWrapper>
   )
 }

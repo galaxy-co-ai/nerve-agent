@@ -175,6 +175,151 @@ export async function completeTask(taskId: string) {
   return updateTaskStatus(taskId, "COMPLETED")
 }
 
+// Complete task with extras: log time, add notes, start next task
+export async function completeTaskWithExtras(data: {
+  taskId: string
+  projectId: string
+  durationMinutes?: number
+  notes?: string
+  startNextTaskId?: string
+}) {
+  const user = await requireUser()
+
+  const { taskId, projectId, durationMinutes, notes, startNextTaskId } = data
+
+  const task = await db.task.findUnique({
+    where: { id: taskId },
+    include: {
+      sprint: {
+        include: {
+          project: true,
+        },
+      },
+    },
+  })
+
+  if (!task || task.sprint.project.userId !== user.id) {
+    throw new Error("Task not found")
+  }
+
+  // 1. Complete the task
+  await db.task.update({
+    where: { id: taskId },
+    data: {
+      status: "COMPLETED",
+      completedAt: new Date(),
+      description: notes
+        ? `${task.description || ""}\n\n---\nCompletion notes:\n${notes}`.trim()
+        : task.description,
+    },
+  })
+
+  // 2. Log time if provided
+  if (durationMinutes && durationMinutes > 0) {
+    const endTime = new Date()
+    const startTime = new Date(endTime.getTime() - durationMinutes * 60 * 1000)
+
+    await db.timeEntry.create({
+      data: {
+        userId: user.id,
+        projectId,
+        taskId,
+        startTime,
+        endTime,
+        durationMinutes,
+        source: "MANUAL",
+        description: `Completed: ${task.title}`,
+        billable: true,
+      },
+    })
+
+    // Update task actual hours
+    const existingEntries = await db.timeEntry.aggregate({
+      where: { taskId },
+      _sum: { durationMinutes: true },
+    })
+    const totalMinutes = existingEntries._sum.durationMinutes || 0
+    await db.task.update({
+      where: { id: taskId },
+      data: { actualHours: totalMinutes / 60 },
+    })
+  }
+
+  // 3. Start next task if provided
+  if (startNextTaskId) {
+    const nextTask = await db.task.findUnique({
+      where: { id: startNextTaskId },
+      include: {
+        sprint: {
+          include: { project: true },
+        },
+      },
+    })
+
+    if (nextTask && nextTask.sprint.project.userId === user.id) {
+      await db.task.update({
+        where: { id: startNextTaskId },
+        data: { status: "IN_PROGRESS" },
+      })
+
+      const nextProjectSlug = nextTask.sprint.project.slug
+      const nextSprintNumber = nextTask.sprint.number
+      revalidatePath(`/projects/${nextProjectSlug}`)
+      revalidatePath(`/projects/${nextProjectSlug}/sprints/${nextSprintNumber}`)
+    }
+  }
+
+  const projectSlug = task.sprint.project.slug
+  const sprintNumber = task.sprint.number
+
+  revalidatePath(`/projects/${projectSlug}`)
+  revalidatePath(`/projects/${projectSlug}/sprints/${sprintNumber}`)
+  revalidatePath("/sprints")
+  revalidatePath("/dashboard")
+  revalidatePath("/time")
+}
+
+// Get the next TODO task in the same sprint
+export async function getNextTaskInSprint(taskId: string) {
+  const user = await requireUser()
+
+  const task = await db.task.findUnique({
+    where: { id: taskId },
+    include: {
+      sprint: {
+        include: {
+          project: true,
+          tasks: {
+            where: { status: "TODO" },
+            orderBy: { order: "asc" },
+            take: 1,
+          },
+        },
+      },
+    },
+  })
+
+  if (!task || task.sprint.project.userId !== user.id) {
+    return null
+  }
+
+  const nextTask = task.sprint.tasks[0]
+  if (!nextTask) return null
+
+  return {
+    id: nextTask.id,
+    title: nextTask.title,
+    sprint: {
+      number: task.sprint.number,
+      project: {
+        id: task.sprint.project.id,
+        name: task.sprint.project.name,
+        slug: task.sprint.project.slug,
+      },
+    },
+  }
+}
+
 export async function deleteTask(taskId: string) {
   const user = await requireUser()
 

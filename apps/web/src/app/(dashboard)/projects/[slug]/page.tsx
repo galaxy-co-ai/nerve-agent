@@ -42,6 +42,7 @@ import { resolveBlocker, deleteBlocker } from "@/lib/actions/blockers"
 import { AddSprintDialog } from "@/components/add-sprint-dialog"
 import { AddBlockerDialog } from "@/components/add-blocker-dialog"
 import { PortalSettings } from "@/components/portal-settings"
+import { TrackPageVisit } from "@/components/track-page-visit"
 
 const statusColors: Record<string, string> = {
   PLANNING: "bg-blue-500/10 text-blue-500 border-blue-500/20",
@@ -108,6 +109,12 @@ export default async function ProjectPage({ params }: PageProps) {
 
   return (
     <>
+      <TrackPageVisit
+        id={project.id}
+        type="project"
+        title={project.name}
+        href={`/projects/${slug}`}
+      />
       <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border/40 px-4">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />

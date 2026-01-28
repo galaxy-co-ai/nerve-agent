@@ -175,3 +175,104 @@ export async function toggleBillable(entryId: string) {
 
   revalidatePath("/time")
 }
+
+// Quick time entry - simplified for keyboard shortcut usage
+export async function quickCreateTimeEntry(data: {
+  projectId: string
+  taskId?: string | null
+  durationMinutes: number
+  description?: string | null
+}) {
+  const user = await requireUser()
+
+  const { projectId, taskId, durationMinutes, description } = data
+
+  if (!projectId || durationMinutes <= 0) {
+    throw new Error("Project and duration are required")
+  }
+
+  // Verify project belongs to user
+  const project = await db.project.findFirst({
+    where: { id: projectId, userId: user.id },
+  })
+
+  if (!project) {
+    throw new Error("Project not found")
+  }
+
+  // Calculate times: entry ends "now", started durationMinutes ago
+  const endTime = new Date()
+  const startTime = new Date(endTime.getTime() - durationMinutes * 60 * 1000)
+
+  await db.timeEntry.create({
+    data: {
+      userId: user.id,
+      projectId,
+      taskId: taskId || null,
+      startTime,
+      endTime,
+      durationMinutes,
+      source: "MANUAL",
+      description: description || null,
+      billable: true, // Default to billable for quick entries
+    },
+  })
+
+  // Update task actual hours if linked
+  if (taskId) {
+    const existingEntries = await db.timeEntry.aggregate({
+      where: { taskId },
+      _sum: { durationMinutes: true },
+    })
+    const totalMinutes = existingEntries._sum.durationMinutes || 0
+    await db.task.update({
+      where: { id: taskId },
+      data: { actualHours: totalMinutes / 60 },
+    })
+  }
+
+  revalidatePath("/time")
+  revalidatePath("/dashboard")
+  revalidatePath(`/projects/${project.slug}`)
+
+  return { success: true, projectName: project.name }
+}
+
+// Get recent projects and their in-progress tasks for quick selection
+export async function getQuickTimeEntryData() {
+  const user = await requireUser()
+
+  const projects = await db.project.findMany({
+    where: { userId: user.id, status: "ACTIVE" },
+    orderBy: { updatedAt: "desc" },
+    take: 10,
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+    },
+  })
+
+  // Get in-progress tasks across all projects
+  const inProgressTasks = await db.task.findMany({
+    where: {
+      status: "IN_PROGRESS",
+      sprint: { project: { userId: user.id } },
+    },
+    orderBy: { updatedAt: "desc" },
+    take: 10,
+    select: {
+      id: true,
+      title: true,
+      sprint: {
+        select: {
+          project: {
+            select: { id: true, name: true },
+          },
+        },
+      },
+    },
+  })
+
+  return { projects, inProgressTasks }
+}

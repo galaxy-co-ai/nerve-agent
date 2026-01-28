@@ -3,6 +3,9 @@ import { Zap } from "lucide-react"
 import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
+import { SidebarTimer } from "@/components/sidebar-timer"
+import { SidebarCurrentWork } from "@/components/sidebar-current-work"
+import { SidebarRecentItems } from "@/components/sidebar-recent-items"
 import {
   Sidebar,
   SidebarContent,
@@ -13,10 +16,13 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { getRecentProjects } from "@/lib/actions/sidebar"
+import { getRecentProjects, getInProgressTasks } from "@/lib/actions/sidebar"
 
 export async function AppSidebar() {
-  const projects = await getRecentProjects()
+  const [projects, inProgressTasks] = await Promise.all([
+    getRecentProjects(),
+    getInProgressTasks(),
+  ])
 
   return (
     <Sidebar collapsible="icon">
@@ -38,7 +44,10 @@ export async function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
+        <SidebarTimer />
+        <SidebarCurrentWork tasks={inProgressTasks} />
         <NavMain />
+        <SidebarRecentItems />
         <NavProjects projects={projects} />
       </SidebarContent>
       <SidebarFooter>

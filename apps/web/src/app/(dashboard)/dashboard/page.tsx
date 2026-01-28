@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Clock, AlertTriangle, Users, CheckCircle2, Zap, Plus, ArrowRight, FileText, Code2 } from "lucide-react"
 import { CompleteTaskButton } from "@/components/complete-task-button"
+import { DashboardInsights } from "@/components/dashboard-insights"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 
@@ -112,6 +113,28 @@ export default async function DashboardPage() {
     },
   })
 
+  // For insights: count all in-progress tasks
+  const inProgressTaskCountPromise = db.task.count({
+    where: {
+      status: "IN_PROGRESS",
+      sprint: { project: { userId: user.id } },
+    },
+  })
+
+  // For insights: overdue blockers (nextFollowUp in the past)
+  const overdueBlockersPromise = db.blocker.findMany({
+    where: {
+      status: "ACTIVE",
+      nextFollowUp: { lt: new Date() },
+      project: { userId: user.id },
+    },
+    take: 3,
+    orderBy: { nextFollowUp: "asc" },
+    include: {
+      project: { select: { name: true } },
+    },
+  })
+
   // Execute all promises in parallel with explicit types
   const [
     timeEntriesToday,
@@ -120,6 +143,8 @@ export default async function DashboardPage() {
     completedTasksToday,
     inProgressTask,
     recentProjects,
+    inProgressTaskCount,
+    overdueBlockers,
   ] = await Promise.all([
     timeEntriesTodayPromise,
     activeBlockersPromise,
@@ -127,6 +152,8 @@ export default async function DashboardPage() {
     completedTasksTodayPromise,
     inProgressTaskPromise as Promise<InProgressTaskWithRelations | null>,
     recentProjectsPromise as Promise<RecentProject[]>,
+    inProgressTaskCountPromise,
+    overdueBlockersPromise,
   ])
 
   const totalMinutes = timeEntriesToday._sum.durationMinutes || 0
@@ -232,6 +259,19 @@ export default async function DashboardPage() {
           </Card>
         </div>
 
+        {/* Insights - actionable intelligence */}
+        <DashboardInsights
+          inProgressTaskCount={inProgressTaskCount}
+          activeBlockers={activeBlockers}
+          overdueBlockers={overdueBlockers.map((b) => ({
+            id: b.id,
+            description: b.description,
+            projectName: b.project.name,
+          }))}
+          totalMinutesToday={totalMinutes}
+          completedToday={completedTasksToday}
+        />
+
         {/* Main Content */}
         <div className="grid gap-6 md:grid-cols-2">
           {/* Focus Task */}
@@ -259,7 +299,21 @@ export default async function DashboardPage() {
                       )}
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <CompleteTaskButton taskId={inProgressTask.id} />
+                      <CompleteTaskButton
+                        taskId={inProgressTask.id}
+                        task={{
+                          id: inProgressTask.id,
+                          title: inProgressTask.title,
+                          sprint: {
+                            number: inProgressTask.sprint.number,
+                            project: {
+                              id: inProgressTask.sprint.project.id,
+                              name: inProgressTask.sprint.project.name,
+                              slug: inProgressTask.sprint.project.slug,
+                            },
+                          },
+                        }}
+                      />
                       <Button variant="outline" size="sm" asChild>
                         <Link href={`/projects/${inProgressTask.sprint.project.slug}`}>
                           View <ArrowRight className="ml-2 h-4 w-4" />

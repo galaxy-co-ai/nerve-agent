@@ -24,3 +24,35 @@ export async function getRecentProjects() {
     status: p.status,
   }))
 }
+
+export async function getInProgressTasks() {
+  const user = await getCurrentUser()
+  if (!user) return []
+
+  const tasks = await db.task.findMany({
+    where: {
+      status: "IN_PROGRESS",
+      sprint: { project: { userId: user.id } },
+    },
+    orderBy: { updatedAt: "desc" },
+    take: 5,
+    select: {
+      id: true,
+      title: true,
+      sprint: {
+        select: {
+          number: true,
+          project: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      },
+    },
+  })
+
+  return tasks
+}
