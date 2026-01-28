@@ -353,12 +353,12 @@ const modules: Module[] = [
 
 // Foundation tasks that need to happen first
 const foundationTasks: Task[] = [
-  { id: "f-1", title: "Set up Prisma with Supabase", status: "not-started" },
-  { id: "f-2", title: "Configure Clerk authentication", status: "not-started" },
-  { id: "f-3", title: "Install and configure shadcn/ui", status: "not-started" },
+  { id: "f-1", title: "Set up Prisma with Neon", status: "done", notes: "Schema pushed, client generated" },
+  { id: "f-2", title: "Configure Clerk authentication", status: "done", notes: "Sign in/up working, dark theme" },
+  { id: "f-3", title: "Install and configure shadcn/ui", status: "done", notes: "9 components installed" },
   { id: "f-4", title: "Set up Claude API integration", status: "not-started" },
-  { id: "f-5", title: "Create base layout with navigation", status: "not-started" },
-  { id: "f-6", title: "Set up Vercel deployment", status: "in-progress", notes: "Manual setup needed - import from GitHub" },
+  { id: "f-5", title: "Create base layout with navigation", status: "in-progress", notes: "Basic dashboard exists" },
+  { id: "f-6", title: "Set up Vercel deployment", status: "done", notes: "Deployed and live" },
   { id: "f-7", title: "Create GitHub repository", status: "done", notes: "github.com/galaxy-co-ai/nerve-agent" },
 ];
 

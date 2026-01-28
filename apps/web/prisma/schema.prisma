@@ -1,0 +1,288 @@
+// NERVE AGENT Database Schema
+// Phase 1: Core Loop (Projects, Sprints, Tasks, Time Tracking)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================================
+// User (Extended from Clerk)
+// ============================================================================
+
+model User {
+  id                String   @id // Clerk user ID
+  email             String   @unique
+  name              String?
+  avatarUrl         String?
+
+  // Preferences
+  defaultView       String   @default("daily") // daily, projects
+  theme             String   @default("dark")  // dark, light, system
+  weekStartsOn      Int      @default(1)       // 0=Sun, 1=Mon
+
+  // Time tracking preferences
+  workingHoursStart String   @default("09:00")
+  workingHoursEnd   String   @default("17:00")
+
+  // Relationships
+  projects          Project[]
+  timeEntries       TimeEntry[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+// ============================================================================
+// Project
+// ============================================================================
+
+model Project {
+  id                String        @id @default(cuid())
+  userId            String
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Basic info
+  name              String
+  slug              String        @unique
+  clientName        String
+  description       String?
+
+  // Status
+  status            ProjectStatus @default(PLANNING)
+  phase             ProjectPhase  @default(PLAN)
+  health            Int           @default(100) // 0-100
+
+  // Dates
+  startDate         DateTime?
+  targetEndDate     DateTime?
+  actualEndDate     DateTime?
+
+  // Financial
+  contractValue     Decimal?
+  hourlyRate        Decimal?
+  paymentStructure  String?  // "half-half", "weekly", "milestone"
+
+  // Client portal
+  portalEnabled     Boolean  @default(true)
+
+  // Relationships
+  sprints           Sprint[]
+  blockers          Blocker[]
+  timeEntries       TimeEntry[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+enum ProjectStatus {
+  PLANNING
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum ProjectPhase {
+  PLAN
+  SPRINT
+  SHIP
+  SUPPORT
+}
+
+// ============================================================================
+// Sprint
+// ============================================================================
+
+model Sprint {
+  id                String       @id @default(cuid())
+  projectId         String
+  project           Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Basic info
+  number            Int          // Sprint 1, 2, 3...
+  name              String       // "Foundation", "Core Dashboard", etc.
+  description       String?
+
+  // Status
+  status            SprintStatus @default(NOT_STARTED)
+
+  // Time estimates
+  estimatedHours    Decimal
+  adjustedHours     Decimal?     // AI-adjusted estimate
+  actualHours       Decimal      @default(0)
+
+  // Dates
+  plannedStartDate  DateTime?
+  plannedEndDate    DateTime?
+  actualStartDate   DateTime?
+  actualEndDate     DateTime?
+
+  // Relationships
+  tasks             Task[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([projectId, number])
+  @@index([projectId])
+  @@index([status])
+}
+
+enum SprintStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  BLOCKED
+  COMPLETED
+}
+
+// ============================================================================
+// Task
+// ============================================================================
+
+model Task {
+  id                String     @id @default(cuid())
+  sprintId          String
+  sprint            Sprint     @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+
+  // Basic info
+  title             String
+  description       String?
+  order             Int        // Order within sprint
+
+  // Status
+  status            TaskStatus @default(TODO)
+
+  // Categorization
+  category          String?    // "integration", "ui-component", "api", etc.
+  tags              Json       @default("[]")
+
+  // Time estimates
+  estimatedHours    Decimal
+  adjustedHours     Decimal?   // AI-adjusted
+  actualHours       Decimal    @default(0)
+
+  // Blocker reference
+  blockerId         String?
+  blocker           Blocker?   @relation(fields: [blockerId], references: [id])
+
+  // Completion
+  completedAt       DateTime?
+
+  // Relationships
+  timeEntries       TimeEntry[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([sprintId])
+  @@index([status])
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  BLOCKED
+  COMPLETED
+}
+
+// ============================================================================
+// Time Entry
+// ============================================================================
+
+model TimeEntry {
+  id                String     @id @default(cuid())
+  userId            String
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId         String
+  project           Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  taskId            String?
+  task              Task?      @relation(fields: [taskId], references: [id])
+
+  // Time
+  startTime         DateTime
+  endTime           DateTime?
+  durationMinutes   Int
+
+  // Source
+  source            TimeSource @default(AUTO)
+
+  // Auto-tracking metadata
+  appName           String?    // "VS Code", "Figma", etc.
+  windowTitle       String?
+
+  // Manual entry
+  description       String?
+
+  // Billing
+  billable          Boolean    @default(true)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([taskId])
+  @@index([startTime])
+}
+
+enum TimeSource {
+  AUTO      // From desktop app
+  MANUAL    // Manual entry
+  ADJUSTED  // Adjusted during daily review
+}
+
+// ============================================================================
+// Blocker
+// ============================================================================
+
+model Blocker {
+  id                String        @id @default(cuid())
+  projectId         String
+  project           Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Content
+  title             String
+  description       String?
+
+  // Type
+  type              BlockerType   @default(HARD)
+
+  // Who's responsible
+  waitingOn         String        // "client", "self", "third-party"
+
+  // Status
+  status            BlockerStatus @default(ACTIVE)
+
+  // Aging
+  resolvedAt        DateTime?
+
+  // Auto follow-up
+  lastFollowUpAt    DateTime?
+  followUpCount     Int           @default(0)
+
+  // Relationships
+  tasks             Task[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([status])
+}
+
+enum BlockerType {
+  HARD   // Needs external input
+  SOFT   // Can be worked around
+}
+
+enum BlockerStatus {
+  ACTIVE
+  RESOLVED
+}
