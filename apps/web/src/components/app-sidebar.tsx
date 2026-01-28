@@ -48,13 +48,13 @@ const navMain = [
     ],
   },
   {
-    title: "Sprints",
+    title: "Sprint Stack",
     url: "/sprints",
     icon: Layers,
     items: [
-      { title: "Current Sprint", url: "/sprints/current" },
-      { title: "Backlog", url: "/sprints/backlog" },
-      { title: "Completed", url: "/sprints/completed" },
+      { title: "All Sprints", url: "/sprints" },
+      { title: "In Progress", url: "/sprints?status=in-progress" },
+      { title: "Completed", url: "/sprints?status=completed" },
     ],
   },
   {

@@ -31,10 +31,12 @@ import {
   CheckCircle2,
   AlertTriangle,
   Plus,
+  ChevronRight,
 } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 import { updateProjectStatus, deleteProject } from "@/lib/actions/projects"
+import { AddSprintDialog } from "@/components/add-sprint-dialog"
 
 const statusColors: Record<string, string> = {
   PLANNING: "bg-blue-500/10 text-blue-500 border-blue-500/20",
@@ -252,10 +254,10 @@ export default async function ProjectPage({ params }: PageProps) {
                 <CardTitle>Sprints</CardTitle>
                 <CardDescription>Manage project sprints and tasks</CardDescription>
               </div>
-              <Button size="sm" variant="outline" disabled>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Sprint
-              </Button>
+              <AddSprintDialog
+                projectSlug={slug}
+                nextSprintNumber={project.sprints.length > 0 ? project.sprints[project.sprints.length - 1].number + 1 : 1}
+              />
             </CardHeader>
             <CardContent>
               {project.sprints.length === 0 ? (
@@ -268,24 +270,28 @@ export default async function ProjectPage({ params }: PageProps) {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-2">
                   {project.sprints.map((sprint) => (
-                    <div
+                    <Link
                       key={sprint.id}
-                      className="flex items-center justify-between rounded-lg border p-3"
+                      href={`/projects/${slug}/sprints/${sprint.number}`}
+                      className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/50 transition-colors"
                     >
                       <div>
                         <div className="font-medium">
                           Sprint {sprint.number}: {sprint.name}
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {Number(sprint.estimatedHours)}h estimated
+                          {Number(sprint.estimatedHours)}h estimated · {Number(sprint.actualHours)}h tracked
                         </div>
                       </div>
-                      <Badge variant="outline">
-                        {sprint.status.toLowerCase().replace("_", " ")}
-                      </Badge>
-                    </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">
+                          {sprint.status.toLowerCase().replace("_", " ")}
+                        </Badge>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    </Link>
                   ))}
                 </div>
               )}
