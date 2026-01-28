@@ -557,7 +557,7 @@ export default function BacklogPage() {
           <h2 className="text-lg font-semibold mb-4">Quick Links</h2>
           <div className="flex flex-wrap gap-3">
             <a
-              href="https://github.com/yourusername/nerve-agent"
+              href="https://github.com/galaxy-co-ai/nerve-agent"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg hover:border-zinc-700 transition-colors"
@@ -566,7 +566,7 @@ export default function BacklogPage() {
               GitHub Repository
             </a>
             <a
-              href="https://vercel.com/yourteam/nerve-agent"
+              href="https://vercel.com/galaxy-co/nerve-agent"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg hover:border-zinc-700 transition-colors"
