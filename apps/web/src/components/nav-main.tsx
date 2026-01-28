@@ -1,6 +1,15 @@
 "use client"
 
-import { ChevronRight, type LucideIcon } from "lucide-react"
+import {
+  ChevronRight,
+  Clock,
+  Code2,
+  FolderKanban,
+  Home,
+  Layers,
+  FileText,
+  Settings,
+} from "lucide-react"
 
 import {
   Collapsible,
@@ -18,25 +27,85 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 
-export function NavMain({
-  items,
-}: {
-  items: {
-    title: string
-    url: string
-    icon?: LucideIcon
-    isActive?: boolean
-    items?: {
-      title: string
-      url: string
-    }[]
-  }[]
-}) {
+const navMain = [
+  {
+    title: "Daily Driver",
+    url: "/dashboard",
+    icon: Home,
+    isActive: true,
+    items: [
+      { title: "Today", url: "/dashboard" },
+      { title: "Week", url: "/dashboard/week" },
+      { title: "Blockers", url: "/dashboard/blockers" },
+    ],
+  },
+  {
+    title: "Projects",
+    url: "/projects",
+    icon: FolderKanban,
+    items: [
+      { title: "All Projects", url: "/projects" },
+      { title: "Active", url: "/projects?status=active" },
+      { title: "Planning", url: "/projects?status=planning" },
+    ],
+  },
+  {
+    title: "Sprint Stack",
+    url: "/sprints",
+    icon: Layers,
+    items: [
+      { title: "All Sprints", url: "/sprints" },
+      { title: "In Progress", url: "/sprints?status=in-progress" },
+      { title: "Completed", url: "/sprints?status=completed" },
+    ],
+  },
+  {
+    title: "Time",
+    url: "/time",
+    icon: Clock,
+    items: [
+      { title: "Today", url: "/time" },
+      { title: "This Week", url: "/time/week" },
+      { title: "Reports", url: "/time/reports" },
+    ],
+  },
+  {
+    title: "Vault",
+    url: "/vault",
+    icon: Code2,
+    items: [
+      { title: "Blocks", url: "/vault/blocks" },
+      { title: "Patterns", url: "/vault/patterns" },
+      { title: "Queries", url: "/vault/queries" },
+    ],
+  },
+  {
+    title: "Notes",
+    url: "/notes",
+    icon: FileText,
+    items: [
+      { title: "All Notes", url: "/notes" },
+      { title: "Recent", url: "/notes?sort=recent" },
+    ],
+  },
+  {
+    title: "Settings",
+    url: "/settings",
+    icon: Settings,
+    items: [
+      { title: "Profile", url: "/settings/profile" },
+      { title: "Preferences", url: "/settings/preferences" },
+      { title: "Integrations", url: "/settings/integrations" },
+    ],
+  },
+]
+
+export function NavMain() {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map((item) => (
+        {navMain.map((item) => (
           <Collapsible
             key={item.title}
             asChild
