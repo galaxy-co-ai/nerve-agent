@@ -8,6 +8,7 @@ import {
   Home,
   Layers,
   FileText,
+  Phone,
   Settings,
 } from "lucide-react"
 
@@ -87,6 +88,15 @@ const navMain = [
     items: [
       { title: "All Notes", url: "/notes" },
       { title: "Recent", url: "/notes?sort=recent" },
+    ],
+  },
+  {
+    title: "Calls",
+    url: "/calls",
+    icon: Phone,
+    items: [
+      { title: "All Calls", url: "/calls" },
+      { title: "Add Call", url: "/calls/new" },
     ],
   },
   {

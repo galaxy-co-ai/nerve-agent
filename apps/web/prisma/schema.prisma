@@ -52,6 +52,7 @@ model Project {
   name              String
   slug              String        @unique
   clientName        String
+  clientEmail       String?
   description       String?
 
   // Status
@@ -81,6 +82,8 @@ model Project {
   libraryItems      LibraryItem[]
   notes             Note[]
   portalFeedback    PortalFeedback[]
+  calls             Call[]
+  portalMagicLinks  PortalMagicLink[]
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -398,6 +401,69 @@ enum FeedbackStatus {
   NEW
   ACKNOWLEDGED
   RESOLVED
+}
+
+// ============================================================================
+// Portal Magic Links - Client Authentication
+// ============================================================================
+
+model PortalMagicLink {
+  id          String    @id @default(cuid())
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  email       String
+  token       String    @unique
+  expiresAt   DateTime
+  usedAt      DateTime?
+
+  createdAt   DateTime  @default(now())
+
+  @@index([projectId])
+  @@index([email])
+  @@index([token])
+}
+
+// ============================================================================
+// Call Intelligence - Call Transcripts and Briefs
+// ============================================================================
+
+model Call {
+  id            String        @id @default(cuid())
+  userId        String
+  projectId     String
+  project       Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Basic info
+  title         String
+  callDate      DateTime
+  participants  String?       // Comma-separated names
+
+  // Content
+  transcript    String        @db.Text
+
+  // AI-processed fields
+  summary       String?       @db.Text
+  actionItems   Json          @default("[]")  // Array of {text, assignedTo, dueDate?}
+  decisions     Json          @default("[]")  // Array of {text, decidedBy}
+  sentiment     CallSentiment?
+
+  // Sharing
+  briefShared   Boolean       @default(false)
+  briefToken    String?       @unique         // For shareable link
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([callDate])
+}
+
+enum CallSentiment {
+  POSITIVE
+  NEUTRAL
+  CONCERNED
 }
 
 // ============================================================================

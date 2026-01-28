@@ -12,11 +12,18 @@ function generateSlug(name: string): string {
     .replace(/(^-|-$)/g, "")
 }
 
+function generatePortalToken(): string {
+  const array = new Uint8Array(16)
+  crypto.getRandomValues(array)
+  return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join("")
+}
+
 export async function createProject(formData: FormData) {
   const user = await requireUser()
 
   const name = formData.get("name") as string
   const clientName = formData.get("clientName") as string
+  const clientEmail = formData.get("clientEmail") as string | null
   const description = formData.get("description") as string | null
   const hourlyRate = formData.get("hourlyRate") as string | null
   const contractValue = formData.get("contractValue") as string | null
@@ -35,15 +42,20 @@ export async function createProject(formData: FormData) {
     counter++
   }
 
+  // Generate portal token for client access
+  const portalToken = generatePortalToken()
+
   const project = await db.project.create({
     data: {
       userId: user.id,
       name,
       slug,
       clientName,
+      clientEmail: clientEmail || null,
       description: description || null,
       hourlyRate: hourlyRate ? parseFloat(hourlyRate) : null,
       contractValue: contractValue ? parseFloat(contractValue) : null,
+      portalToken,
     },
   })
 
@@ -56,6 +68,7 @@ export async function updateProject(slug: string, formData: FormData) {
 
   const name = formData.get("name") as string
   const clientName = formData.get("clientName") as string
+  const clientEmail = formData.get("clientEmail") as string | null
   const description = formData.get("description") as string | null
   const hourlyRate = formData.get("hourlyRate") as string | null
   const contractValue = formData.get("contractValue") as string | null
@@ -69,15 +82,20 @@ export async function updateProject(slug: string, formData: FormData) {
     throw new Error("Project not found")
   }
 
+  // Generate portal token if not exists
+  const portalToken = project.portalToken || generatePortalToken()
+
   await db.project.update({
     where: { id: project.id },
     data: {
       name: name || project.name,
       clientName: clientName || project.clientName,
+      clientEmail: clientEmail ?? project.clientEmail,
       description: description ?? project.description,
       hourlyRate: hourlyRate ? parseFloat(hourlyRate) : project.hourlyRate,
       contractValue: contractValue ? parseFloat(contractValue) : project.contractValue,
       status: status as any || project.status,
+      portalToken,
     },
   })
 

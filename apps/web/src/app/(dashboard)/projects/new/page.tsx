@@ -74,6 +74,19 @@ export default function NewProjectPage() {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="clientEmail">Client Email</Label>
+                <Input
+                  id="clientEmail"
+                  name="clientEmail"
+                  type="email"
+                  placeholder="client@company.com"
+                />
+                <p className="text-xs text-muted-foreground">
+                  For portal magic link access
+                </p>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"

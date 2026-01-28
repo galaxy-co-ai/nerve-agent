@@ -10,34 +10,16 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
   Clock,
   DollarSign,
   Calendar,
-  MoreHorizontal,
-  Trash2,
   TrendingUp,
 } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 import { AddTimeEntryDialog } from "@/components/add-time-entry-dialog"
-import { deleteTimeEntry, toggleBillable } from "@/lib/actions/time"
-
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  })
-}
+import { TimeEntryRow } from "@/components/time-entry-row"
 
 function formatDuration(minutes: number): string {
   const hours = Math.floor(minutes / 60)
@@ -236,72 +218,11 @@ export default async function TimePage() {
               ) : (
                 <div className="space-y-3">
                   {todayEntries.map((entry) => (
-                    <div
+                    <TimeEntryRow
                       key={entry.id}
-                      className="flex items-center gap-3 rounded-lg border p-3"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <Link
-                            href={`/projects/${entry.project.slug}`}
-                            className="font-medium hover:underline truncate"
-                          >
-                            {entry.project.name}
-                          </Link>
-                          {entry.billable && (
-                            <Badge variant="outline" className="text-xs">
-                              billable
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <span>
-                            {formatTime(entry.startTime)} – {entry.endTime ? formatTime(entry.endTime) : "now"}
-                          </span>
-                          {entry.task && (
-                            <>
-                              <span>·</span>
-                              <span className="truncate">{entry.task.title}</span>
-                            </>
-                          )}
-                        </div>
-                        {entry.description && (
-                          <p className="text-sm text-muted-foreground mt-1 truncate">
-                            {entry.description}
-                          </p>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        <div className="font-medium">{formatDuration(entry.durationMinutes)}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {entry.source.toLowerCase()}
-                        </div>
-                      </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <form action={toggleBillable.bind(null, entry.id)}>
-                            <DropdownMenuItem asChild>
-                              <button type="submit" className="w-full cursor-pointer">
-                                {entry.billable ? "Mark Non-Billable" : "Mark Billable"}
-                              </button>
-                            </DropdownMenuItem>
-                          </form>
-                          <form action={deleteTimeEntry.bind(null, entry.id)}>
-                            <DropdownMenuItem asChild>
-                              <button type="submit" className="w-full cursor-pointer text-red-500">
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                              </button>
-                            </DropdownMenuItem>
-                          </form>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
+                      entry={entry}
+                      projects={projects}
+                    />
                   ))}
                 </div>
               )}
