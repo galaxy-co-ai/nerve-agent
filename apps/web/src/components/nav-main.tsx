@@ -47,6 +47,7 @@ const navMain = [
       { title: "All Projects", url: "/projects" },
       { title: "Active", url: "/projects?status=active" },
       { title: "Planning", url: "/projects?status=planning" },
+      { title: "Import", url: "/projects/import" },
     ],
   },
   {
@@ -70,13 +71,13 @@ const navMain = [
     ],
   },
   {
-    title: "Vault",
-    url: "/vault",
+    title: "Library",
+    url: "/library",
     icon: Code2,
     items: [
-      { title: "Blocks", url: "/vault/blocks" },
-      { title: "Patterns", url: "/vault/patterns" },
-      { title: "Queries", url: "/vault/queries" },
+      { title: "Blocks", url: "/library/blocks" },
+      { title: "Patterns", url: "/library/patterns" },
+      { title: "Queries", url: "/library/queries" },
     ],
   },
   {

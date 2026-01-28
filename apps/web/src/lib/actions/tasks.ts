@@ -167,6 +167,12 @@ export async function updateTaskStatus(taskId: string, status: string) {
   revalidatePath(`/projects/${projectSlug}`)
   revalidatePath(`/projects/${projectSlug}/sprints/${sprintNumber}`)
   revalidatePath("/sprints")
+  revalidatePath("/dashboard")
+}
+
+// Quick complete helper
+export async function completeTask(taskId: string) {
+  return updateTaskStatus(taskId, "COMPLETED")
 }
 
 export async function deleteTask(taskId: string) {

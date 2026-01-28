@@ -1,11 +1,14 @@
 export const dynamic = "force-dynamic"
 
 import { AppSidebar } from "@/components/app-sidebar"
+import { ClaudeChat } from "@/components/claude-chat"
+import { CommandPalette } from "@/components/command-palette"
 import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import { syncUser } from "@/lib/auth"
+import { syncUser, requireUser } from "@/lib/auth"
+import { db } from "@/lib/db"
 
 export default async function DashboardLayout({
   children,
@@ -14,6 +17,23 @@ export default async function DashboardLayout({
 }) {
   // Sync user on dashboard access
   await syncUser()
+  const user = await requireUser()
+
+  // Fetch data for command palette search
+  const [projects, notes] = await Promise.all([
+    db.project.findMany({
+      where: { userId: user.id },
+      orderBy: { updatedAt: "desc" },
+      select: { id: true, name: true, slug: true },
+      take: 10,
+    }),
+    db.note.findMany({
+      where: { userId: user.id },
+      orderBy: { updatedAt: "desc" },
+      select: { id: true, title: true, slug: true },
+      take: 10,
+    }),
+  ])
 
   return (
     <SidebarProvider>
@@ -21,6 +41,8 @@ export default async function DashboardLayout({
       <SidebarInset>
         {children}
       </SidebarInset>
+      <ClaudeChat />
+      <CommandPalette projects={projects} notes={notes} />
     </SidebarProvider>
   )
 }

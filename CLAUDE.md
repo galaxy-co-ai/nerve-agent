@@ -34,7 +34,7 @@ nerve-agent/
 │   ├── 03-time-tracking.md     # Passive screen-based tracking
 │   ├── 04-agent-actions.md     # AI automation for setup tasks
 │   ├── 05-call-intelligence.md # Transcript → brief + actions
-│   ├── 06-vault.md             # Reusable code knowledge base
+│   ├── 06-library.md           # Reusable code library
 │   ├── 07-ui-library.md        # Living shadcn component library
 │   ├── 08-feedback-loop.md     # Quality tracking + prevention
 │   ├── 09-client-portal.md     # Auto-generated client portals
@@ -90,8 +90,8 @@ Pre-planned sprints generated from planning docs. Features:
 - Agent-able tasks (AI can execute setup/config automatically)
 - Passive time tracking via desktop app
 
-### The Vault
-Personal knowledge base of reusable code:
+### Library
+Personal library of reusable code:
 - Blocks (large implementations like auth flows)
 - Patterns (smaller code patterns)
 - Features (complete features)

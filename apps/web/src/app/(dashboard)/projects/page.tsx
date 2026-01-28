@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Plus, FolderKanban } from "lucide-react"
+import { Plus, FolderKanban, Upload } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 
@@ -59,7 +59,13 @@ export default async function ProjectsPage() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <div className="ml-auto">
+        <div className="ml-auto flex gap-2">
+          <Button asChild size="sm" variant="outline">
+            <Link href="/projects/import">
+              <Upload className="mr-2 h-4 w-4" />
+              Import
+            </Link>
+          </Button>
           <Button asChild size="sm">
             <Link href="/projects/new">
               <Plus className="mr-2 h-4 w-4" />
@@ -85,12 +91,20 @@ export default async function ProjectsPage() {
               <p className="text-muted-foreground text-sm mb-4 text-center max-w-sm">
                 Create your first project to start tracking time, managing sprints, and organizing your work.
               </p>
-              <Button asChild>
-                <Link href="/projects/new">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Project
-                </Link>
-              </Button>
+              <div className="flex gap-2">
+                <Button asChild variant="outline">
+                  <Link href="/projects/import">
+                    <Upload className="mr-2 h-4 w-4" />
+                    Import Codebase
+                  </Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/projects/new">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Create Project
+                  </Link>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ) : (

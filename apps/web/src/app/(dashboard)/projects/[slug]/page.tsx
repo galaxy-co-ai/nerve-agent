@@ -41,6 +41,7 @@ import { updateProjectStatus, deleteProject } from "@/lib/actions/projects"
 import { resolveBlocker, deleteBlocker } from "@/lib/actions/blockers"
 import { AddSprintDialog } from "@/components/add-sprint-dialog"
 import { AddBlockerDialog } from "@/components/add-blocker-dialog"
+import { PortalSettings } from "@/components/portal-settings"
 
 const statusColors: Record<string, string> = {
   PLANNING: "bg-blue-500/10 text-blue-500 border-blue-500/20",
@@ -371,6 +372,14 @@ export default async function ProjectPage({ params }: PageProps) {
             </CardContent>
           </Card>
         </div>
+
+        {/* Client Portal Settings */}
+        <PortalSettings
+          projectSlug={slug}
+          portalEnabled={project.portalEnabled}
+          portalToken={project.portalToken}
+          portalLastAccess={project.portalLastAccess}
+        />
       </div>
     </>
   )

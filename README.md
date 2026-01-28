@@ -70,7 +70,7 @@ Every project flows through four phases. No skipping.
 - **Knowledge Engine** — Natural language queries across all project context
 - **Adaptive Estimation** — Learns your actual velocity over time
 
-### The Vault (Knowledge Base)
+### Library (Reusable Code)
 - **Blocks** — Large reusable code chunks (auth flows, payment integration)
 - **Patterns** — Smaller code patterns (error handling, optimistic UI)
 - **Features** — Complete features saved for future projects
@@ -172,7 +172,7 @@ nerve-agent/
 │   ├── 03-time-tracking.md
 │   ├── 04-agent-actions.md
 │   ├── 05-call-intelligence.md
-│   ├── 06-vault.md
+│   ├── 06-library.md
 │   ├── 07-ui-library.md
 │   ├── 08-feedback-loop.md
 │   ├── 09-client-portal.md

@@ -31,6 +31,9 @@ model User {
   // Relationships
   projects          Project[]
   timeEntries       TimeEntry[]
+  libraryItems      LibraryItem[]
+  libraryTags       LibraryTag[]
+  notes             Note[]
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -68,11 +71,15 @@ model Project {
 
   // Client portal
   portalEnabled     Boolean  @default(true)
+  portalToken       String?  @unique
+  portalLastAccess  DateTime?
 
   // Relationships
   sprints           Sprint[]
   blockers          Blocker[]
   timeEntries       TimeEntry[]
+  libraryItems      LibraryItem[]
+  notes             Note[]
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -285,4 +292,92 @@ enum BlockerType {
 enum BlockerStatus {
   ACTIVE
   RESOLVED
+}
+
+// ============================================================================
+// Library - Reusable Code Library
+// ============================================================================
+
+model LibraryItem {
+  id          String          @id @default(cuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Basic info
+  title       String
+  description String?
+  code        String          @db.Text
+  language    String          // "typescript", "sql", "css", etc.
+
+  // Categorization
+  type        LibraryItemType
+  tags        LibraryTag[]
+
+  // Project association (optional)
+  projectId   String?
+  project     Project?        @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  // Usage tracking
+  usageCount  Int             @default(0)
+  lastUsedAt  DateTime?
+
+  // Metadata
+  isFavorite  Boolean         @default(false)
+
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([userId])
+  @@index([type])
+  @@index([projectId])
+}
+
+enum LibraryItemType {
+  BLOCK    // Large implementations (auth flows, dashboards)
+  PATTERN  // Smaller snippets (hooks, utilities)
+  QUERY    // Database patterns
+}
+
+model LibraryTag {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  color       String        @default("#6366f1") // Indigo default
+
+  items       LibraryItem[]
+
+  createdAt   DateTime      @default(now())
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+// ============================================================================
+// Notes - Project Knowledge Capture
+// ============================================================================
+
+model Note {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Basic info
+  title       String
+  content     String    @db.Text
+  slug        String
+
+  // Project association (optional)
+  projectId   String?
+  project     Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  // Organization
+  isPinned    Boolean   @default(false)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([userId, slug])
+  @@index([userId])
+  @@index([projectId])
 }

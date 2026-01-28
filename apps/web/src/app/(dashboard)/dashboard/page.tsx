@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Clock, AlertTriangle, Users, CheckCircle2, Zap, Plus, ArrowRight } from "lucide-react"
+import { Clock, AlertTriangle, Users, CheckCircle2, Zap, Plus, ArrowRight, FileText, Code2 } from "lucide-react"
+import { CompleteTaskButton } from "@/components/complete-task-button"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 
@@ -160,7 +161,16 @@ export default async function DashboardPage() {
             <h1 className="text-2xl font-bold tracking-tight">
               {getGreeting()}, {user.name?.split(" ")[0] || "there"}
             </h1>
-            <p className="text-muted-foreground">Here's what needs your attention today.</p>
+            <p className="text-muted-foreground">
+              Here's what needs your attention today.{" "}
+              <span className="hidden sm:inline">
+                Press{" "}
+                <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                  <span className="text-xs">⌘</span>K
+                </kbd>{" "}
+                to jump anywhere.
+              </span>
+            </p>
           </div>
           <Button asChild>
             <Link href="/projects/new">
@@ -236,8 +246,8 @@ export default async function DashboardPage() {
             <CardContent>
               {inProgressTask ? (
                 <div className="rounded-lg border p-4">
-                  <div className="flex items-start justify-between">
-                    <div>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
                       <h3 className="font-medium">{inProgressTask.title}</h3>
                       <p className="text-sm text-muted-foreground mt-1">
                         {inProgressTask.sprint.project.name} &middot; Sprint {inProgressTask.sprint.number}
@@ -248,11 +258,14 @@ export default async function DashboardPage() {
                         </p>
                       )}
                     </div>
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={`/projects/${inProgressTask.sprint.project.slug}`}>
-                        View <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </Button>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <CompleteTaskButton taskId={inProgressTask.id} />
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={`/projects/${inProgressTask.sprint.project.slug}`}>
+                          View <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ) : (
@@ -345,9 +358,15 @@ export default async function DashboardPage() {
                   </Link>
                 </Button>
                 <Button variant="outline" asChild className="justify-start">
-                  <Link href="/projects">
-                    <AlertTriangle className="mr-2 h-4 w-4" />
-                    Manage Blockers
+                  <Link href="/notes">
+                    <FileText className="mr-2 h-4 w-4" />
+                    New Note
+                  </Link>
+                </Button>
+                <Button variant="outline" asChild className="justify-start">
+                  <Link href="/library">
+                    <Code2 className="mr-2 h-4 w-4" />
+                    Browse Library
                   </Link>
                 </Button>
               </div>
