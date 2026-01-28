@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import Link from "next/link"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
@@ -11,25 +13,15 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
   AlertTriangle,
   Users,
   Clock,
-  MoreHorizontal,
-  CheckCircle2,
   MessageSquare,
 } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
-import { resolveBlocker, deleteBlocker, recordFollowUp } from "@/lib/actions/blockers"
+import { BlockerActions } from "@/components/blocker-actions"
 
 function formatAge(date: Date): string {
   const now = new Date()
@@ -160,7 +152,33 @@ export default async function BlockersPage() {
               ) : (
                 <div className="space-y-3">
                   {clientBlockers.map((blocker) => (
-                    <BlockerItem key={blocker.id} blocker={blocker} />
+                    <div key={blocker.id} className="flex items-start gap-3 rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium">{blocker.title}</div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Link href={`/projects/${blocker.project.slug}`} className="hover:underline">
+                            {blocker.project.name}
+                          </Link>
+                          <span>·</span>
+                          <span>{formatAge(blocker.createdAt)}</span>
+                          {blocker.followUpCount > 0 && (
+                            <>
+                              <span>·</span>
+                              <span className="flex items-center gap-1">
+                                <MessageSquare className="h-3 w-3" />
+                                {blocker.followUpCount} follow-ups
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="border-yellow-500/20 text-yellow-500">
+                          {blocker.type.toLowerCase()}
+                        </Badge>
+                        <BlockerActions blockerId={blocker.id} />
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}
@@ -184,7 +202,33 @@ export default async function BlockersPage() {
               ) : (
                 <div className="space-y-3">
                   {[...selfBlockers, ...thirdPartyBlockers].map((blocker) => (
-                    <BlockerItem key={blocker.id} blocker={blocker} />
+                    <div key={blocker.id} className="flex items-start gap-3 rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium">{blocker.title}</div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Link href={`/projects/${blocker.project.slug}`} className="hover:underline">
+                            {blocker.project.name}
+                          </Link>
+                          <span>·</span>
+                          <span>{formatAge(blocker.createdAt)}</span>
+                          {blocker.followUpCount > 0 && (
+                            <>
+                              <span>·</span>
+                              <span className="flex items-center gap-1">
+                                <MessageSquare className="h-3 w-3" />
+                                {blocker.followUpCount} follow-ups
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="border-yellow-500/20 text-yellow-500">
+                          {blocker.type.toLowerCase()}
+                        </Badge>
+                        <BlockerActions blockerId={blocker.id} />
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}
@@ -193,69 +237,5 @@ export default async function BlockersPage() {
         </div>
       </div>
     </>
-  )
-}
-
-function BlockerItem({ blocker }: { blocker: any }) {
-  return (
-    <div className="flex items-start gap-3 rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-3">
-      <div className="flex-1 min-w-0">
-        <div className="font-medium">{blocker.title}</div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Link href={`/projects/${blocker.project.slug}`} className="hover:underline">
-            {blocker.project.name}
-          </Link>
-          <span>·</span>
-          <span>{formatAge(blocker.createdAt)}</span>
-          {blocker.followUpCount > 0 && (
-            <>
-              <span>·</span>
-              <span className="flex items-center gap-1">
-                <MessageSquare className="h-3 w-3" />
-                {blocker.followUpCount} follow-ups
-              </span>
-            </>
-          )}
-        </div>
-      </div>
-      <div className="flex items-center gap-2">
-        <Badge variant="outline" className="border-yellow-500/20 text-yellow-500">
-          {blocker.type.toLowerCase()}
-        </Badge>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <form action={recordFollowUp.bind(null, blocker.id)}>
-              <DropdownMenuItem asChild>
-                <button type="submit" className="w-full cursor-pointer">
-                  <MessageSquare className="mr-2 h-4 w-4" />
-                  Record Follow-up
-                </button>
-              </DropdownMenuItem>
-            </form>
-            <form action={resolveBlocker.bind(null, blocker.id)}>
-              <DropdownMenuItem asChild>
-                <button type="submit" className="w-full cursor-pointer">
-                  <CheckCircle2 className="mr-2 h-4 w-4" />
-                  Mark Resolved
-                </button>
-              </DropdownMenuItem>
-            </form>
-            <DropdownMenuSeparator />
-            <form action={deleteBlocker.bind(null, blocker.id)}>
-              <DropdownMenuItem asChild>
-                <button type="submit" className="w-full cursor-pointer text-red-500">
-                  Delete
-                </button>
-              </DropdownMenuItem>
-            </form>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </div>
   )
 }
