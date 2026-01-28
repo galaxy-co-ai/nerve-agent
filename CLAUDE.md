@@ -4,7 +4,7 @@
 
 **NERVE AGENT** is a project operating system for solo developers/designers. It's an opinionated framework (not a flexible tool) that combines project management, time tracking, client portals, code intelligence, and more into a single application.
 
-This is currently in the **specification phase**. No code has been written yet—all files in `/specs` and `/docs` are design documents.
+This is currently in **early development**. All specifications are complete and the Next.js codebase has been scaffolded with a living backlog page to track progress.
 
 ## Repository Structure
 
@@ -12,6 +12,18 @@ This is currently in the **specification phase**. No code has been written yet�
 nerve-agent/
 ├── CLAUDE.md              # This file
 ├── README.md              # Project overview and philosophy
+├── apps/
+│   └── web/               # Next.js 15 web application
+│       ├── package.json
+│       ├── tsconfig.json
+│       ├── tailwind.config.ts
+│       ├── next.config.ts
+│       └── src/app/
+│           ├── page.tsx           # Landing page
+│           ├── layout.tsx         # Root layout
+│           ├── globals.css        # Global styles (dark mode)
+│           └── backlog/
+│               └── page.tsx       # LIVING BACKLOG (delete when done)
 ├── docs/
 │   ├── VISION.md          # Full product vision and user experience
 │   ├── ARCHITECTURE.md    # Tech stack and system architecture
@@ -126,8 +138,20 @@ Morning command center showing:
 
 ## Current Status
 
-**Phase:** Specification
-**Next:** Implementation planning, then Sprint 1 development
+**Phase:** Early Development
+**Completed:**
+- All 16 module specifications
+- Data models (Prisma schema spec)
+- Vision, Architecture, User Flows documentation
+- Next.js 15 project scaffolding
+- Living backlog page at /backlog
+- GitHub repository (github.com/galaxy-co-ai/nerve-agent)
+
+**Next:**
+1. Manual Vercel setup (import from GitHub, root dir: apps/web)
+2. Install dependencies locally (`npm install` in apps/web)
+3. Foundation: Prisma, Clerk, shadcn/ui, Claude API, base layout
+4. Phase 1: Daily Driver, Projects, Sprint Stack, Time Tracking
 
 ## Questions to Consider
 

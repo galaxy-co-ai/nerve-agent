@@ -358,8 +358,8 @@ const foundationTasks: Task[] = [
   { id: "f-3", title: "Install and configure shadcn/ui", status: "not-started" },
   { id: "f-4", title: "Set up Claude API integration", status: "not-started" },
   { id: "f-5", title: "Create base layout with navigation", status: "not-started" },
-  { id: "f-6", title: "Set up Vercel deployment", status: "in-progress", notes: "Creating project now" },
-  { id: "f-7", title: "Create GitHub repository", status: "in-progress", notes: "Creating repo now" },
+  { id: "f-6", title: "Set up Vercel deployment", status: "in-progress", notes: "Manual setup needed - import from GitHub" },
+  { id: "f-7", title: "Create GitHub repository", status: "done", notes: "github.com/galaxy-co-ai/nerve-agent" },
 ];
 
 function StatusIcon({ status }: { status: Status }) {
