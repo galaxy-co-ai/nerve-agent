@@ -83,6 +83,7 @@ export async function updateProject(slug: string, formData: FormData) {
 
   revalidatePath("/projects")
   revalidatePath(`/projects/${slug}`)
+  redirect(`/projects/${slug}`)
 }
 
 export async function deleteProject(slug: string) {
