@@ -121,15 +121,16 @@ export default async function DashboardPage() {
     },
   })
 
-  // For insights: overdue blockers (nextFollowUp in the past)
+  // For insights: old active blockers that may need follow-up (created > 3 days ago)
+  const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
   const overdueBlockersPromise = db.blocker.findMany({
     where: {
       status: "ACTIVE",
-      nextFollowUp: { lt: new Date() },
+      createdAt: { lt: threeDaysAgo },
       project: { userId: user.id },
     },
     take: 3,
-    orderBy: { nextFollowUp: "asc" },
+    orderBy: { createdAt: "asc" },
     include: {
       project: { select: { name: true } },
     },

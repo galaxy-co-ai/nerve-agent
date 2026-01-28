@@ -48,14 +48,15 @@ export function DashboardInsights({
     })
   }
 
-  // Action: Overdue blocker follow-ups
+  // Action: Old blockers that may need follow-up
   if (overdueBlockers.length > 0) {
     const first = overdueBlockers[0]
+    const desc = first.description || first.projectName
     insights.push({
       type: "action",
       icon: <Bell className="h-4 w-4" />,
-      title: "Blocker needs follow-up",
-      description: `"${first.description.slice(0, 50)}${first.description.length > 50 ? "..." : ""}" on ${first.projectName}`,
+      title: "Old blocker needs attention",
+      description: `"${desc.slice(0, 50)}${desc.length > 50 ? "..." : ""}" on ${first.projectName}`,
       action: {
         label: "View blockers",
         href: "/dashboard/blockers",
