@@ -18,7 +18,7 @@ interface Insight {
 interface DashboardInsightsProps {
   inProgressTaskCount: number
   activeBlockers: number
-  overdueBlockers: { id: string; description: string; projectName: string }[]
+  overdueBlockers: { id: string; description: string | null; projectName: string }[]
   totalMinutesToday: number
   dailyTarget?: number // in minutes, default 8 hours = 480
   completedToday: number

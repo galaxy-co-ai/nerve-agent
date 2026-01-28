@@ -1,0 +1,26 @@
+#!/bin/sh
+# Pre-push hook: Validate before pushing to prevent Vercel build failures
+
+echo "Running pre-push validation..."
+echo ""
+
+cd apps/web
+
+echo "[1/2] TypeScript check..."
+npx tsc --noEmit
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "TypeScript check failed. Push aborted."
+    exit 1
+fi
+
+echo "[2/2] Production build..."
+npm run build
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "Build failed. Push aborted."
+    exit 1
+fi
+
+echo ""
+echo "Validation passed. Proceeding with push."

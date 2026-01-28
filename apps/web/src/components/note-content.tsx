@@ -1,5 +1,6 @@
 "use client"
 
+import { JSX } from "react"
 import Link from "next/link"
 import { FileText } from "lucide-react"
 

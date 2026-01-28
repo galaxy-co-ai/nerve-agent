@@ -7,7 +7,10 @@
     "build": "prisma generate && next build",
     "postinstall": "prisma generate",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "npx tsc --noEmit",
+    "validate": "npm run typecheck && npm run build",
+    "validate:quick": "npm run typecheck"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",

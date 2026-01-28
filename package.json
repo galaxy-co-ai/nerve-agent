@@ -1,0 +1,16 @@
+{
+  "name": "nerve-agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Project operating system for solo developers",
+  "scripts": {
+    "dev": "cd apps/web && npm run dev",
+    "build": "cd apps/web && npm run build",
+    "validate": "cd apps/web && npm run validate",
+    "validate:quick": "cd apps/web && npm run typecheck",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}

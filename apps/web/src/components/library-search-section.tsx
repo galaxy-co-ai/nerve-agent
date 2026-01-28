@@ -22,7 +22,7 @@ interface LibraryItem {
   createdAt: Date
   updatedAt: Date
   tags: { id: string; name: string; color: string }[]
-  project: { id: string; name: string } | null
+  project: { id: string; name: string; slug: string } | null
 }
 
 interface LibrarySearchSectionProps {

@@ -136,6 +136,32 @@ Morning command center showing:
 - Tailwind for styling
 - Zod for validation
 
+### Quality Control (IMPORTANT)
+A Husky pre-push hook runs validation automatically before each push. To run manually:
+
+```bash
+# From apps/web:
+npm run validate        # Full validation (tsc + build)
+npm run validate:quick  # TypeScript only
+
+# From root:
+npm run validate        # Runs validation in apps/web
+scripts/validate.bat    # Windows batch script
+```
+
+**Before pushing, ensure:**
+1. TypeScript compiles: `npm run typecheck`
+2. Production build succeeds: `npm run build`
+3. New dependencies added to `package.json` (not just installed)
+4. New UI components exist in `src/components/ui/`
+5. Database queries only use fields in `prisma/schema.prisma`
+
+**Common issues that break Vercel builds:**
+- Missing Suspense boundary around `useSearchParams()` (Next.js 15 requirement)
+- Type mismatches (e.g., `string | null` vs `string`)
+- Missing dependencies in package.json
+- Querying non-existent schema fields
+
 ## Current Status
 
 **Phase:** Early Development
