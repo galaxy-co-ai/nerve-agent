@@ -12,6 +12,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Clock, AlertTriangle, Users, CheckCircle2, Zap, Plus, ArrowRight } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
+import type { Project, Task, Sprint } from "@prisma/client"
+
+// Types for query results
+type RecentProject = Project & {
+  _count: { blockers: number }
+}
+
+type InProgressTaskWithRelations = Task & {
+  sprint: Sprint & {
+    project: Project
+  }
+}
 
 function getGreeting(): string {
   const hour = new Date().getHours()
@@ -85,23 +97,22 @@ export default async function DashboardPage() {
     },
   })
 
-  // Execute all promises in parallel, then await with proper types
-  await Promise.all([
+  // Execute all promises in parallel with explicit types
+  const [
+    timeEntriesToday,
+    activeBlockers,
+    clientBlockers,
+    completedTasksToday,
+    inProgressTask,
+    recentProjects,
+  ] = await Promise.all([
     timeEntriesTodayPromise,
     activeBlockersPromise,
     clientBlockersPromise,
     completedTasksTodayPromise,
-    inProgressTaskPromise,
-    recentProjectsPromise,
+    inProgressTaskPromise as Promise<InProgressTaskWithRelations | null>,
+    recentProjectsPromise as Promise<RecentProject[]>,
   ])
-
-  // Get results with preserved types
-  const timeEntriesToday = await timeEntriesTodayPromise
-  const activeBlockers = await activeBlockersPromise
-  const clientBlockers = await clientBlockersPromise
-  const completedTasksToday = await completedTasksTodayPromise
-  const inProgressTask = await inProgressTaskPromise
-  const recentProjects = await recentProjectsPromise
 
   const totalMinutes = timeEntriesToday._sum.durationMinutes || 0
   const hours = Math.floor(totalMinutes / 60)
