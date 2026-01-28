@@ -32,6 +32,12 @@ interface ProcessedCallData {
   actionItems: Array<{ text: string; assignedTo: string; dueDate?: string }>
   decisions: Array<{ text: string; decidedBy: string }>
   sentiment: "POSITIVE" | "NEUTRAL" | "CONCERNED"
+  followUps?: Array<{
+    title: string
+    description?: string
+    sourceQuote?: string
+    dueDate?: string
+  }>
 }
 
 export function NewCallForm({ projects }: NewCallFormProps) {
@@ -226,6 +232,38 @@ export function NewCallForm({ projects }: NewCallFormProps) {
                       <p className="text-xs text-muted-foreground mt-1">
                         Decided by: {decision.decidedBy}
                       </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Follow-ups */}
+            {processedData.followUps && processedData.followUps.length > 0 && (
+              <div className="space-y-2">
+                <Label>Follow-ups ({processedData.followUps.length})</Label>
+                <p className="text-xs text-muted-foreground">
+                  These will be added as suggested follow-ups you can accept or dismiss
+                </p>
+                <div className="rounded-lg border divide-y">
+                  {processedData.followUps.map((followUp, i) => (
+                    <div key={i} className="p-3">
+                      <p className="text-sm font-medium">{followUp.title}</p>
+                      {followUp.description && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {followUp.description}
+                        </p>
+                      )}
+                      {followUp.sourceQuote && (
+                        <p className="text-xs text-muted-foreground mt-2 italic border-l-2 pl-2">
+                          &ldquo;{followUp.sourceQuote}&rdquo;
+                        </p>
+                      )}
+                      {followUp.dueDate && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Due: {followUp.dueDate}
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>

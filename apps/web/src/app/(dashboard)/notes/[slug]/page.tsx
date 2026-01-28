@@ -63,8 +63,8 @@ export default async function NotePage({ params }: PageProps) {
   // Find outgoing links - notes this note links to
   const outgoingLinks: typeof allNotes = []
   const wikiLinkPattern = /\[\[([^\]]+)\]\]/g
-  let match
-  while ((match = wikiLinkPattern.exec(note.content)) !== null) {
+  const wikiMatches = note.content.matchAll(wikiLinkPattern)
+  for (const match of wikiMatches) {
     const linkedNote = allNotes.find(
       (n) => n.title.toLowerCase() === match[1].toLowerCase() && n.id !== note.id
     )

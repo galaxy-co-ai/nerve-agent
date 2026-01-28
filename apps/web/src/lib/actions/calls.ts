@@ -5,12 +5,19 @@ import { redirect } from "next/navigation"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 import { CallSentiment } from "@prisma/client"
+import { createFollowUpsFromCall } from "./follow-ups"
 
 interface ProcessedCallData {
   summary: string
   actionItems: Array<{ text: string; assignedTo: string; dueDate?: string }>
   decisions: Array<{ text: string; decidedBy: string }>
   sentiment: CallSentiment
+  followUps?: Array<{
+    title: string
+    description?: string
+    sourceQuote?: string
+    dueDate?: string
+  }>
 }
 
 export async function createCall(
@@ -52,6 +59,11 @@ export async function createCall(
       sentiment: processedData?.sentiment || null,
     },
   })
+
+  // Create AI-suggested follow-ups if present
+  if (processedData?.followUps && processedData.followUps.length > 0) {
+    await createFollowUpsFromCall(call.id, projectId, processedData.followUps)
+  }
 
   revalidatePath("/calls")
   revalidatePath(`/projects/${project.slug}`)

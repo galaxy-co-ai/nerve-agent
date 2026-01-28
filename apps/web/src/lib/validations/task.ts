@@ -1,13 +1,19 @@
 import { z } from "zod"
 
+// Helper to coerce null/undefined to empty string for FormData inputs
+const formString = z.preprocess(
+  (val) => (val === null || val === undefined ? "" : val),
+  z.string()
+)
+
 export const createTaskSchema = z.object({
-  title: z.string().min(1, "Title is required").max(200, "Title too long"),
-  description: z.string().max(2000, "Description too long").optional(),
+  title: formString.pipe(z.string().min(1, "Title is required").max(200, "Title too long")),
+  description: formString.pipe(z.string().max(2000, "Description too long")).optional(),
   estimatedHours: z.coerce
-    .number({ invalid_type_error: "Must be a number" })
-    .positive("Must be positive")
+    .number({ invalid_type_error: "Estimated hours must be a number" })
+    .positive("Estimated hours must be positive")
     .max(1000, "Estimate too high"),
-  category: z.string().max(50).optional(),
+  category: formString.pipe(z.string().max(50)).optional(),
 })
 
 export const updateTaskSchema = z.object({

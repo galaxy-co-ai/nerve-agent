@@ -47,7 +47,7 @@ describe("tasks actions", () => {
       formData.set("estimatedHours", "4")
 
       await expect(createTask("test-project", 1, formData)).rejects.toThrow(
-        "Title and estimated hours are required"
+        "Title is required"
       )
     })
 

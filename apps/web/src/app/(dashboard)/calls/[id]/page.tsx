@@ -24,6 +24,7 @@ import {
   CheckCircle,
   ListTodo,
   FileText,
+  Clock,
 } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
@@ -66,12 +67,20 @@ export default async function CallPage({ params }: CallPageProps) {
     where: { id },
     include: {
       project: { select: { name: true, slug: true, clientName: true } },
+      followUps: {
+        orderBy: { createdAt: "desc" },
+      },
     },
   })
 
   if (!call || call.userId !== user.id) {
     notFound()
   }
+
+  const suggestedFollowUps = call.followUps.filter((f) => f.status === "SUGGESTED")
+  const activeFollowUps = call.followUps.filter((f) =>
+    f.status === "SCHEDULED" || f.status === "PENDING"
+  )
 
   const actionItems = call.actionItems as Array<{
     text: string
@@ -280,6 +289,76 @@ export default async function CallPage({ params }: CallPageProps) {
               </CardContent>
             </Card>
 
+            {/* Follow-ups */}
+            {(suggestedFollowUps.length > 0 || activeFollowUps.length > 0) && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Clock className="h-5 w-5" />
+                    Follow-ups
+                  </CardTitle>
+                  <CardDescription>
+                    {call.followUps.length} follow-up{call.followUps.length !== 1 ? "s" : ""}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Suggested Follow-ups */}
+                  {suggestedFollowUps.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                        <Badge variant="outline" className="bg-yellow-500/20 text-yellow-600 border-0">
+                          Suggested
+                        </Badge>
+                        <span className="text-muted-foreground">({suggestedFollowUps.length})</span>
+                      </h4>
+                      <div className="space-y-2">
+                        {suggestedFollowUps.map((followUp) => (
+                          <div key={followUp.id} className="text-sm rounded border p-2">
+                            <p className="font-medium">{followUp.title}</p>
+                            {followUp.sourceQuote && (
+                              <p className="text-xs text-muted-foreground mt-1 italic">
+                                &ldquo;{followUp.sourceQuote}&rdquo;
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      <Link
+                        href="/dashboard/follow-ups"
+                        className="text-xs text-primary hover:underline mt-2 inline-block"
+                      >
+                        Manage in Follow-ups
+                      </Link>
+                    </div>
+                  )}
+
+                  {/* Active Follow-ups */}
+                  {activeFollowUps.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                        <Badge variant="outline" className="bg-blue-500/20 text-blue-500 border-0">
+                          Active
+                        </Badge>
+                        <span className="text-muted-foreground">({activeFollowUps.length})</span>
+                      </h4>
+                      <div className="space-y-2">
+                        {activeFollowUps.map((followUp) => (
+                          <div key={followUp.id} className="text-sm rounded border p-2">
+                            <p className="font-medium">{followUp.title}</p>
+                            {followUp.dueDate && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Due: {format(followUp.dueDate, "MMM d, yyyy")}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
             {/* Quick Stats */}
             <Card>
               <CardHeader>
@@ -298,6 +377,10 @@ export default async function CallPage({ params }: CallPageProps) {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Client Actions</span>
                     <span className="font-medium">{clientActions.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Follow-ups</span>
+                    <span className="font-medium">{call.followUps.length}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Brief Shared</span>

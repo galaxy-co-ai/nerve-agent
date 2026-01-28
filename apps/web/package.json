@@ -45,11 +45,12 @@
     "next": "^15.5.10",
     "prisma": "^7.3.0",
     "react": "^19.0.0",
+    "react-day-picker": "^9.13.0",
     "react-dom": "^19.0.0",
     "reactflow": "^11.11.4",
-    "zod": "^3.24.2",
     "tailwind-merge": "^2.6.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
