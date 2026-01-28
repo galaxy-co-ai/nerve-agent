@@ -4,7 +4,7 @@ import { requireUser } from "@/lib/auth"
 
 const anthropic = new Anthropic()
 
-type WritingAction = "continue" | "brainstorm" | "expand" | "summarize" | "rewrite" | "suggest-tags"
+type WritingAction = "continue" | "brainstorm" | "expand" | "summarize" | "rewrite" | "suggest-tags" | "generate-title"
 
 interface WritingRequest {
   action: WritingAction
@@ -40,6 +40,11 @@ No preamble - just the rewritten text.`,
 Return a JSON array of 3-5 short, lowercase tag names (no # prefix).
 Consider: topics, project names, content type (meeting, idea, research, todo).
 Return ONLY the JSON array, no other text. Example: ["project-alpha", "meeting-notes", "api"]`,
+
+  "generate-title": `You are a note organization assistant. Based on the note content, generate a concise title.
+The title should be 2-4 words maximum, capturing the essence of the note.
+Use title case. Be specific and descriptive.
+Return ONLY the title, no quotes, no explanation. Examples: "API Auth Flow", "Meeting Notes", "Bug Fix Ideas"`,
 }
 
 export async function POST(request: NextRequest) {
@@ -79,6 +84,11 @@ export async function POST(request: NextRequest) {
 ${context?.projectName ? `Project: ${context.projectName}` : ""}
 
 Note content:
+${content}`
+        break
+      case "generate-title":
+        userMessage = `Generate a 2-4 word title for this note:
+
 ${content}`
         break
     }

@@ -150,7 +150,7 @@ export async function toggleNotePin(slug: string) {
 }
 
 // Quick create note from anywhere
-export async function quickCreateNote(title: string, content: string, projectId?: string) {
+export async function quickCreateNote(title: string, content: string, projectId?: string, tags?: string[]) {
   const user = await requireUser()
 
   let baseSlug = generateSlug(title)
@@ -169,6 +169,7 @@ export async function quickCreateNote(title: string, content: string, projectId?
       slug,
       content,
       projectId: projectId || null,
+      tags: tags || [],
     },
   })
 
