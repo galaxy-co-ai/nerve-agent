@@ -12,17 +12,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Clock, AlertTriangle, Users, CheckCircle2, Zap, Plus, ArrowRight } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
-import type { Project, Task, Sprint } from "@prisma/client"
 
-// Types for query results
-type RecentProject = Project & {
+// Inline types to avoid Prisma generate issues on Vercel
+type RecentProject = {
+  id: string
+  name: string
+  slug: string
+  clientName: string
   _count: { blockers: number }
-}
-
-type InProgressTaskWithRelations = Task & {
-  sprint: Sprint & {
-    project: Project
-  }
 }
 
 function getGreeting(): string {
