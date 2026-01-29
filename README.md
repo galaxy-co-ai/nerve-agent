@@ -1,22 +1,51 @@
+<div align="center">
+
 # NERVE AGENT
 
-> A project operating system for solo builders. Not a flexible tool you configure — a **framework you follow**.
+**A project operating system for solo builders.**
 
-## The Philosophy
+Not a flexible tool you configure — a framework you follow.
 
-Every PM tool is built for *teams*. They assume you need collaboration features, approval workflows, and communication overhead. But when you're solo, the bottleneck is **attention** and **context-switching**.
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black.svg)](https://nextjs.org/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-Nerve Agent is the anti-Notion. The anti-Linear. Built for the chaos of being a one-person studio where you're the strategist, designer, developer, PM, and accountant all at once.
+[Documentation](docs/) · [Report Bug](https://github.com/galaxy-co-ai/nerve-agent/issues) · [Request Feature](https://github.com/galaxy-co-ai/nerve-agent/issues)
+
+</div>
+
+---
+
+## The Problem
+
+Every PM tool is built for *teams*. They assume you need collaboration features, approval workflows, and communication overhead.
+
+But when you're solo, the bottleneck is **attention** and **context-switching**.
+
+You're the strategist, designer, developer, PM, and accountant — all at once. You don't need another tool that requires constant care and feeding.
+
+## The Solution
+
+Nerve Agent is the **anti-Notion**. The **anti-Linear**. Built for the chaos of being a one-person studio.
+
+| Traditional PM Tools | Nerve Agent |
+|---------------------|-------------|
+| Built for teams | Built for **you** |
+| You organize everything | It organizes for you |
+| Manual status updates | Auto-generated artifacts |
+| Context lives in your head | Context lives in the system |
+| Generic and flexible | Opinionated and fast |
+| Estimates are guesses | Estimates learn from history |
 
 ### Core Principles
 
 1. **Be your single pane of glass** — stop alt-tabbing between 12 apps
 2. **Think ahead for you** — surface what matters *right now*
-3. **Remember everything** — so you can context-switch fearlessly
+3. **Remember everything** — context-switch fearlessly
 4. **Automate the bullshit** — status updates, follow-ups, organization
-5. **Generate client-facing artifacts** — without you lifting a finger
-6. **Force rigorous planning** — so you never start building before you're ready
-7. **Learn from your history** — estimates improve, mistakes don't repeat
+5. **Force rigorous planning** — never start building before you're ready
+6. **Learn from your history** — estimates improve, mistakes don't repeat
 
 ---
 
@@ -37,121 +66,75 @@ Every project flows through four phases. No skipping.
 
 ---
 
-## Core Modules
+## Features
 
-### Phase 1: PLAN
-- **Planning Wizard** — Guided framework of documents, same order every project
-- **Roadmap Generation** — Auto-generated from completed planning docs
-- **Sprint Pre-Planning** — All sprints outlined before code is written
+### Daily Driver
+Morning command center showing today's focus, blockers cleared, client waiting items, and follow-up queue.
 
-### Phase 2: SPRINT
-- **Sprint Stack** — Pre-planned sprints with detailed tasks
-- **Passive Time Tracking** — Auto-tracks based on screen activity
-- **Adaptive Estimation** — AI adjusts estimates based on your historical performance
-- **Agent Actions** — AI agents execute repetitive tasks automatically
+### Sprint Stack
+Pre-planned sprints with AI-adjusted estimates based on your historical performance. Passive time tracking via companion app.
 
-### Phase 3: SHIP
-- **Deploy Pipeline** — Local → Staging → Production with one-click deploys
-- **Auto Changelog** — Generated from commits
-- **Client Notifications** — Auto-notify on preview deploys
-- **Sentry Integration** — Errors auto-create tickets
+### Notes & Writing Studio
+AI writing assistant with wiki-style `[[linking]]`, auto-tagging, and context graphs.
 
-### Phase 4: SUPPORT
-- **Feedback Loop** — Quality metrics, issue tracking, lessons learned
-- **Prevention Engine** — Pre-flight checklists generated from past bugs
-- **Client Portal** — Auto-generated progress view for clients
+### Library
+Personal library of reusable code — blocks, patterns, features, and queries saved across projects.
+
+### Client Portal
+Auto-generated progress view for clients with staging links and feedback collection.
+
+### Call Intelligence
+Drop a transcript, get a brief + action items + decisions extracted automatically.
+
+### Agent Actions
+AI agents execute repetitive setup tasks automatically.
 
 ---
 
-## Supporting Systems
+## Quick Start
 
-### Intelligence Layer
-- **Call Intelligence** — Drop transcript, get brief + action items + decisions
-- **Knowledge Engine** — Natural language queries across all project context
-- **Adaptive Estimation** — Learns your actual velocity over time
+### Prerequisites
 
-### Library (Reusable Code)
-- **Blocks** — Large reusable code chunks (auth flows, payment integration)
-- **Patterns** — Smaller code patterns (error handling, optimistic UI)
-- **Features** — Complete features saved for future projects
-- **Queries** — Database queries and patterns
+- Node.js 18+
+- PostgreSQL ([Neon](https://neon.tech) recommended)
+- [Clerk](https://clerk.com) account
+- [Anthropic](https://anthropic.com) API key
 
-### Living UI Library
-- **Component Library** — Your personal shadcn fork
-- **Polish Queue** — Track micro-improvements over time
-- **Design Tokens** — Centralized, consistent
-- **Usage Tracking** — Know which components are battle-tested
+### Installation
 
-### Tech Stack Roster
-- **Visual Grid** — Tools with actual brand logos
-- **Per-Project Customization** — Track which tools each project uses
-- **Version Tracking** — Know what versions you're running
+```bash
+# Clone the repository
+git clone https://github.com/galaxy-co-ai/nerve-agent.git
+cd nerve-agent
 
-### Financial Nerve
-- **Auto Time → Revenue** — Calculate from passive tracking
-- **Profitability Analysis** — Revenue vs. hours per project
-- **Invoice Generation** — From tracked time
-- **Payment Status** — Stripe sync
+# Install dependencies
+cd apps/web
+npm install
 
-### Client Portal (Auto-Generated)
-- **Progress View** — Pulls from Sprint Stack
-- **Pending Items** — What you're waiting on from them
-- **Staging Links** — Preview deployments
-- **Feedback Collection** — Creates tickets automatically
+# Set up environment
+cp .env.example .env.local
+# Edit .env.local with your credentials
 
-### Daily Driver
-- **Today's Focus** — Curated hit list, not everything
-- **Blockers Cleared** — Stuff that was stuck but isn't anymore
-- **Client Waiting** — Where YOU are the bottleneck
-- **Follow Up Queue** — Automated nudge system
+# Set up database
+npx prisma generate
+npx prisma db push
 
-### Notes & Writing Studio
-- **AI Writing Assistant** — Brainstorm, continue, rewrite with Claude
-- **Auto-Tagging** — AI categorizes and tags your notes automatically
-- **Wiki-Style Linking** — Connect notes with [[links]] and see backlinks
-- **Context Graph** — Visualize how your knowledge connects
+# Start development server
+npm run dev
+```
 
-### Bookmarks (Link Library)
-- **Save Anything** — Browser extension for one-click saves
-- **Auto-Organization** — AI categorizes by type, topic, and project
-- **Semantic Search** — Find links by meaning, not just keywords
-- **Reading List** — Track articles to read later
-
-### Integrated Terminal (Code Studio)
-- **Claude Code Built-In** — AI-assisted development in the browser
-- **Local File Access** — Full access to your project files
-- **Git Integration** — Commit, push, branch without leaving
-- **Vercel Deploy** — Ship to staging/production in one click
-
-### Password Manager
-- **Project-Organized** — Credentials grouped by project
-- **Zero-Knowledge Encryption** — We can't see your passwords
-- **Secure Sharing** — Share credentials with clients safely
-- **Linked to Env Vars** — Credentials connect to environment variables
-
-### Environment Variables Manager
-- **All Projects, All Envs** — Dev, staging, production in one view
-- **Vercel Sync** — Push/pull env vars to Vercel
-- **Missing Var Detection** — Know what's not set before it breaks
-- **Credential Linking** — Pull values from Password Vault
+Open [http://localhost:3000](http://localhost:3000)
 
 ---
 
 ## Tech Stack
 
 ```
-Frontend:       Next.js 15 + React 19 + shadcn/ui (Pro) + Tailwind
-Backend:        Next.js API Routes + Server Actions
-Database:       PostgreSQL (Supabase)
+Frontend:       Next.js 15 + React 19 + TypeScript
+UI:             shadcn/ui + Tailwind CSS + Framer Motion
+Database:       PostgreSQL (Neon) + Prisma ORM
 Auth:           Clerk
 AI:             Claude API (Anthropic)
-Time Tracking:  Electron companion app (screen monitoring)
-Errors:         Sentry
-Payments:       Stripe
-Analytics:      PostHog
-Realtime:       Pusher (or Supabase Realtime)
-File Storage:   Uploadthing
-Email:          Resend + React Email
 Hosting:        Vercel
 ```
 
@@ -161,59 +144,59 @@ Hosting:        Vercel
 
 ```
 nerve-agent/
-├── README.md                 # This file
-├── docs/
-│   ├── VISION.md            # Full product vision
-│   ├── ARCHITECTURE.md      # System architecture
-│   └── USER-FLOWS.md        # Key user journeys
-├── specs/
-│   ├── 01-planning-wizard.md
-│   ├── 02-sprint-stack.md
-│   ├── 03-time-tracking.md
-│   ├── 04-agent-actions.md
-│   ├── 05-call-intelligence.md
-│   ├── 06-library.md
-│   ├── 07-ui-library.md
-│   ├── 08-feedback-loop.md
-│   ├── 09-client-portal.md
-│   ├── 10-financial.md
-│   ├── 11-daily-driver.md
-│   ├── 12-notes.md
-│   ├── 13-bookmarks.md
-│   ├── 14-terminal.md
-│   ├── 15-passwords.md
-│   ├── 16-env-vars.md
-│   └── data-models.md
-└── assets/
-    └── (diagrams, mockups)
+├── apps/web/              # Next.js application
+│   ├── src/app/           # App router pages
+│   ├── src/components/    # React components
+│   ├── src/lib/           # Utilities
+│   └── prisma/            # Database schema
+├── docs/                  # Documentation
+│   ├── VISION.md          # Product vision
+│   ├── ARCHITECTURE.md    # System architecture
+│   └── USER-FLOWS.md      # User journeys
+└── specs/                 # Feature specifications (16 modules)
 ```
 
 ---
 
-## What Makes It Different
+## Roadmap
 
-| Traditional PM Tools | Nerve Agent |
-|---------------------|-------------|
-| Built for teams | Built for YOU |
-| You organize everything | It organizes for you |
-| Manual status updates | Auto-generated artifacts |
-| Context lives in your head | Context lives in the system |
-| Separate tools for everything | Single source of truth |
-| Generic and flexible | Opinionated and fast |
-| Estimates are guesses | Estimates learn from history |
-| Manual setup every project | Agents do repetitive work |
-| Bookmark toolbar chaos | Organized, searchable link library |
-| Terminal in separate window | Code Studio built into the app |
-| Passwords scattered everywhere | Project-organized credential vault |
+- [x] Core planning and project structure
+- [x] Dashboard / Daily Driver
+- [x] Notes with AI assistance
+- [x] Agent drawer with multi-LLM support
+- [ ] Sprint Stack execution
+- [ ] Time tracking integration
+- [ ] Client Portal
+- [ ] Library system
+
+See [open issues](https://github.com/galaxy-co-ai/nerve-agent/issues) for more.
 
 ---
 
-## Getting Started
+## Contributing
 
-*Coming soon — this is the specification phase.*
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
+
+```bash
+# Fork, clone, then:
+git checkout -b feature/your-feature
+# Make changes
+npm run validate  # Must pass
+git commit -m 'feat: Add your feature'
+git push origin feature/your-feature
+# Open a PR
+```
 
 ---
 
 ## License
 
-Private — Internal use only.
+MIT License. See [LICENSE](LICENSE) for details.
+
+---
+
+<div align="center">
+
+Built with obsession by [GalaxyCo.ai](https://galaxyco.ai)
+
+</div>
