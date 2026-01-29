@@ -147,8 +147,8 @@ export function OnboardingLaunchpad() {
   // Focus input when card flips to chat
   useEffect(() => {
     if (isFlipped) {
-      // Wait for flip animation to complete before focusing
-      setTimeout(() => inputRef.current?.focus(), 650)
+      // Wait for flip animation (900ms) to complete before focusing
+      setTimeout(() => inputRef.current?.focus(), 950)
     }
   }, [isFlipped])
 
@@ -172,10 +172,10 @@ export function OnboardingLaunchpad() {
       setIsFlipped(true)
     }, 50)
 
-    // Clear flipping state after animation
+    // Clear flipping state after animation (900ms)
     setTimeout(() => {
       setIsFlipping(false)
-    }, 650)
+    }, 950)
 
     const initialMessage: Message = {
       role: "assistant",
@@ -193,7 +193,7 @@ export function OnboardingLaunchpad() {
       setMessages([])
       setSelectedIdea(null)
       setProjectSlug(null)
-    }, 650)
+    }, 950)
   }
 
   const handleIdeaClick = (idea: ProjectIdea) => {
@@ -217,7 +217,7 @@ export function OnboardingLaunchpad() {
 
     setTimeout(() => {
       setIsFlipping(false)
-    }, 650)
+    }, 950)
 
     const initialMessage: Message = {
       role: "assistant",
