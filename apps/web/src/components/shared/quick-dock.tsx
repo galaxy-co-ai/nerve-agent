@@ -8,7 +8,7 @@ import {
   Link2,
   FileUp,
   Search,
-  Sparkles,
+  Command,
 } from "lucide-react"
 import { FloatingDock, type DockItemConfig } from "./floating-dock"
 
@@ -87,10 +87,14 @@ export function QuickDock() {
       },
     },
     {
-      id: "claude",
-      label: "AI Chat",
-      icon: <Sparkles className="size-full" />,
-      onClick: () => router.push("/chat"),
+      id: "command",
+      label: "Command",
+      icon: <Command className="size-full" />,
+      onClick: () => {
+        window.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "k", metaKey: true })
+        )
+      },
     },
   ]
 

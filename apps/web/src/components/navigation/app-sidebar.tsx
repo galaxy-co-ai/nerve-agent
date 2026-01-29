@@ -15,7 +15,7 @@ import {
 
 export function AppSidebar() {
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="pt-2 pb-2 pl-1">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>

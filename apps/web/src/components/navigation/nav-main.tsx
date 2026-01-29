@@ -49,7 +49,7 @@ export function NavMain() {
                   className={cn(isActive && "bg-sidebar-accent text-sidebar-accent-foreground")}
                 >
                   <Link href={item.url}>
-                    <item.icon className="size-4" />
+                    <item.icon className="size-5" />
                     <span>{item.title}</span>
                   </Link>
                 </SidebarMenuButton>

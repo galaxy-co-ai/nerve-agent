@@ -15,13 +15,11 @@ import {
   createContext,
   useContext,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react"
 import { cn } from "@/lib/utils"
 
-const DOCK_HEIGHT = 128
 const DEFAULT_MAGNIFICATION = 80
 const DEFAULT_DISTANCE = 150
 const DEFAULT_PANEL_HEIGHT = 64
@@ -81,20 +79,12 @@ function Dock({
   panelHeight = DEFAULT_PANEL_HEIGHT,
 }: DockProps) {
   const mouseX = useMotionValue(Number.POSITIVE_INFINITY)
-  const isHovered = useMotionValue(0)
-
-  const maxHeight = useMemo(() => {
-    return Math.max(DOCK_HEIGHT, magnification + magnification / 2 + 4)
-  }, [magnification])
-
-  const heightRow = useTransform(isHovered, [0, 1], [panelHeight, maxHeight])
-  const height = useSpring(heightRow, spring)
 
   return (
     <motion.div
       className="mx-2 flex max-w-full items-end overflow-x-auto"
       style={{
-        height,
+        height: panelHeight,
         scrollbarWidth: "none",
       }}
     >
@@ -105,11 +95,9 @@ function Dock({
           className,
         )}
         onMouseLeave={() => {
-          isHovered.set(0)
           mouseX.set(Number.POSITIVE_INFINITY)
         }}
         onMouseMove={({ pageX }) => {
-          isHovered.set(1)
           mouseX.set(pageX)
         }}
         role="toolbar"

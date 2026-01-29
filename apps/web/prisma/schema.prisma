@@ -34,6 +34,7 @@ model User {
   libraryItems      LibraryItem[]
   libraryTags       LibraryTag[]
   notes             Note[]
+  faqs              Faq[]
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -544,4 +545,31 @@ enum FollowUpStatus {
   PENDING
   COMPLETED
   DISMISSED
+}
+
+// ============================================================================
+// FAQ - AI Question/Answer Log
+// ============================================================================
+
+model Faq {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Question and answer
+  question    String    @db.Text
+  answer      String    @db.Text
+
+  // Context
+  context     String?   // What page/feature the question was asked from
+
+  // Metadata
+  isHelpful   Boolean?  // User feedback
+  usageCount  Int       @default(1)  // How many times similar question asked
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([createdAt])
 }
