@@ -49,12 +49,38 @@ const SAMPLE_PROJECT = {
     "AI training intelligence for distance runners. Predict injuries before they happen, synthesize personalized training plans from proven coaches, and connect all your running data—Garmin, Strava, Spotify—into one intelligent system that actually coaches you.",
 }
 
+// Typing effect placeholder ideas
+const PLACEHOLDER_IDEAS = [
+  "A habit tracker that actually works...",
+  "AI-powered invoice generator...",
+  "Recipe app with smart grocery lists...",
+  "Fitness app for busy parents...",
+  "Client portal for freelancers...",
+  "Personal CRM for networking...",
+  "Meditation app with progress tracking...",
+  "Code snippet library for developers...",
+  "Expense tracker for small teams...",
+  "Appointment scheduler with payments...",
+  "Language learning through conversations...",
+  "Portfolio builder for designers...",
+  "Meal prep planner with macros...",
+  "Reading list app with notes...",
+  "Time tracker that bills automatically...",
+  "Social media scheduler for creators...",
+  "Workout planner with AI coaching...",
+  "Plant care app with reminders...",
+]
+
 export function OnboardingLaunchpad() {
   const router = useRouter()
   const [ideas, setIdeas] = useState<ProjectIdea[]>([])
   const [seenIds, setSeenIds] = useState<string[]>([])
   const [customIdea, setCustomIdea] = useState("")
   const [isShuffling, setIsShuffling] = useState(false)
+
+  // Typing effect state
+  const [typedPlaceholder, setTypedPlaceholder] = useState("")
+  const [placeholderIndex, setPlaceholderIndex] = useState(0)
 
   // Conversation state
   const [mode, setMode] = useState<"select" | "chat">("select")
@@ -73,6 +99,43 @@ export function OnboardingLaunchpad() {
     setIdeas(initial)
     setSeenIds(initial.map((i) => i.id))
   }, [])
+
+  // Typing effect for placeholder
+  useEffect(() => {
+    if (mode !== "select" || customIdea) return
+
+    const currentIdea = PLACEHOLDER_IDEAS[placeholderIndex]
+    let charIndex = 0
+    let isDeleting = false
+    let timeout: NodeJS.Timeout
+
+    const type = () => {
+      if (isDeleting) {
+        setTypedPlaceholder(currentIdea.substring(0, charIndex))
+        charIndex--
+        if (charIndex < 0) {
+          isDeleting = false
+          setPlaceholderIndex((prev) => (prev + 1) % PLACEHOLDER_IDEAS.length)
+          return
+        }
+        timeout = setTimeout(type, 30)
+      } else {
+        setTypedPlaceholder(currentIdea.substring(0, charIndex + 1))
+        charIndex++
+        if (charIndex >= currentIdea.length) {
+          timeout = setTimeout(() => {
+            isDeleting = true
+            type()
+          }, 2000) // Pause before deleting
+          return
+        }
+        timeout = setTimeout(type, 60)
+      }
+    }
+
+    timeout = setTimeout(type, 500)
+    return () => clearTimeout(timeout)
+  }, [placeholderIndex, mode, customIdea])
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -221,14 +284,6 @@ export function OnboardingLaunchpad() {
 
           {/* Main glass card */}
           <div className="glass-elevated rounded-2xl p-8 space-y-8">
-            {/* Question */}
-            <div className="text-center">
-              <h2 className="text-lg font-medium flex items-center justify-center gap-2">
-                <Sparkles className="h-4 w-4 text-orange-400" />
-                <span>What are we building?</span>
-              </h2>
-            </div>
-
             {/* Idea chips */}
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2 justify-center">
@@ -288,7 +343,7 @@ export function OnboardingLaunchpad() {
                 <input
                   value={customIdea}
                   onChange={(e) => setCustomIdea(e.target.value)}
-                  placeholder="Describe your project idea..."
+                  placeholder={typedPlaceholder || "Describe your project idea..."}
                   className={cn(
                     "flex-1 px-4 py-2.5 rounded-lg",
                     "bg-white/[0.03]",
