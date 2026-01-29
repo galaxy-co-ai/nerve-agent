@@ -166,6 +166,11 @@ async function learnPattern(
   userId: string,
   payload: Record<string, unknown>
 ): Promise<ActionResult> {
+  const pattern = String(payload.pattern || "")
+  if (!pattern) {
+    return { success: false, error: "No pattern provided" }
+  }
+
   const prefs = await db.agentPreferences.findUnique({
     where: { userId },
   })
@@ -175,22 +180,22 @@ async function learnPattern(
     await db.agentPreferences.create({
       data: {
         userId,
-        learnedPatterns: [payload.pattern],
+        learnedPatterns: [pattern],
       },
     })
   } else {
-    const patterns = prefs.learnedPatterns as string[]
-    if (!patterns.includes(payload.pattern as string)) {
+    const patterns = (prefs.learnedPatterns as string[]) || []
+    if (!patterns.includes(pattern)) {
       await db.agentPreferences.update({
         where: { userId },
         data: {
-          learnedPatterns: [...patterns, payload.pattern],
+          learnedPatterns: [...patterns, pattern],
         },
       })
     }
   }
 
-  return { success: true, output: `Learned pattern: ${payload.pattern}` }
+  return { success: true, output: `Learned pattern: ${pattern}` }
 }
 
 // =============================================================================
