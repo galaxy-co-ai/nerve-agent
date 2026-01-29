@@ -151,12 +151,13 @@ export function OnboardingLaunchpad() {
 
   const handleShuffle = () => {
     setIsShuffling(true)
+    // Fade out, then swap, then cascade in
     setTimeout(() => {
       const newIdeas = getRandomIdeas(seenIds)
       setIdeas(newIdeas)
       setSeenIds((prev) => [...prev, ...newIdeas.map((i) => i.id)])
-      setIsShuffling(false)
-    }, 300)
+      setTimeout(() => setIsShuffling(false), 50)
+    }, 400)
   }
 
   const startConversation = async (ideaText: string, ideaName?: string) => {
@@ -284,36 +285,38 @@ export function OnboardingLaunchpad() {
 
           {/* Main glass card */}
           <div className="glass-elevated rounded-2xl p-8 space-y-8">
-            {/* Idea chips - staggered grid */}
+            {/* Idea chips - cascade animation */}
             <div className="space-y-3">
-              <div className="grid grid-cols-1 gap-2">
+              <div className="flex flex-col gap-2 items-center">
                 {ideas.map((idea, index) => (
                   <button
                     key={idea.id}
                     onClick={() => handleIdeaClick(idea)}
                     disabled={isShuffling}
+                    style={{
+                      animationDelay: isShuffling ? '0ms' : `${index * 100}ms`,
+                    }}
                     className={cn(
-                      "group relative px-5 py-3 rounded-xl",
+                      "group relative w-full max-w-md px-4 py-2.5 rounded-xl",
                       "bg-white/[0.02] border border-white/[0.06]",
                       "backdrop-blur-sm",
-                      "flex items-center gap-3",
-                      "text-left",
-                      "transition-all duration-200",
+                      "flex items-center justify-center gap-3",
+                      "transition-all duration-300 ease-out",
                       "hover:bg-white/[0.05] hover:border-white/[0.12]",
                       "hover:shadow-[0_0_30px_rgba(255,107,53,0.08)]",
-                      "hover:translate-x-1",
                       "active:scale-[0.99]",
-                      "disabled:opacity-50 disabled:cursor-not-allowed",
-                      index === 1 && "ml-4",
-                      index === 2 && "ml-8"
+                      isShuffling
+                        ? "opacity-0 -translate-y-2"
+                        : "animate-[fadeSlideIn_0.4s_ease-out_forwards] opacity-0",
+                      "disabled:cursor-not-allowed"
                     )}
                   >
-                    <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-500/10 text-orange-400 group-hover:bg-orange-500/20 group-hover:shadow-[0_0_12px_rgba(255,107,53,0.3)] transition-all duration-200">
+                    <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-orange-500/10 text-orange-400 group-hover:bg-orange-500/20 group-hover:shadow-[0_0_12px_rgba(255,107,53,0.3)] transition-all duration-200">
                       {categoryIcons[idea.category]}
                     </span>
-                    <div className="flex flex-col">
-                      <span className="font-medium text-foreground/90">{idea.name}</span>
-                      <span className="text-xs text-muted-foreground/60">{idea.tagline}</span>
+                    <div className="flex flex-col items-center text-center">
+                      <span className="font-medium text-sm text-foreground/90">{idea.name}</span>
+                      <span className="text-[11px] text-muted-foreground/50">{idea.tagline}</span>
                     </div>
                   </button>
                 ))}
@@ -324,10 +327,10 @@ export function OnboardingLaunchpad() {
                   disabled={isShuffling}
                   className={cn(
                     "flex items-center gap-2 px-3 py-1.5 rounded-md",
-                    "text-xs text-muted-foreground/70",
-                    "transition-all duration-150",
-                    "hover:text-foreground/80 hover:bg-white/[0.03]",
-                    "disabled:opacity-50"
+                    "text-xs text-muted-foreground/60",
+                    "transition-all duration-200",
+                    "hover:text-foreground/70 hover:bg-white/[0.03]",
+                    "disabled:opacity-40"
                   )}
                 >
                   {isShuffling ? (
