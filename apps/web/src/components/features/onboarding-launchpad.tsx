@@ -183,22 +183,19 @@ export function OnboardingLaunchpad({ userName }: OnboardingLaunchpadProps) {
       <div className="flex flex-1 flex-col items-center justify-center p-6 min-h-screen">
         <div className="w-full max-w-xl space-y-8">
           {/* Welcome header */}
-          <div className="text-center space-y-3">
-            {/* Smoldering icon */}
-            <div className="flex items-center justify-center mb-6">
-              <div className="relative">
-                <div className="absolute inset-0 accent-smolder rounded-full blur-xl opacity-30" />
-                <div className="relative p-3 glass rounded-full">
-                  <Zap className="h-8 w-8 text-orange-400" />
-                </div>
-              </div>
-            </div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Welcome to NERVE AGENT
-              {userName ? `, ${userName.split(" ")[0]}` : ""}
+          <div className="text-center space-y-4">
+            {/* Brand title with bottom glow */}
+            <h1 className="relative text-4xl font-bold tracking-[0.2em] uppercase">
+              <span className="relative z-10 bg-gradient-to-t from-orange-500 via-white/90 to-white bg-clip-text text-transparent">
+                NERVE AGENT
+              </span>
+              {/* Subtle glow underneath */}
+              <span className="absolute inset-0 bg-gradient-to-t from-orange-500/40 via-transparent to-transparent blur-sm -z-10 translate-y-1" aria-hidden="true">
+                NERVE AGENT
+              </span>
             </h1>
             <p className="text-base text-muted-foreground">
-              I'm your AI co-founder. Let's build something together.
+              {userName ? `Hey ${userName.split(" ")[0]}. ` : ""}I'm your AI co-founder. Let's build something together.
             </p>
           </div>
 
