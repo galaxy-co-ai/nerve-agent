@@ -77,7 +77,7 @@ export async function buildAgentContext(userId: string): Promise<AgentContext> {
     where: { userId, status: { in: ["ACTIVE", "PLANNING"] } },
     include: {
       sprints: {
-        where: { status: "ACTIVE" },
+        where: { status: "IN_PROGRESS" },
         take: 1,
       },
       _count: {
