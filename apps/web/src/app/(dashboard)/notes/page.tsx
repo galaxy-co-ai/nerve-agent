@@ -4,11 +4,10 @@ import Link from "next/link"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { FileText, Pin, FolderKanban, Search } from "lucide-react"
+import { FileText, Pin, FolderKanban } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
-import { NoteComposer } from "@/components/features/note-composer"
-import { Input } from "@/components/ui/input"
+import { NotesToolbar } from "@/components/features/notes-toolbar"
 import { formatDistanceToNow } from "date-fns"
 
 interface NotesPageProps {
@@ -70,26 +69,12 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
       </header>
 
       <div className="flex flex-1 flex-col gap-6 p-6">
-        {/* Note Composer - Always ready to type */}
-        <NoteComposer projects={projects} />
-
-        {/* Search and filters */}
-        <div className="flex items-center gap-4">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <form>
-              <Input
-                name="q"
-                placeholder="Search notes..."
-                defaultValue={params.q}
-                className="pl-9"
-              />
-            </form>
-          </div>
-          <span className="text-sm text-muted-foreground">
-            {filteredNotes.length} note{filteredNotes.length !== 1 ? "s" : ""}
-          </span>
-        </div>
+        {/* Toolbar with search and action buttons */}
+        <NotesToolbar
+          projects={projects}
+          noteCount={filteredNotes.length}
+          defaultQuery={params.q}
+        />
 
         {/* Project Filter Pills */}
         {projects.length > 0 && (

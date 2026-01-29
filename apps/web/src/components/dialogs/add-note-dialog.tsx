@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -10,7 +9,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -25,32 +23,27 @@ import {
 import { createNote } from "@/lib/actions/notes"
 
 interface AddNoteDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
   projects: { id: string; name: string }[]
   defaultProjectId?: string
 }
 
-export function AddNoteDialog({ projects, defaultProjectId }: AddNoteDialogProps) {
-  const [open, setOpen] = useState(false)
+export function AddNoteDialog({ open, onOpenChange, projects, defaultProjectId }: AddNoteDialogProps) {
   const [pending, setPending] = useState(false)
 
   async function handleSubmit(formData: FormData) {
     setPending(true)
     try {
       await createNote(formData)
-      setOpen(false)
+      onOpenChange(false)
     } finally {
       setPending(false)
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm">
-          <Plus className="mr-2 h-4 w-4" />
-          New Note
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <form action={handleSubmit}>
           <DialogHeader>
@@ -68,6 +61,7 @@ export function AddNoteDialog({ projects, defaultProjectId }: AddNoteDialogProps
                 name="title"
                 placeholder="e.g., Authentication Flow"
                 required
+                autoFocus
               />
             </div>
 
@@ -108,7 +102,7 @@ Use [[Note Title]] to link to other notes."
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button type="submit" disabled={pending}>
