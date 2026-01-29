@@ -9,9 +9,33 @@ import {
   Zap,
   Sparkles,
   ArrowRight,
+  Briefcase,
+  Code,
+  Clock,
+  Heart,
+  GraduationCap,
+  Store,
+  ShoppingCart,
+  Palette,
+  DollarSign,
+  Smartphone,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { getRandomIdeas, type ProjectIdea } from "@/lib/project-ideas"
+import { getRandomIdeas, type ProjectIdea, type ProjectCategory } from "@/lib/project-ideas"
+
+// Map categories to icons
+const categoryIcons: Record<ProjectCategory, React.ReactNode> = {
+  saas: <Briefcase className="h-3.5 w-3.5" />,
+  developer: <Code className="h-3.5 w-3.5" />,
+  productivity: <Clock className="h-3.5 w-3.5" />,
+  health: <Heart className="h-3.5 w-3.5" />,
+  education: <GraduationCap className="h-3.5 w-3.5" />,
+  marketplace: <Store className="h-3.5 w-3.5" />,
+  ecommerce: <ShoppingCart className="h-3.5 w-3.5" />,
+  creative: <Palette className="h-3.5 w-3.5" />,
+  finance: <DollarSign className="h-3.5 w-3.5" />,
+  mobile: <Smartphone className="h-3.5 w-3.5" />,
+}
 
 interface Message {
   role: "user" | "assistant"
@@ -215,6 +239,7 @@ export function OnboardingLaunchpad() {
                     disabled={isShuffling}
                     className={cn(
                       "glass px-4 py-2 rounded-lg",
+                      "inline-flex items-center gap-2",
                       "text-sm font-medium text-foreground/90",
                       "transition-all duration-150",
                       "hover:bg-white/[0.06] hover:border-white/10",
@@ -223,6 +248,7 @@ export function OnboardingLaunchpad() {
                       "disabled:opacity-50 disabled:cursor-not-allowed"
                     )}
                   >
+                    <span className="text-orange-400">{categoryIcons[idea.category]}</span>
                     {idea.name}
                   </button>
                 ))}
@@ -265,11 +291,13 @@ export function OnboardingLaunchpad() {
                   placeholder="Describe your project idea..."
                   className={cn(
                     "flex-1 px-4 py-2.5 rounded-lg",
-                    "bg-white/[0.03] border border-white/[0.06]",
+                    "bg-white/[0.03]",
+                    "border border-orange-500/20",
+                    "shadow-[0_0_10px_rgba(255,107,53,0.08)]",
                     "text-sm text-foreground placeholder:text-muted-foreground/50",
                     "transition-all duration-150",
-                    "focus:outline-none focus:border-white/10",
-                    "focus:shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_0_20px_rgba(255,255,255,0.05)]"
+                    "focus:outline-none focus:border-orange-500/40",
+                    "focus:shadow-[0_0_15px_rgba(255,107,53,0.15)]"
                   )}
                 />
                 <button
@@ -296,8 +324,8 @@ export function OnboardingLaunchpad() {
               <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
             </div>
 
-            {/* Sample project */}
-            <div className="text-center space-y-2">
+            {/* Brainstorm CTA */}
+            <div className="text-center">
               <button
                 onClick={handleSampleProject}
                 className={cn(
@@ -309,11 +337,8 @@ export function OnboardingLaunchpad() {
                 )}
               >
                 <Zap className="h-4 w-4 text-orange-400" />
-                Try a sample project (MyStride.ai)
+                Click to Brainstorm
               </button>
-              <p className="text-xs text-muted-foreground/60">
-                Experience the full workflow with a pre-built example
-              </p>
             </div>
           </div>
         </div>
