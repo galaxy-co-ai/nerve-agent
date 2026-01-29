@@ -2,14 +2,11 @@
 
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
 import {
   Shuffle,
   Send,
   Loader2,
-  Rocket,
+  Zap,
   Sparkles,
   ArrowRight,
 } from "lucide-react"
@@ -83,7 +80,6 @@ export function OnboardingLaunchpad({ userName }: OnboardingLaunchpadProps) {
     setSelectedIdea(ideaName || ideaText)
     setMode("chat")
 
-    // Initial AI message - co-founder energy
     const initialMessage: Message = {
       role: "assistant",
       content: `Love it! "${ideaName || ideaText}" sounds like a project worth building together.\n\nBefore we dive in, I need to understand the vision. A few quick questions:\n\n**Who is this for?** Who's the ideal user—and what's the pain point we're solving for them?`,
@@ -147,7 +143,6 @@ export function OnboardingLaunchpad({ userName }: OnboardingLaunchpadProps) {
         throw new Error(data.error || "Failed to get response")
       }
 
-      // Check if a project was created
       if (data.projectSlug) {
         setProjectSlug(data.projectSlug)
       }
@@ -185,121 +180,149 @@ export function OnboardingLaunchpad({ userName }: OnboardingLaunchpadProps) {
   // Selection mode UI
   if (mode === "select") {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center p-6">
-        <div className="w-full max-w-2xl space-y-8">
+      <div className="flex flex-1 flex-col items-center justify-center p-6 min-h-screen">
+        <div className="w-full max-w-xl space-y-8">
           {/* Welcome header */}
-          <div className="text-center space-y-2">
-            <div className="flex items-center justify-center gap-2 text-primary mb-4">
-              <Rocket className="h-8 w-8" />
+          <div className="text-center space-y-3">
+            {/* Smoldering icon */}
+            <div className="flex items-center justify-center mb-6">
+              <div className="relative">
+                <div className="absolute inset-0 accent-smolder rounded-full blur-xl opacity-30" />
+                <div className="relative p-3 glass rounded-full">
+                  <Zap className="h-8 w-8 text-orange-400" />
+                </div>
+              </div>
             </div>
             <h1 className="text-3xl font-bold tracking-tight">
               Welcome to NERVE AGENT
               {userName ? `, ${userName.split(" ")[0]}` : ""}
             </h1>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               I'm your AI co-founder. Let's build something together.
             </p>
           </div>
 
-          {/* Main card */}
-          <Card className="border-2">
-            <CardContent className="pt-6 space-y-6">
-              {/* Question */}
-              <div className="text-center">
-                <h2 className="text-xl font-semibold flex items-center justify-center gap-2">
-                  <Sparkles className="h-5 w-5 text-yellow-500" />
-                  What are we building?
-                </h2>
-              </div>
+          {/* Main glass card */}
+          <div className="glass-elevated rounded-2xl p-8 space-y-8">
+            {/* Question */}
+            <div className="text-center">
+              <h2 className="text-lg font-medium flex items-center justify-center gap-2">
+                <Sparkles className="h-4 w-4 text-orange-400" />
+                <span>What are we building?</span>
+              </h2>
+            </div>
 
-              {/* Idea chips */}
-              <div className="space-y-3">
-                <div className="flex flex-wrap gap-2 justify-center">
-                  {ideas.map((idea) => (
-                    <Button
-                      key={idea.id}
-                      variant="outline"
-                      className={cn(
-                        "h-auto py-2 px-4 text-left transition-all",
-                        "hover:border-primary hover:bg-primary/5",
-                        isShuffling && "opacity-50"
-                      )}
-                      onClick={() => handleIdeaClick(idea)}
-                      disabled={isShuffling}
-                    >
-                      <span className="font-medium">{idea.name}</span>
-                    </Button>
-                  ))}
-                </div>
-                <div className="flex justify-center">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleShuffle}
+            {/* Idea chips */}
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-2 justify-center">
+                {ideas.map((idea) => (
+                  <button
+                    key={idea.id}
+                    onClick={() => handleIdeaClick(idea)}
                     disabled={isShuffling}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    {isShuffling ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <Shuffle className="h-4 w-4 mr-2" />
+                    className={cn(
+                      "glass px-4 py-2 rounded-lg",
+                      "text-sm font-medium text-foreground/90",
+                      "transition-all duration-150",
+                      "hover:bg-white/[0.06] hover:border-white/10",
+                      "hover:shadow-[0_0_20px_rgba(255,255,255,0.05)]",
+                      "active:scale-[0.98]",
+                      "disabled:opacity-50 disabled:cursor-not-allowed"
                     )}
-                    Show different ideas
-                  </Button>
-                </div>
+                  >
+                    {idea.name}
+                  </button>
+                ))}
               </div>
-
-              {/* Divider */}
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">or</span>
-                </div>
-              </div>
-
-              {/* Custom idea input */}
-              <form onSubmit={handleCustomSubmit} className="space-y-3">
-                <div className="flex gap-2">
-                  <Input
-                    value={customIdea}
-                    onChange={(e) => setCustomIdea(e.target.value)}
-                    placeholder="Describe your project idea..."
-                    className="flex-1"
-                  />
-                  <Button type="submit" disabled={!customIdea.trim()}>
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
-              </form>
-
-              {/* Divider */}
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">or</span>
-                </div>
-              </div>
-
-              {/* Sample project */}
-              <div className="text-center">
-                <Button
-                  variant="secondary"
-                  onClick={handleSampleProject}
-                  className="gap-2"
+              <div className="flex justify-center">
+                <button
+                  onClick={handleShuffle}
+                  disabled={isShuffling}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-1.5 rounded-md",
+                    "text-xs text-muted-foreground",
+                    "transition-all duration-150",
+                    "hover:text-foreground hover:bg-white/[0.03]",
+                    "disabled:opacity-50"
+                  )}
                 >
-                  <Rocket className="h-4 w-4" />
-                  Try a sample project (MyStride.ai)
-                </Button>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Experience the full workflow with a pre-built example
-                </p>
+                  {isShuffling ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Shuffle className="h-3 w-3" />
+                  )}
+                  Show different ideas
+                </button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+
+            {/* Subtle divider */}
+            <div className="flex items-center gap-4">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              <span className="text-[10px] uppercase tracking-widest text-muted-foreground/50">or</span>
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+            </div>
+
+            {/* Custom idea input */}
+            <form onSubmit={handleCustomSubmit}>
+              <div className="flex gap-2">
+                <input
+                  value={customIdea}
+                  onChange={(e) => setCustomIdea(e.target.value)}
+                  placeholder="Describe your project idea..."
+                  className={cn(
+                    "flex-1 px-4 py-2.5 rounded-lg",
+                    "bg-white/[0.03] border border-white/[0.06]",
+                    "text-sm text-foreground placeholder:text-muted-foreground/50",
+                    "transition-all duration-150",
+                    "focus:outline-none focus:border-white/10",
+                    "focus:shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_0_20px_rgba(255,255,255,0.05)]"
+                  )}
+                />
+                <button
+                  type="submit"
+                  disabled={!customIdea.trim()}
+                  className={cn(
+                    "px-4 py-2.5 rounded-lg",
+                    "accent-smolder text-white font-medium",
+                    "transition-all duration-150",
+                    "hover:accent-smolder-glow",
+                    "active:scale-[0.98]",
+                    "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none"
+                  )}
+                >
+                  <Send className="h-4 w-4" />
+                </button>
+              </div>
+            </form>
+
+            {/* Subtle divider */}
+            <div className="flex items-center gap-4">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              <span className="text-[10px] uppercase tracking-widest text-muted-foreground/50">or</span>
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+            </div>
+
+            {/* Sample project */}
+            <div className="text-center space-y-2">
+              <button
+                onClick={handleSampleProject}
+                className={cn(
+                  "inline-flex items-center gap-2 px-5 py-2.5 rounded-lg",
+                  "glass text-sm font-medium",
+                  "transition-all duration-150",
+                  "hover:bg-white/[0.06] hover:border-white/10",
+                  "active:scale-[0.98]"
+                )}
+              >
+                <Zap className="h-4 w-4 text-orange-400" />
+                Try a sample project (MyStride.ai)
+              </button>
+              <p className="text-xs text-muted-foreground/60">
+                Experience the full workflow with a pre-built example
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     )
@@ -307,12 +330,12 @@ export function OnboardingLaunchpad({ userName }: OnboardingLaunchpadProps) {
 
   // Chat mode UI
   return (
-    <div className="flex flex-1 flex-col p-6">
+    <div className="flex flex-1 flex-col p-6 min-h-screen">
       <div className="w-full max-w-2xl mx-auto flex flex-col flex-1">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-            <Sparkles className="h-4 w-4 text-yellow-500" />
+            <Sparkles className="h-4 w-4 text-orange-400" />
             <span>Creating project</span>
           </div>
           <h1 className="text-2xl font-bold">{selectedIdea}</h1>
@@ -330,13 +353,13 @@ export function OnboardingLaunchpad({ userName }: OnboardingLaunchpadProps) {
             >
               <div
                 className={cn(
-                  "max-w-[85%] rounded-lg px-4 py-3",
+                  "max-w-[85%] rounded-xl px-4 py-3 transition-all duration-150",
                   message.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted"
+                    ? "accent-smolder text-white"
+                    : "glass"
                 )}
               >
-                <div className="whitespace-pre-wrap text-sm prose prose-sm dark:prose-invert max-w-none">
+                <div className="whitespace-pre-wrap text-sm">
                   {message.content}
                 </div>
               </div>
@@ -345,8 +368,12 @@ export function OnboardingLaunchpad({ userName }: OnboardingLaunchpadProps) {
 
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-muted rounded-lg px-4 py-3">
-                <Loader2 className="h-4 w-4 animate-spin" />
+              <div className="glass rounded-xl px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-orange-400 animate-pulse" />
+                  <div className="h-2 w-2 rounded-full bg-orange-400 animate-pulse [animation-delay:150ms]" />
+                  <div className="h-2 w-2 rounded-full bg-orange-400 animate-pulse [animation-delay:300ms]" />
+                </div>
               </div>
             </div>
           )}
@@ -356,37 +383,57 @@ export function OnboardingLaunchpad({ userName }: OnboardingLaunchpadProps) {
 
         {/* Input or CTA */}
         {projectSlug ? (
-          <div className="border-t pt-4">
-            <Button
+          <div className="pt-4">
+            <button
               onClick={handleGoToWorkspace}
-              className="w-full gap-2"
-              size="lg"
+              className={cn(
+                "w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl",
+                "accent-smolder text-white font-medium",
+                "transition-all duration-150",
+                "hover:accent-smolder-glow",
+                "active:scale-[0.99]"
+              )}
             >
               Open Workspace
               <ArrowRight className="h-4 w-4" />
-            </Button>
+            </button>
           </div>
         ) : (
-          <div className="border-t pt-4">
+          <div className="pt-4">
             <form onSubmit={handleChatSubmit} className="flex gap-2">
-              <Input
+              <input
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Type your response..."
                 disabled={isLoading}
-                className="flex-1"
-              />
-              <Button type="submit" disabled={!input.trim() || isLoading}>
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4" />
+                className={cn(
+                  "flex-1 px-4 py-3 rounded-xl",
+                  "bg-white/[0.03] border border-white/[0.06]",
+                  "text-sm text-foreground placeholder:text-muted-foreground/50",
+                  "transition-all duration-150",
+                  "focus:outline-none focus:border-white/10",
+                  "focus:shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_0_20px_rgba(255,255,255,0.05)]",
+                  "disabled:opacity-50"
                 )}
-              </Button>
+              />
+              <button
+                type="submit"
+                disabled={!input.trim() || isLoading}
+                className={cn(
+                  "px-4 py-3 rounded-xl",
+                  "accent-smolder text-white font-medium",
+                  "transition-all duration-150",
+                  "hover:accent-smolder-glow",
+                  "active:scale-[0.98]",
+                  "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none"
+                )}
+              >
+                <Send className="h-4 w-4" />
+              </button>
             </form>
-            <p className="text-xs text-muted-foreground mt-2 text-center">
+            <p className="text-xs text-muted-foreground/50 mt-2 text-center">
               Press Enter to send
             </p>
           </div>
