@@ -1,20 +1,13 @@
 export const dynamic = "force-dynamic"
 
 import Link from "next/link"
-import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { FileText, Pin, FolderKanban, Search } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
-import { AddNoteDialog } from "@/components/dialogs/add-note-dialog"
+import { NoteComposer } from "@/components/features/note-composer"
 import { Input } from "@/components/ui/input"
 import { formatDistanceToNow } from "date-fns"
 
@@ -68,40 +61,34 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
 
   return (
     <>
-      <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border/40 px-4">
+      <header className="flex h-16 shrink-0 items-center border-b border-border/40 px-4">
         <SidebarTrigger className="-ml-1" />
-        <Separator orientation="vertical" className="mr-2 h-4" />
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbPage>Notes</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        <div className="ml-auto">
-          <AddNoteDialog projects={projects} />
+        <div className="flex-1 flex justify-center">
+          <h1 className="text-lg font-bold tracking-tight">NERVE AGENT</h1>
         </div>
+        <div className="text-sm text-muted-foreground">Notes</div>
       </header>
 
       <div className="flex flex-1 flex-col gap-6 p-6">
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Notes</h1>
-            <p className="text-muted-foreground">Capture project knowledge with wiki-style linking.</p>
-          </div>
-        </div>
+        {/* Note Composer - Always ready to type */}
+        <NoteComposer projects={projects} />
 
-        {/* Search */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <form>
-            <Input
-              name="q"
-              placeholder="Search notes..."
-              defaultValue={params.q}
-              className="pl-9"
-            />
-          </form>
+        {/* Search and filters */}
+        <div className="flex items-center gap-4">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <form>
+              <Input
+                name="q"
+                placeholder="Search notes..."
+                defaultValue={params.q}
+                className="pl-9"
+              />
+            </form>
+          </div>
+          <span className="text-sm text-muted-foreground">
+            {filteredNotes.length} note{filteredNotes.length !== 1 ? "s" : ""}
+          </span>
         </div>
 
         {/* Project Filter Pills */}
@@ -137,12 +124,11 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
               <h3 className="font-semibold mb-2">
                 {params.q ? "No notes found" : "No notes yet"}
               </h3>
-              <p className="text-muted-foreground text-sm mb-4 text-center max-w-sm">
+              <p className="text-muted-foreground text-sm text-center max-w-sm">
                 {params.q
-                  ? "Try a different search term or create a new note."
-                  : "Create your first note to start capturing knowledge. Use [[wiki links]] to connect ideas."}
+                  ? "Try a different search term or start writing above."
+                  : "Start writing in the composer above. Use [[wiki links]] to connect ideas."}
               </p>
-              {!params.q && <AddNoteDialog projects={projects} />}
             </CardContent>
           </Card>
         ) : (
