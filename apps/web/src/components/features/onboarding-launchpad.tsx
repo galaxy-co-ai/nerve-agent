@@ -151,13 +151,13 @@ export function OnboardingLaunchpad() {
 
   const handleShuffle = () => {
     setIsShuffling(true)
-    // Fade out, then swap, then cascade in
+    // Slow fade out, then swap, then cascade in
     setTimeout(() => {
       const newIdeas = getRandomIdeas(seenIds)
       setIdeas(newIdeas)
       setSeenIds((prev) => [...prev, ...newIdeas.map((i) => i.id)])
-      setTimeout(() => setIsShuffling(false), 50)
-    }, 400)
+      setTimeout(() => setIsShuffling(false), 100)
+    }, 500)
   }
 
   const startConversation = async (ideaText: string, ideaName?: string) => {
@@ -294,29 +294,32 @@ export function OnboardingLaunchpad() {
                     onClick={() => handleIdeaClick(idea)}
                     disabled={isShuffling}
                     style={{
-                      animationDelay: isShuffling ? '0ms' : `${index * 100}ms`,
+                      animationDelay: isShuffling ? '0ms' : `${index * 150}ms`,
                     }}
                     className={cn(
                       "group relative w-full max-w-md px-4 py-2.5 rounded-xl",
                       "bg-white/[0.02] border border-white/[0.06]",
                       "backdrop-blur-sm",
-                      "flex items-center justify-center gap-3",
-                      "transition-all duration-300 ease-out",
+                      "flex items-center justify-center",
+                      "transition-all duration-500 ease-out",
                       "hover:bg-white/[0.05] hover:border-white/[0.12]",
                       "hover:shadow-[0_0_30px_rgba(255,107,53,0.08)]",
                       "active:scale-[0.99]",
                       isShuffling
                         ? "opacity-0 -translate-y-2"
-                        : "animate-[fadeSlideIn_0.4s_ease-out_forwards] opacity-0",
+                        : "animate-[fadeSlideIn_0.6s_ease-out_forwards] opacity-0",
                       "disabled:cursor-not-allowed"
                     )}
                   >
-                    <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-orange-500/10 text-orange-400 group-hover:bg-orange-500/20 group-hover:shadow-[0_0_12px_rgba(255,107,53,0.3)] transition-all duration-200">
-                      {categoryIcons[idea.category]}
-                    </span>
-                    <div className="flex flex-col items-center text-center">
-                      <span className="font-medium text-sm text-foreground/90">{idea.name}</span>
-                      <span className="text-[11px] text-muted-foreground/50">{idea.tagline}</span>
+                    {/* Centered group: icon + text left-aligned within */}
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-orange-500/10 text-orange-400 group-hover:bg-orange-500/20 group-hover:shadow-[0_0_12px_rgba(255,107,53,0.3)] transition-all duration-300">
+                        {categoryIcons[idea.category]}
+                      </span>
+                      <div className="flex flex-col items-start text-left">
+                        <span className="font-medium text-sm text-foreground/90">{idea.name}</span>
+                        <span className="text-[11px] text-muted-foreground/50">{idea.tagline}</span>
+                      </div>
                     </div>
                   </button>
                 ))}
