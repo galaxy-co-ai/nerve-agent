@@ -6,6 +6,7 @@ import { Clock, AlertTriangle, Users, CheckCircle2 } from "lucide-react"
 import { DashboardInsights } from "@/components/features/dashboard-insights"
 import { AiFocusWizard } from "@/components/features/ai-focus-wizard"
 import { AiQa } from "@/components/features/ai-qa"
+import { OnboardingLaunchpad } from "@/components/features/onboarding-launchpad"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 
@@ -18,6 +19,16 @@ function getGreeting(): string {
 
 export default async function DashboardPage() {
   const user = await requireUser()
+
+  // Check if user has any projects (for onboarding)
+  const projectCount = await db.project.count({
+    where: { userId: user.id },
+  })
+
+  // Show onboarding launchpad for new users
+  if (projectCount === 0) {
+    return <OnboardingLaunchpad userName={user.name || undefined} />
+  }
 
   const today = new Date()
   const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate())
