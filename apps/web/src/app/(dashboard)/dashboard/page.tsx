@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Clock, AlertTriangle, Users, CheckCircle2, Zap, Plus, ArrowRight, FileText, Code2 } from "lucide-react"
+import { Clock, AlertTriangle, Users, CheckCircle2, Zap, Plus, ArrowRight } from "lucide-react"
 import { CompleteTaskButton } from "@/components/shared/complete-task-button"
 import { DashboardInsights } from "@/components/features/dashboard-insights"
 import { db } from "@/lib/db"
@@ -274,9 +274,9 @@ export default async function DashboardPage() {
         />
 
         {/* Main Content */}
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6">
           {/* Focus Task */}
-          <Card className="md:col-span-2">
+          <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Zap className="h-5 w-5 text-yellow-500" />
@@ -392,41 +392,6 @@ export default async function DashboardPage() {
             </CardContent>
           </Card>
 
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>Common tasks to get started</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-2">
-                <Button variant="outline" asChild className="justify-start">
-                  <Link href="/projects/new">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create New Project
-                  </Link>
-                </Button>
-                <Button variant="outline" asChild className="justify-start">
-                  <Link href="/time">
-                    <Clock className="mr-2 h-4 w-4" />
-                    Log Time Entry
-                  </Link>
-                </Button>
-                <Button variant="outline" asChild className="justify-start">
-                  <Link href="/notes">
-                    <FileText className="mr-2 h-4 w-4" />
-                    New Note
-                  </Link>
-                </Button>
-                <Button variant="outline" asChild className="justify-start">
-                  <Link href="/library">
-                    <Code2 className="mr-2 h-4 w-4" />
-                    Browse Library
-                  </Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </>

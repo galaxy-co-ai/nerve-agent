@@ -6,9 +6,6 @@ import {
   FileText,
   Lightbulb,
   Link2,
-  FolderKanban,
-  Phone,
-  Code2,
   FileUp,
   Search,
   Sparkles,
@@ -65,24 +62,6 @@ export function QuickDock() {
           },
         },
         {
-          id: "new-project",
-          label: "New Project",
-          icon: <FolderKanban className="h-4 w-4" />,
-          onClick: () => router.push("/projects/new"),
-        },
-        {
-          id: "add-call",
-          label: "Call Transcript",
-          icon: <Phone className="h-4 w-4" />,
-          onClick: () => router.push("/calls/new"),
-        },
-        {
-          id: "library-snippet",
-          label: "Code Snippet",
-          icon: <Code2 className="h-4 w-4" />,
-          onClick: () => router.push("/library"),
-        },
-        {
           id: "upload-file",
           label: "Upload File",
           icon: <FileUp className="h-4 w-4" />,
@@ -111,12 +90,7 @@ export function QuickDock() {
       id: "claude",
       label: "AI Chat",
       icon: <Sparkles className="size-full" />,
-      onClick: () => {
-        const claudeButton = document.querySelector(
-          "[data-claude-toggle]"
-        ) as HTMLButtonElement
-        claudeButton?.click()
-      },
+      onClick: () => router.push("/chat"),
     },
   ]
 
