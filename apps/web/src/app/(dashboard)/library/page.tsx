@@ -10,6 +10,7 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { H2, Muted } from "@/components/ui/typography"
 import { Badge } from "@/components/ui/badge"
 import { Code2, Blocks, Puzzle, Database, Star, TrendingUp } from "lucide-react"
 import { db } from "@/lib/db"
@@ -71,8 +72,8 @@ export default async function LibraryPage() {
 
       <div className="flex flex-1 flex-col gap-6 p-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Library</h1>
-          <p className="text-muted-foreground">Your reusable code library. Ship faster with battle-tested patterns.</p>
+          <H2>Library</H2>
+          <Muted>Your reusable code library. Ship faster with battle-tested patterns.</Muted>
         </div>
 
         {/* Stats Grid */}

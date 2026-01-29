@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic"
 
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { H2, Muted } from "@/components/ui/typography"
 import { Clock, AlertTriangle, Users, CheckCircle2 } from "lucide-react"
 import { DashboardInsights } from "@/components/features/dashboard-insights"
 import { AiFocusWizard } from "@/components/features/ai-focus-wizard"
@@ -129,9 +130,9 @@ export default async function DashboardPage() {
       <div className="flex flex-1 flex-col gap-6 p-6">
         {/* Welcome Section */}
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">
+          <H2>
             {getGreeting()}, {user.name?.split(" ")[0] || "there"}
-          </h2>
+          </H2>
         </div>
 
         {/* Stats Row */}

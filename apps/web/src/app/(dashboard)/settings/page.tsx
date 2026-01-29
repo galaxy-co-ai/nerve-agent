@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic"
 
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { H2, Muted, Small } from "@/components/ui/typography"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"

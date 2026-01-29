@@ -13,6 +13,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { H1, Muted } from "@/components/ui/typography"
 import { Badge } from "@/components/ui/badge"
 import { FolderKanban, Clock, Link2, FileText } from "lucide-react"
 import { db } from "@/lib/db"
@@ -107,7 +108,7 @@ export default async function NotePage({ params }: PageProps) {
       <div className="flex flex-1 flex-col gap-6 p-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold tracking-tight mb-2">{note.title}</h1>
+          <H1 className="mb-2">{note.title}</H1>
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
             {note.project && (
               <Link

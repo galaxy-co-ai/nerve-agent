@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { H2, Muted } from "@/components/ui/typography"
 import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
@@ -192,16 +193,16 @@ export default async function ProjectPage({ params }: PageProps) {
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <h1 className="text-2xl font-bold tracking-tight">{project.name}</h1>
+              <H2>{project.name}</H2>
               <Badge variant="outline" className={statusColors[project.status]}>
                 {project.status.toLowerCase().replace("_", " ")}
               </Badge>
             </div>
-            <p className="text-muted-foreground">{project.clientName}</p>
+            <Muted>{project.clientName}</Muted>
             {project.description && (
-              <p className="text-sm text-muted-foreground mt-2 max-w-2xl">
+              <Muted className="mt-2 max-w-2xl">
                 {project.description}
-              </p>
+              </Muted>
             )}
           </div>
           <div className="text-right">

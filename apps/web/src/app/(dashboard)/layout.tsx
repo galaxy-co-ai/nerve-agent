@@ -5,6 +5,7 @@ import { CommandPalette } from "@/components/shared/command-palette"
 import { QuickNoteDialog } from "@/components/dialogs/quick-note-dialog"
 import { QuickTimeDialog } from "@/components/dialogs/quick-time-dialog"
 import { QuickDock } from "@/components/shared/quick-dock"
+import { AgentDrawer } from "@/components/agent/agent-drawer"
 import { TimerWrapper } from "@/components/timer/timer-wrapper"
 import { SidebarInset } from "@/components/ui/sidebar"
 import { SidebarWrapper } from "@/components/navigation/sidebar-wrapper"
@@ -65,6 +66,7 @@ export default async function DashboardLayout({
         <QuickNoteDialog />
         <QuickTimeDialog />
         <QuickDock />
+        <AgentDrawer />
       </SidebarWrapper>
     </TimerWrapper>
   )

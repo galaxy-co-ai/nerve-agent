@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { H2, Muted } from "@/components/ui/typography"
 import { Badge } from "@/components/ui/badge"
 import { Plus, FolderKanban, Upload } from "lucide-react"
 import { db } from "@/lib/db"
@@ -77,8 +78,8 @@ export default async function ProjectsPage() {
 
       <div className="flex flex-1 flex-col gap-6 p-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Projects</h1>
-          <p className="text-muted-foreground">Manage your active and upcoming projects.</p>
+          <H2>Projects</H2>
+          <Muted>Manage your active and upcoming projects.</Muted>
         </div>
 
         {projects.length === 0 ? (

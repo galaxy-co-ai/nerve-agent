@@ -3,15 +3,35 @@ export const dynamic = "force-dynamic"
 import Link from "next/link"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { H3, Muted } from "@/components/ui/typography"
 import { Badge } from "@/components/ui/badge"
 import { FileText, Pin, FolderKanban } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 import { NotesToolbar } from "@/components/features/notes-toolbar"
 import { formatDistanceToNow } from "date-fns"
+import { cn } from "@/lib/utils"
+
+// AI tag categories with colors (matches brain-dump-dialog)
+const TAG_STYLES: Record<string, string> = {
+  idea: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+  task: "bg-orange-500/20 text-orange-400 border-orange-500/30",
+  reference: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+  insight: "bg-green-500/20 text-green-400 border-green-500/30",
+  decision: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+}
+
+// Tag definitions for filter pills
+const TAGS = [
+  { id: "idea", label: "Idea" },
+  { id: "task", label: "Task" },
+  { id: "reference", label: "Reference" },
+  { id: "insight", label: "Insight" },
+  { id: "decision", label: "Decision" },
+]
 
 interface NotesPageProps {
-  searchParams: Promise<{ project?: string; sort?: string; q?: string }>
+  searchParams: Promise<{ project?: string; sort?: string; q?: string; tag?: string }>
 }
 
 export default async function NotesPage({ searchParams }: NotesPageProps) {
@@ -38,14 +58,25 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
     }),
   ])
 
-  // Filter by search query on the server
-  const filteredNotes = params.q
-    ? notes.filter(
-        (note) =>
-          note.title.toLowerCase().includes(params.q!.toLowerCase()) ||
-          note.content.toLowerCase().includes(params.q!.toLowerCase())
-      )
-    : notes
+  // Filter by search query and tag on the server
+  let filteredNotes = notes
+
+  // Filter by tag
+  if (params.tag) {
+    filteredNotes = filteredNotes.filter((note) => {
+      const tags = note.tags as string[]
+      return tags?.includes(params.tag!)
+    })
+  }
+
+  // Filter by search query
+  if (params.q) {
+    filteredNotes = filteredNotes.filter(
+      (note) =>
+        note.title.toLowerCase().includes(params.q!.toLowerCase()) ||
+        note.content.toLowerCase().includes(params.q!.toLowerCase())
+    )
+  }
 
   const pinnedNotes = filteredNotes.filter((note) => note.isPinned)
   const regularNotes = filteredNotes.filter((note) => !note.isPinned)
@@ -76,29 +107,67 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
           defaultQuery={params.q}
         />
 
-        {/* Project Filter Pills */}
-        {projects.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            <Link href="/notes">
+        {/* Filter Pills */}
+        <div className="flex flex-wrap items-center gap-4">
+          {/* Project Filter */}
+          {projects.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs text-muted-foreground">Project:</span>
+              <Link href={`/notes${params.tag ? `?tag=${params.tag}` : ""}`}>
+                <Badge
+                  variant={!params.project ? "default" : "outline"}
+                  className="cursor-pointer"
+                >
+                  All
+                </Badge>
+              </Link>
+              {projects.map((project) => (
+                <Link
+                  key={project.id}
+                  href={`/notes?project=${project.id}${params.tag ? `&tag=${params.tag}` : ""}`}
+                >
+                  <Badge
+                    variant={params.project === project.id ? "default" : "outline"}
+                    className="cursor-pointer"
+                  >
+                    {project.name}
+                  </Badge>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {/* Tag Filter */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs text-muted-foreground">Tag:</span>
+            <Link href={`/notes${params.project ? `?project=${params.project}` : ""}`}>
               <Badge
-                variant={!params.project ? "default" : "outline"}
+                variant={!params.tag ? "default" : "outline"}
                 className="cursor-pointer"
               >
                 All
               </Badge>
             </Link>
-            {projects.map((project) => (
-              <Link key={project.id} href={`/notes?project=${project.id}`}>
+            {TAGS.map((tag) => (
+              <Link
+                key={tag.id}
+                href={`/notes?${params.project ? `project=${params.project}&` : ""}tag=${tag.id}`}
+              >
                 <Badge
-                  variant={params.project === project.id ? "default" : "outline"}
-                  className="cursor-pointer"
+                  variant="outline"
+                  className={cn(
+                    "cursor-pointer transition-opacity",
+                    params.tag === tag.id
+                      ? TAG_STYLES[tag.id]
+                      : "opacity-60 hover:opacity-100"
+                  )}
                 >
-                  {project.name}
+                  {tag.label}
                 </Badge>
               </Link>
             ))}
           </div>
-        )}
+        </div>
 
         {filteredNotes.length === 0 ? (
           <Card>
@@ -126,10 +195,24 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
                   Pinned
                 </h2>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {pinnedNotes.map((note) => (
+                  {pinnedNotes.map((note) => {
+                    const tags = note.tags as string[]
+                    const primaryTag = tags?.[0]
+                    return (
                     <Link key={note.id} href={`/notes/${note.slug}`}>
-                      <Card className="h-full transition-colors hover:bg-muted/50">
-                        <CardHeader className="pb-2">
+                      <Card className="h-full transition-colors hover:bg-muted/50 relative">
+                        {primaryTag && TAG_STYLES[primaryTag] && (
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "absolute top-3 right-3 text-[10px] px-1.5 py-0 h-5 capitalize",
+                              TAG_STYLES[primaryTag]
+                            )}
+                          >
+                            {primaryTag}
+                          </Badge>
+                        )}
+                        <CardHeader className="pb-2 pr-20">
                           <div className="flex items-start justify-between gap-2">
                             <CardTitle className="text-base line-clamp-1">
                               {note.title}
@@ -153,7 +236,7 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
                         </CardContent>
                       </Card>
                     </Link>
-                  ))}
+                  )})}
                 </div>
               </div>
             )}
@@ -165,10 +248,24 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
                   <h2 className="text-sm font-medium text-muted-foreground">All Notes</h2>
                 )}
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {regularNotes.map((note) => (
+                  {regularNotes.map((note) => {
+                    const tags = note.tags as string[]
+                    const primaryTag = tags?.[0]
+                    return (
                     <Link key={note.id} href={`/notes/${note.slug}`}>
-                      <Card className="h-full transition-colors hover:bg-muted/50">
-                        <CardHeader className="pb-2">
+                      <Card className="h-full transition-colors hover:bg-muted/50 relative">
+                        {primaryTag && TAG_STYLES[primaryTag] && (
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "absolute top-3 right-3 text-[10px] px-1.5 py-0 h-5 capitalize",
+                              TAG_STYLES[primaryTag]
+                            )}
+                          >
+                            {primaryTag}
+                          </Badge>
+                        )}
+                        <CardHeader className="pb-2 pr-20">
                           <CardTitle className="text-base line-clamp-1">
                             {note.title}
                           </CardTitle>
@@ -189,7 +286,7 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
                         </CardContent>
                       </Card>
                     </Link>
-                  ))}
+                  )})}
                 </div>
               </div>
             )}

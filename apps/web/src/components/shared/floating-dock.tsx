@@ -85,7 +85,7 @@ export function FloatingDock({ actions, className }: FloatingDockProps) {
   return (
     <div
       ref={containerRef}
-      className={cn("fixed bottom-4 right-4 z-50", className)}
+      className={cn("fixed bottom-4 left-1/2 -translate-x-1/2 z-50", className)}
     >
       {/* Expandable menu - rendered outside dock to avoid overflow clipping */}
       <AnimatePresence>
@@ -95,7 +95,7 @@ export function FloatingDock({ actions, className }: FloatingDockProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute bottom-full right-0 mb-3 flex flex-col-reverse items-end gap-2 z-[60]"
+            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 flex flex-col-reverse items-center gap-2 z-[60]"
           >
             {openMenu.items.map((item, index) => (
               <motion.button

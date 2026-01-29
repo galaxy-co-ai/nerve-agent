@@ -10,6 +10,7 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { H2, Muted } from "@/components/ui/typography"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -115,10 +116,8 @@ export default async function CallsPage({ searchParams }: CallsPageProps) {
       <div className="flex flex-1 flex-col gap-6 p-6">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Call Intelligence</h1>
-            <p className="text-muted-foreground">
-              Transform call transcripts into actionable briefs
-            </p>
+            <H2>Call Intelligence</H2>
+            <Muted>Transform call transcripts into actionable briefs</Muted>
           </div>
         </div>
 
