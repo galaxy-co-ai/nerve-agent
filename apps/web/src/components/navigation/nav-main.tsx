@@ -3,11 +3,9 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  Clock,
   Code2,
   FolderKanban,
   Home,
-  Layers,
   FileText,
   Phone,
   Settings,
@@ -24,8 +22,6 @@ import { cn } from "@/lib/utils"
 const navItems = [
   { title: "Daily Driver", url: "/dashboard", icon: Home },
   { title: "Projects", url: "/projects", icon: FolderKanban },
-  { title: "Sprint Stack", url: "/sprints", icon: Layers },
-  { title: "Time", url: "/time", icon: Clock },
   { title: "Library", url: "/library", icon: Code2 },
   { title: "Notes", url: "/notes", icon: FileText },
   { title: "Calls", url: "/calls", icon: Phone },
