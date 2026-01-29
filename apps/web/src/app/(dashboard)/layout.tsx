@@ -5,6 +5,7 @@ import { ClaudeChat } from "@/components/features/claude-chat"
 import { CommandPalette } from "@/components/shared/command-palette"
 import { QuickNoteDialog } from "@/components/dialogs/quick-note-dialog"
 import { QuickTimeDialog } from "@/components/dialogs/quick-time-dialog"
+import { QuickDock } from "@/components/shared/quick-dock"
 import { TimerWrapper } from "@/components/timer/timer-wrapper"
 import {
   SidebarInset,
@@ -67,6 +68,7 @@ export default async function DashboardLayout({
         <CommandPalette projects={projects} notes={notes} inProgressTasks={inProgressTasks} />
         <QuickNoteDialog />
         <QuickTimeDialog />
+        <QuickDock />
       </SidebarProvider>
     </TimerWrapper>
   )
