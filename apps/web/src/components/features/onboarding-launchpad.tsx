@@ -298,11 +298,10 @@ export function OnboardingLaunchpad() {
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center p-6 min-h-screen">
-      <div className="w-full max-w-xl space-y-8">
-        {/* Welcome header */}
-        <div className="text-center space-y-3">
-          {/* Brand title with bottom glow */}
-          <h1 className="relative text-4xl font-bold tracking-[0.25em] uppercase">
+      <div className="w-full max-w-xl space-y-4">
+        {/* Brand title - large, confident, tight to card */}
+        <div className="text-center">
+          <h1 className="relative text-5xl font-bold tracking-[0.3em] uppercase">
             <span className="relative z-10 bg-gradient-to-t from-orange-500 via-white/90 to-white bg-clip-text text-transparent">
               NERVE AGENT
             </span>
@@ -311,9 +310,6 @@ export function OnboardingLaunchpad() {
               NERVE AGENT
             </span>
           </h1>
-          <p className="text-sm tracking-widest text-muted-foreground font-mono">
-            /build → /ship → /repeat
-          </p>
         </div>
 
         {/* Flip Card Container */}
@@ -578,6 +574,11 @@ export function OnboardingLaunchpad() {
 
           </div>
         </div>
+
+        {/* Tagline - signature at the bottom */}
+        <p className="text-center text-sm tracking-widest text-muted-foreground/50 font-mono pt-2">
+          /build → /ship → /repeat
+        </p>
       </div>
     </div>
   )
