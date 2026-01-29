@@ -5,13 +5,10 @@ import { useRouter } from "next/navigation"
 import {
   Home,
   FolderKanban,
-  Layers,
-  Clock,
   Code2,
   FileText,
   Settings,
   Plus,
-  Calculator,
   AlertCircle,
   Play,
   Square,
@@ -211,18 +208,6 @@ export function CommandPalette({
           >
             <FolderKanban className="mr-2 h-4 w-4" />
             <span>Projects</span>
-          </CommandItem>
-          <CommandItem
-            onSelect={() => runCommand(() => router.push("/sprints"))}
-          >
-            <Layers className="mr-2 h-4 w-4" />
-            <span>Sprint Stack</span>
-          </CommandItem>
-          <CommandItem
-            onSelect={() => runCommand(() => router.push("/time"))}
-          >
-            <Clock className="mr-2 h-4 w-4" />
-            <span>Time Tracking</span>
           </CommandItem>
           <CommandItem
             onSelect={() => runCommand(() => router.push("/library"))}
