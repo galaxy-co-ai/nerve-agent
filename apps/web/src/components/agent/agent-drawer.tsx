@@ -85,6 +85,7 @@ export function AgentDrawer() {
   const [preferences, setPreferences] = useState<AgentPreferences | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isSending, setIsSending] = useState(false)
+  const [actionResult, setActionResult] = useState<{ type: string; content: unknown } | null>(null)
 
   // Fetch suggestions when drawer opens
   const fetchSuggestions = useCallback(async () => {
@@ -196,6 +197,21 @@ export function AgentDrawer() {
     }
   }
 
+  // Handle suggestion edit - opens in chat for modification
+  const handleSuggestionEdit = (suggestion: Suggestion) => {
+    // Add the suggestion to chat for user to modify
+    const agentMessage: ChatMessage = {
+      id: `edit-${Date.now()}`,
+      role: "agent",
+      content: `Here's the suggestion for "${suggestion.title}":\n\n**Proposed Action:** ${suggestion.proposedAction}\n\nYou can tell me how you'd like to modify this, or type a new version.`,
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    }
+    setMessages((prev) => [...prev, agentMessage])
+    setInputValue(`Edit suggestion: `)
+    setActiveTab("chat")
+    setTimeout(() => inputRef.current?.focus(), 100)
+  }
+
   // Handle preference toggle
   const handlePreferenceToggle = async (key: keyof AgentPreferences, value: boolean) => {
     if (!preferences) return
@@ -214,6 +230,28 @@ export function AgentDrawer() {
       // Revert on error
       setPreferences(preferences)
     }
+  }
+
+  // Handle action results - convert to chat message
+  const handleActionResult = (result: { type: string; content: unknown }) => {
+    setActionResult(result)
+
+    // Format result as a chat message
+    let content: string
+    if (typeof result.content === "string") {
+      content = result.content
+    } else {
+      content = JSON.stringify(result.content, null, 2)
+    }
+
+    const agentMessage: ChatMessage = {
+      id: `action-${Date.now()}`,
+      role: "agent",
+      content: `**${result.type.replace(/-/g, " ").toUpperCase()}**\n\n${content}`,
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    }
+    setMessages((prev) => [...prev, agentMessage])
+    setActiveTab("chat")
   }
 
   return (
@@ -352,6 +390,7 @@ export function AgentDrawer() {
                         <InboxTab
                           suggestions={suggestions}
                           onAction={handleSuggestionAction}
+                          onEdit={handleSuggestionEdit}
                           quietHours={preferences?.quietHoursEnabled ? {
                             start: preferences.quietHoursStart,
                             end: preferences.quietHoursEnd,
@@ -361,7 +400,9 @@ export function AgentDrawer() {
                       {activeTab === "chat" && (
                         <ChatTab messages={messages} isSending={isSending} />
                       )}
-                      {activeTab === "actions" && <ActionsTab />}
+                      {activeTab === "actions" && (
+                        <ActionsTab onActionResult={handleActionResult} />
+                      )}
                       {activeTab === "memory" && (
                         <MemoryTab
                           preferences={preferences}
@@ -421,10 +462,12 @@ export function AgentDrawer() {
 function InboxTab({
   suggestions,
   onAction,
+  onEdit,
   quietHours,
 }: {
   suggestions: Suggestion[]
   onAction: (id: string, action: "approve" | "dismiss") => void
+  onEdit: (suggestion: Suggestion) => void
   quietHours: { start: string; end: string } | null
 }) {
   const getIconForTrigger = (triggerType: string) => {
@@ -527,7 +570,12 @@ function InboxTab({
                 <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
                 Approve
               </Button>
-              <Button size="sm" variant="outline" className="h-8 text-xs">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs"
+                onClick={() => onEdit(suggestion)}
+              >
                 <Edit3 className="h-3.5 w-3.5 mr-1.5" />
                 Edit
               </Button>
@@ -638,7 +686,33 @@ function ChatTab({
 // ACTIONS TAB - Manual triggers for agent behaviors
 // =============================================================================
 
-function ActionsTab() {
+function ActionsTab({
+  onActionResult,
+}: {
+  onActionResult: (result: { type: string; content: unknown }) => void
+}) {
+  const [loadingAction, setLoadingAction] = useState<string | null>(null)
+
+  const executeAction = async (actionId: string) => {
+    setLoadingAction(actionId)
+    try {
+      const res = await fetch("/api/agent/actions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ actionId }),
+      })
+
+      if (res.ok) {
+        const result = await res.json()
+        onActionResult(result)
+      }
+    } catch (error) {
+      console.error("Action failed:", error)
+    } finally {
+      setLoadingAction(null)
+    }
+  }
+
   const actionGroups = [
     {
       label: "Generate",
@@ -648,6 +722,7 @@ function ActionsTab() {
           label: "Client Update",
           description: "Summary of recent progress for stakeholders",
           icon: <Mail className="h-4 w-4" />,
+          requiresProject: true,
         },
         {
           id: "weekly-summary",
@@ -671,12 +746,14 @@ function ActionsTab() {
           label: "Blocker Analysis",
           description: "Why is this taking so long? Root cause breakdown",
           icon: <AlertTriangle className="h-4 w-4" />,
+          requiresBlocker: true,
         },
         {
           id: "scope-check",
           label: "Scope Check",
           description: "Are we building what we planned? Drift detection",
           icon: <Eye className="h-4 w-4" />,
+          requiresProject: true,
         },
       ],
     },
@@ -701,30 +778,41 @@ function ActionsTab() {
             {group.label}
           </Muted>
           <div className="space-y-2">
-            {group.actions.map((action) => (
-              <button
-                key={action.id}
-                className={cn(
-                  "w-full p-3 rounded-xl",
-                  "border border-border/50 bg-card/30",
-                  "hover:bg-card/60 hover:border-border",
-                  "transition-colors text-left group"
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors">
-                    {action.icon}
+            {group.actions.map((action) => {
+              const isLoading = loadingAction === action.id
+              const isDisabled = isLoading || loadingAction !== null
+              return (
+                <button
+                  key={action.id}
+                  onClick={() => executeAction(action.id)}
+                  disabled={isDisabled}
+                  className={cn(
+                    "w-full p-3 rounded-xl",
+                    "border border-border/50 bg-card/30",
+                    "hover:bg-card/60 hover:border-border",
+                    "transition-colors text-left group",
+                    "disabled:opacity-50 disabled:cursor-not-allowed"
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                      {isLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        action.icon
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm">{action.label}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {action.description}
+                      </p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm">{action.label}</p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {action.description}
-                    </p>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-                </div>
-              </button>
-            ))}
+                </button>
+              )
+            })}
           </div>
         </div>
       ))}

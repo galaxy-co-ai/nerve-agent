@@ -4,6 +4,29 @@ import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 
+// Helper to trigger the agent when relevant events occur
+async function triggerAgent(
+  triggerType: string,
+  entityId: string,
+  entityData: Record<string, unknown>
+) {
+  try {
+    // Use internal API call for server action -> API route communication
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000"
+
+    await fetch(`${baseUrl}/api/agent/trigger`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ triggerType, entityId, entityData }),
+    })
+  } catch (error) {
+    // Don't block the main action if agent trigger fails
+    console.error("Agent trigger failed:", error)
+  }
+}
+
 export async function createBlocker(projectSlug: string, formData: FormData) {
   const user = await requireUser()
 
@@ -24,7 +47,7 @@ export async function createBlocker(projectSlug: string, formData: FormData) {
     throw new Error("Project not found")
   }
 
-  await db.blocker.create({
+  const blocker = await db.blocker.create({
     data: {
       projectId: project.id,
       title,
@@ -32,6 +55,16 @@ export async function createBlocker(projectSlug: string, formData: FormData) {
       type: type || "HARD",
       waitingOn,
     },
+  })
+
+  // Trigger agent for new blocker (it can decide if it wants to suggest something)
+  triggerAgent("blocker_created", blocker.id, {
+    title,
+    description,
+    type: type || "HARD",
+    waitingOn,
+    projectName: project.name,
+    projectSlug: project.slug,
   })
 
   revalidatePath(`/projects/${projectSlug}`)
@@ -48,7 +81,7 @@ export async function resolveBlocker(blockerId: string) {
       project: { userId: user.id },
     },
     include: {
-      project: { select: { slug: true } },
+      project: { select: { slug: true, name: true } },
     },
   })
 
@@ -56,12 +89,26 @@ export async function resolveBlocker(blockerId: string) {
     throw new Error("Blocker not found")
   }
 
+  const daysToResolve = Math.floor(
+    (Date.now() - blocker.createdAt.getTime()) / (1000 * 60 * 60 * 24)
+  )
+
   await db.blocker.update({
     where: { id: blockerId },
     data: {
       status: "RESOLVED",
       resolvedAt: new Date(),
     },
+  })
+
+  // Trigger agent for resolved blocker (can learn patterns)
+  triggerAgent("blocker_resolved", blockerId, {
+    title: blocker.title,
+    type: blocker.type,
+    waitingOn: blocker.waitingOn,
+    daysToResolve,
+    followUpCount: blocker.followUpCount,
+    projectName: blocker.project.name,
   })
 
   revalidatePath(`/projects/${blocker.project.slug}`)
@@ -104,7 +151,7 @@ export async function recordFollowUp(blockerId: string) {
       project: { userId: user.id },
     },
     include: {
-      project: { select: { slug: true } },
+      project: { select: { slug: true, name: true } },
     },
   })
 
@@ -112,13 +159,28 @@ export async function recordFollowUp(blockerId: string) {
     throw new Error("Blocker not found")
   }
 
-  await db.blocker.update({
+  const updatedBlocker = await db.blocker.update({
     where: { id: blockerId },
     data: {
       lastFollowUpAt: new Date(),
       followUpCount: { increment: 1 },
     },
   })
+
+  // If this is the 3rd+ follow-up, agent might want to escalate or suggest
+  if (updatedBlocker.followUpCount >= 3) {
+    const blockerAge = Math.floor(
+      (Date.now() - blocker.createdAt.getTime()) / (1000 * 60 * 60 * 24)
+    )
+    triggerAgent("blocker_stale", blockerId, {
+      title: blocker.title,
+      type: blocker.type,
+      waitingOn: blocker.waitingOn,
+      followUpCount: updatedBlocker.followUpCount,
+      daysOld: blockerAge,
+      projectName: blocker.project.name,
+    })
+  }
 
   revalidatePath(`/projects/${blocker.project.slug}`)
   revalidatePath("/dashboard/blockers")

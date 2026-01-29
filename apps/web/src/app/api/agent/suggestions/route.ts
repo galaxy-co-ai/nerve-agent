@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
+import { executeAction } from "@/lib/agent/actions"
 
 // GET: List all pending suggestions for the user
 export async function GET() {
@@ -57,6 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     let updatedSuggestion
+    let actionResult = null
 
     switch (action) {
       case "approve":
@@ -67,7 +69,23 @@ export async function POST(request: NextRequest) {
             respondedAt: new Date(),
           },
         })
-        // TODO: Execute the proposed action
+
+        // Execute the proposed action if there's an action payload
+        if (suggestion.actionPayload) {
+          try {
+            const payload = suggestion.actionPayload as { actionType?: string; params?: Record<string, unknown> }
+            if (payload.actionType) {
+              actionResult = await executeAction(
+                user.id,
+                payload.actionType,
+                payload.params || {}
+              )
+            }
+          } catch (execError) {
+            console.error("Failed to execute action:", execError)
+            // Don't fail the whole request, just log it
+          }
+        }
         break
 
       case "dismiss":
@@ -88,7 +106,7 @@ export async function POST(request: NextRequest) {
         )
     }
 
-    return NextResponse.json(updatedSuggestion)
+    return NextResponse.json({ suggestion: updatedSuggestion, actionResult })
   } catch (error) {
     console.error("Respond to suggestion error:", error)
     return NextResponse.json(
