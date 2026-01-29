@@ -36,6 +36,11 @@ model User {
   notes             Note[]
   faqs              Faq[]
 
+  // Agent relationships
+  agentPreferences    AgentPreferences?
+  agentSuggestions    AgentSuggestion[]
+  agentConversations  AgentConversation[]
+
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }
@@ -777,5 +782,131 @@ model ProjectWorkspaceNote {
 
   @@index([projectId])
   @@index([checkpointId])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// AI Agent System
+// ============================================================================
+
+// Agent Preferences - User settings for agent behavior
+model AgentPreferences {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Proactive behavior
+  proactiveEnabled    Boolean  @default(true)
+  autoDraftFollowups  Boolean  @default(true)
+  morningBriefEnabled Boolean  @default(false)
+  morningBriefTime    String   @default("09:00")
+
+  // Quiet hours
+  quietHoursEnabled   Boolean  @default(true)
+  quietHoursStart     String   @default("22:00")
+  quietHoursEnd       String   @default("08:00")
+
+  // Communication style (learned + explicit)
+  preferredStyle      String   @default("concise") // concise, detailed
+  timezone            String   @default("America/New_York")
+
+  // Learned patterns (JSON)
+  learnedPatterns     Json     @default("[]")
+
+  // Auto-approve settings
+  autoApproveTypes    Json     @default("[]") // ["draft-note", "analyze-blocker"]
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+// Agent Suggestion - Proactive suggestions waiting for user action
+model AgentSuggestion {
+  id              String              @id @default(cuid())
+  userId          String
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // What triggered this
+  triggerType     String              // "blocker_stale", "sprint_complete", "task_stuck", etc.
+  triggerEntityId String?             // ID of the blocker, sprint, task, etc.
+
+  // The suggestion
+  type            String              // "follow-up", "summary", "analysis", "reminder"
+  title           String
+  description     String              @db.Text
+  projectId       String?
+  projectName     String?
+
+  // What the agent proposes to do
+  proposedAction  String              // "draft_email", "generate_summary", etc.
+  actionPayload   Json                @default("{}") // Data needed to execute
+
+  // Status
+  status          AgentSuggestionStatus @default(PENDING)
+  respondedAt     DateTime?
+  dismissReason   String?
+
+  // Priority
+  urgency         String              @default("normal") // "low", "normal", "urgent"
+
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum AgentSuggestionStatus {
+  PENDING
+  APPROVED
+  DISMISSED
+  AUTO_EXECUTED
+  EXPIRED
+}
+
+// Agent Conversation - Chat sessions with the agent
+model AgentConversation {
+  id          String          @id @default(cuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Optional context
+  projectId   String?
+  title       String?
+
+  // Messages
+  messages    AgentMessage[]
+
+  // Metadata
+  messageCount Int            @default(0)
+  lastMessageAt DateTime?
+
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([userId])
+  @@index([lastMessageAt])
+}
+
+// Agent Message - Individual messages in a conversation
+model AgentMessage {
+  id              String            @id @default(cuid())
+  conversationId  String
+  conversation    AgentConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  // Message content
+  role            String            // "user" or "agent"
+  content         String            @db.Text
+
+  // Tool usage (for agent messages)
+  toolCalls       Json?             // [{name, input, result}]
+
+  // Metadata
+  tokenCount      Int?
+
+  createdAt       DateTime          @default(now())
+
+  @@index([conversationId])
   @@index([createdAt])
 }

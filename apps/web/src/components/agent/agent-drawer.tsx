@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Bot,
@@ -15,10 +15,7 @@ import {
   CheckCircle2,
   XCircle,
   ChevronRight,
-  User,
   Calendar,
-  Bell,
-  BellOff,
   Edit3,
   AlertTriangle,
   FileText,
@@ -27,11 +24,12 @@ import {
   Coffee,
   Moon,
   Eye,
+  Loader2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { H3, H4, Muted, Small } from "@/components/ui/typography"
+import { H4, Muted } from "@/components/ui/typography"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 
@@ -44,14 +42,87 @@ interface TabConfig {
   badge?: number
 }
 
+interface Suggestion {
+  id: string
+  triggerType: string
+  title: string
+  description: string
+  proposedAction: string
+  projectName?: string
+  urgency: string
+  createdAt: string
+}
+
+interface ChatMessage {
+  id: string
+  role: "user" | "agent"
+  content: string
+  timestamp: string
+}
+
+interface AgentPreferences {
+  proactiveEnabled: boolean
+  autoDraftFollowups: boolean
+  morningBriefEnabled: boolean
+  morningBriefTime: string
+  quietHoursEnabled: boolean
+  quietHoursStart: string
+  quietHoursEnd: string
+  preferredStyle: string
+  timezone: string
+  learnedPatterns: string[]
+}
+
 export function AgentDrawer() {
   const [isOpen, setIsOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<AgentTab>("inbox")
   const [inputValue, setInputValue] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Inbox count for badge
-  const inboxCount = 2
+  // Data state
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([])
+  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [preferences, setPreferences] = useState<AgentPreferences | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isSending, setIsSending] = useState(false)
+
+  // Fetch suggestions when drawer opens
+  const fetchSuggestions = useCallback(async () => {
+    try {
+      const res = await fetch("/api/agent/suggestions")
+      if (res.ok) {
+        const data = await res.json()
+        setSuggestions(data)
+      }
+    } catch (error) {
+      console.error("Failed to fetch suggestions:", error)
+    }
+  }, [])
+
+  // Fetch preferences
+  const fetchPreferences = useCallback(async () => {
+    try {
+      const res = await fetch("/api/agent/preferences")
+      if (res.ok) {
+        const data = await res.json()
+        setPreferences(data)
+      }
+    } catch (error) {
+      console.error("Failed to fetch preferences:", error)
+    }
+  }, [])
+
+  // Load data when drawer opens
+  useEffect(() => {
+    if (isOpen) {
+      setIsLoading(true)
+      Promise.all([fetchSuggestions(), fetchPreferences()]).finally(() => {
+        setIsLoading(false)
+      })
+    }
+  }, [isOpen, fetchSuggestions, fetchPreferences])
+
+  const inboxCount = suggestions.length
 
   const TABS: TabConfig[] = [
     { id: "inbox", label: "Inbox", icon: <Inbox className="h-4 w-4" />, badge: inboxCount },
@@ -67,12 +138,82 @@ export function AgentDrawer() {
     }
   }, [isOpen])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Handle chat submit
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!inputValue.trim()) return
-    // TODO: Send to agent
-    setActiveTab("chat")
+    if (!inputValue.trim() || isSending) return
+
+    const userMessage: ChatMessage = {
+      id: `user-${Date.now()}`,
+      role: "user",
+      content: inputValue.trim(),
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    }
+
+    setMessages((prev) => [...prev, userMessage])
     setInputValue("")
+    setActiveTab("chat")
+    setIsSending(true)
+
+    try {
+      const res = await fetch("/api/agent/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMessage.content }),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        const agentMessage: ChatMessage = {
+          id: `agent-${Date.now()}`,
+          role: "agent",
+          content: data.message,
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        }
+        setMessages((prev) => [...prev, agentMessage])
+      }
+    } catch (error) {
+      console.error("Failed to send message:", error)
+    } finally {
+      setIsSending(false)
+    }
+  }
+
+  // Handle suggestion actions
+  const handleSuggestionAction = async (suggestionId: string, action: "approve" | "dismiss") => {
+    try {
+      const res = await fetch("/api/agent/suggestions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ suggestionId, action }),
+      })
+
+      if (res.ok) {
+        setSuggestions((prev) => prev.filter((s) => s.id !== suggestionId))
+      }
+    } catch (error) {
+      console.error("Failed to handle suggestion:", error)
+    }
+  }
+
+  // Handle preference toggle
+  const handlePreferenceToggle = async (key: keyof AgentPreferences, value: boolean) => {
+    if (!preferences) return
+
+    const updated = { ...preferences, [key]: value }
+    setPreferences(updated)
+
+    try {
+      await fetch("/api/agent/preferences", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [key]: value }),
+      })
+    } catch (error) {
+      console.error("Failed to update preference:", error)
+      // Revert on error
+      setPreferences(preferences)
+    }
   }
 
   return (
@@ -194,20 +335,42 @@ export function AgentDrawer() {
             {/* Content */}
             <ScrollArea className="flex-1">
               <div className="p-4">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeTab}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    {activeTab === "inbox" && <InboxTab />}
-                    {activeTab === "chat" && <ChatTab />}
-                    {activeTab === "actions" && <ActionsTab />}
-                    {activeTab === "memory" && <MemoryTab />}
-                  </motion.div>
-                </AnimatePresence>
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-16">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                ) : (
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeTab}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.15 }}
+                    >
+                      {activeTab === "inbox" && (
+                        <InboxTab
+                          suggestions={suggestions}
+                          onAction={handleSuggestionAction}
+                          quietHours={preferences?.quietHoursEnabled ? {
+                            start: preferences.quietHoursStart,
+                            end: preferences.quietHoursEnd,
+                          } : null}
+                        />
+                      )}
+                      {activeTab === "chat" && (
+                        <ChatTab messages={messages} isSending={isSending} />
+                      )}
+                      {activeTab === "actions" && <ActionsTab />}
+                      {activeTab === "memory" && (
+                        <MemoryTab
+                          preferences={preferences}
+                          onToggle={handlePreferenceToggle}
+                        />
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+                )}
               </div>
             </ScrollArea>
 
@@ -255,31 +418,36 @@ export function AgentDrawer() {
 // INBOX TAB - Proactive suggestions awaiting response
 // =============================================================================
 
-function InboxTab() {
-  const suggestions = [
-    {
-      id: "1",
-      type: "blocker-followup",
-      icon: <AlertTriangle className="h-4 w-4" />,
-      iconBg: "bg-yellow-500/10 text-yellow-500",
-      title: "Blocker needs follow-up",
-      description: "API integration blocker on MyStride is 5 days old. Client hasn't responded.",
-      project: "MyStride",
-      action: "Draft follow-up email?",
-      timestamp: "2 hours ago",
-    },
-    {
-      id: "2",
-      type: "sprint-complete",
-      icon: <FileText className="h-4 w-4" />,
-      iconBg: "bg-blue-500/10 text-blue-500",
-      title: "Sprint 3 wrapped",
-      description: "All tasks completed. Ready to update the client.",
-      project: "Nerve Agent",
-      action: "Generate client update?",
-      timestamp: "4 hours ago",
-    },
-  ]
+function InboxTab({
+  suggestions,
+  onAction,
+  quietHours,
+}: {
+  suggestions: Suggestion[]
+  onAction: (id: string, action: "approve" | "dismiss") => void
+  quietHours: { start: string; end: string } | null
+}) {
+  const getIconForTrigger = (triggerType: string) => {
+    switch (triggerType) {
+      case "blocker_stale":
+        return { icon: <AlertTriangle className="h-4 w-4" />, bg: "bg-yellow-500/10 text-yellow-500" }
+      case "sprint_complete":
+        return { icon: <FileText className="h-4 w-4" />, bg: "bg-blue-500/10 text-blue-500" }
+      case "task_stuck":
+        return { icon: <Clock className="h-4 w-4" />, bg: "bg-red-500/10 text-red-500" }
+      default:
+        return { icon: <Sparkles className="h-4 w-4" />, bg: "bg-orange-500/10 text-orange-500" }
+    }
+  }
+
+  const formatTimestamp = (date: string) => {
+    const diff = Date.now() - new Date(date).getTime()
+    const hours = Math.floor(diff / (1000 * 60 * 60))
+    if (hours < 1) return "Just now"
+    if (hours < 24) return `${hours}h ago`
+    const days = Math.floor(hours / 24)
+    return `${days}d ago`
+  }
 
   if (suggestions.length === 0) {
     return (
@@ -306,67 +474,83 @@ function InboxTab() {
       </div>
 
       {/* Suggestion cards */}
-      {suggestions.map((suggestion, index) => (
-        <motion.div
-          key={suggestion.id}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.05 }}
-          className="p-4 rounded-xl border border-border/50 bg-card/30 space-y-3"
-        >
-          {/* Header */}
-          <div className="flex items-start gap-3">
-            <div className={cn("p-2 rounded-lg", suggestion.iconBg)}>
-              {suggestion.icon}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-0.5">
-                <span className="font-medium text-sm">{suggestion.title}</span>
+      {suggestions.map((suggestion, index) => {
+        const { icon, bg } = getIconForTrigger(suggestion.triggerType)
+        return (
+          <motion.div
+            key={suggestion.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05 }}
+            className="p-4 rounded-xl border border-border/50 bg-card/30 space-y-3"
+          >
+            {/* Header */}
+            <div className="flex items-start gap-3">
+              <div className={cn("p-2 rounded-lg", bg)}>
+                {icon}
               </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                  {suggestion.project}
-                </Badge>
-                <span className="text-[10px] text-muted-foreground">
-                  {suggestion.timestamp}
-                </span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="font-medium text-sm">{suggestion.title}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {suggestion.projectName && (
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                      {suggestion.projectName}
+                    </Badge>
+                  )}
+                  <span className="text-[10px] text-muted-foreground">
+                    {formatTimestamp(suggestion.createdAt)}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Description */}
-          <p className="text-sm text-muted-foreground">
-            {suggestion.description}
-          </p>
+            {/* Description */}
+            <p className="text-sm text-muted-foreground">
+              {suggestion.description}
+            </p>
 
-          {/* Agent suggestion */}
-          <div className="flex items-center gap-2 text-sm">
-            <Sparkles className="h-3.5 w-3.5 text-orange-500" />
-            <span className="text-foreground">{suggestion.action}</span>
-          </div>
+            {/* Agent suggestion */}
+            <div className="flex items-center gap-2 text-sm">
+              <Sparkles className="h-3.5 w-3.5 text-orange-500" />
+              <span className="text-foreground">{suggestion.proposedAction}</span>
+            </div>
 
-          {/* Actions */}
-          <div className="flex gap-2 pt-1">
-            <Button size="sm" className="flex-1 h-8 text-xs bg-orange-500 hover:bg-orange-600">
-              <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
-              Approve
-            </Button>
-            <Button size="sm" variant="outline" className="h-8 text-xs">
-              <Edit3 className="h-3.5 w-3.5 mr-1.5" />
-              Edit
-            </Button>
-            <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-muted-foreground">
-              <XCircle className="h-4 w-4" />
-            </Button>
-          </div>
-        </motion.div>
-      ))}
+            {/* Actions */}
+            <div className="flex gap-2 pt-1">
+              <Button
+                size="sm"
+                className="flex-1 h-8 text-xs bg-orange-500 hover:bg-orange-600"
+                onClick={() => onAction(suggestion.id, "approve")}
+              >
+                <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
+                Approve
+              </Button>
+              <Button size="sm" variant="outline" className="h-8 text-xs">
+                <Edit3 className="h-3.5 w-3.5 mr-1.5" />
+                Edit
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-8 w-8 p-0 text-muted-foreground"
+                onClick={() => onAction(suggestion.id, "dismiss")}
+              >
+                <XCircle className="h-4 w-4" />
+              </Button>
+            </div>
+          </motion.div>
+        )
+      })}
 
       {/* Quiet time notice */}
-      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/30 text-xs text-muted-foreground">
-        <Moon className="h-3.5 w-3.5" />
-        <span>Quiet hours: 10pm - 8am. Only urgent items will notify.</span>
-      </div>
+      {quietHours && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/30 text-xs text-muted-foreground">
+          <Moon className="h-3.5 w-3.5" />
+          <span>Quiet hours: {quietHours.start} - {quietHours.end}. Only urgent items will notify.</span>
+        </div>
+      )}
     </div>
   )
 }
@@ -375,28 +559,13 @@ function InboxTab() {
 // CHAT TAB - Conversational interface
 // =============================================================================
 
-function ChatTab() {
-  const messages = [
-    {
-      id: "1",
-      role: "agent" as const,
-      content: "Morning. Quick rundown: MyStride blocker still waiting on client (5 days). Nerve Agent sprint finished yesterday. Nothing urgent.",
-      timestamp: "9:00 AM",
-    },
-    {
-      id: "2",
-      role: "user" as const,
-      content: "What's blocking the MyStride integration?",
-      timestamp: "9:02 AM",
-    },
-    {
-      id: "3",
-      role: "agent" as const,
-      content: "They need to whitelist our OAuth callback URL. Sent the request last Tuesday. No response. Want me to draft a follow-up? I can CC their tech lead if you want to escalate.",
-      timestamp: "9:02 AM",
-    },
-  ]
-
+function ChatTab({
+  messages,
+  isSending,
+}: {
+  messages: ChatMessage[]
+  isSending: boolean
+}) {
   return (
     <div className="space-y-4">
       {messages.length === 0 ? (
@@ -446,6 +615,19 @@ function ChatTab() {
               </div>
             </div>
           ))}
+          {isSending && (
+            <div className="flex gap-3">
+              <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-sm">
+                <Bot className="h-4 w-4 text-white" />
+              </div>
+              <div className="flex-1 max-w-[85%] p-3 rounded-xl text-sm bg-muted/50">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  <span className="text-muted-foreground">Thinking...</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -554,29 +736,33 @@ function ActionsTab() {
 // MEMORY TAB - What the agent knows about you
 // =============================================================================
 
-function MemoryTab() {
-  // User profile - what the agent has learned
-  const userProfile = {
-    name: "Alex",
-    workingHours: "9am - 6pm",
-    timezone: "EST",
-    style: "Concise",
-    projects: 3,
+function MemoryTab({
+  preferences,
+  onToggle,
+}: {
+  preferences: AgentPreferences | null
+  onToggle: (key: keyof AgentPreferences, value: boolean) => void
+}) {
+  const learnedPatterns = (preferences?.learnedPatterns || []) as string[]
+
+  const agentSettings: {
+    id: keyof AgentPreferences
+    label: string
+    description: string
+  }[] = [
+    { id: "proactiveEnabled", label: "Proactive suggestions", description: "Surface issues without being asked" },
+    { id: "autoDraftFollowups", label: "Auto-draft follow-ups", description: "Prepare emails for stale blockers" },
+    { id: "morningBriefEnabled", label: "Morning brief", description: "Daily summary at start of work" },
+    { id: "quietHoursEnabled", label: "Respect quiet hours", description: `No notifications ${preferences?.quietHoursStart || "10pm"} - ${preferences?.quietHoursEnd || "8am"}` },
+  ]
+
+  if (!preferences) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    )
   }
-
-  const learnedPatterns = [
-    { label: "Prefers short updates over detailed reports", type: "communication" },
-    { label: "Usually responds to blockers within 24h", type: "behavior" },
-    { label: "Scope creep is a recurring frustration", type: "insight" },
-    { label: "Most productive in morning hours", type: "behavior" },
-  ]
-
-  const agentSettings = [
-    { id: "proactive", label: "Proactive suggestions", description: "Surface issues without being asked", enabled: true },
-    { id: "auto-draft", label: "Auto-draft follow-ups", description: "Prepare emails for stale blockers", enabled: true },
-    { id: "morning-brief", label: "Morning brief", description: "Daily summary at start of work", enabled: false },
-    { id: "quiet-hours", label: "Respect quiet hours", description: "No notifications 10pm - 8am", enabled: true },
-  ]
 
   return (
     <div className="space-y-6">
@@ -592,30 +778,14 @@ function MemoryTab() {
           </Button>
         </div>
         <div className="p-4 rounded-xl border border-border/50 bg-card/30 space-y-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-medium">
-              {userProfile.name.charAt(0)}
-            </div>
-            <div>
-              <p className="font-medium">{userProfile.name}</p>
-              <p className="text-xs text-muted-foreground">
-                {userProfile.projects} active projects
-              </p>
-            </div>
-          </div>
-          <Separator className="bg-border/50" />
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div className="flex items-center gap-2">
-              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>{userProfile.workingHours}</span>
-            </div>
-            <div className="flex items-center gap-2">
               <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>{userProfile.timezone}</span>
+              <span>{preferences.timezone}</span>
             </div>
             <div className="flex items-center gap-2 col-span-2">
               <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>Prefers {userProfile.style.toLowerCase()} responses</span>
+              <span>Prefers {preferences.preferredStyle} responses</span>
             </div>
           </div>
         </div>
@@ -626,17 +796,23 @@ function MemoryTab() {
         <Muted className="text-xs uppercase tracking-wider font-medium">
           What I've Learned
         </Muted>
-        <div className="space-y-2">
-          {learnedPatterns.map((pattern, index) => (
-            <div
-              key={index}
-              className="flex items-start gap-2 p-2.5 rounded-lg bg-muted/30 text-sm"
-            >
-              <Brain className="h-3.5 w-3.5 text-orange-500 mt-0.5 flex-shrink-0" />
-              <span className="text-muted-foreground">{pattern.label}</span>
-            </div>
-          ))}
-        </div>
+        {learnedPatterns.length > 0 ? (
+          <div className="space-y-2">
+            {learnedPatterns.map((pattern, index) => (
+              <div
+                key={index}
+                className="flex items-start gap-2 p-2.5 rounded-lg bg-muted/30 text-sm"
+              >
+                <Brain className="h-3.5 w-3.5 text-orange-500 mt-0.5 flex-shrink-0" />
+                <span className="text-muted-foreground">{pattern}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-4 rounded-lg bg-muted/30 text-sm text-muted-foreground text-center">
+            No patterns learned yet. Keep using the agent!
+          </div>
+        )}
         <p className="text-[11px] text-muted-foreground px-1">
           Patterns are learned from your activity. Nothing is shared externally.
         </p>
@@ -648,30 +824,34 @@ function MemoryTab() {
           Agent Behavior
         </Muted>
         <div className="space-y-2">
-          {agentSettings.map((setting) => (
-            <label
-              key={setting.id}
-              className="flex items-center justify-between p-3 rounded-xl border border-border/50 bg-card/30 cursor-pointer hover:bg-card/50 transition-colors"
-            >
-              <div className="flex-1 min-w-0 pr-3">
-                <p className="text-sm font-medium">{setting.label}</p>
-                <p className="text-xs text-muted-foreground">{setting.description}</p>
-              </div>
-              <div
-                className={cn(
-                  "relative w-9 h-5 rounded-full transition-colors",
-                  setting.enabled ? "bg-orange-500" : "bg-muted"
-                )}
+          {agentSettings.map((setting) => {
+            const isEnabled = preferences[setting.id] as boolean
+            return (
+              <button
+                key={setting.id}
+                onClick={() => onToggle(setting.id, !isEnabled)}
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-border/50 bg-card/30 cursor-pointer hover:bg-card/50 transition-colors"
               >
+                <div className="flex-1 min-w-0 pr-3 text-left">
+                  <p className="text-sm font-medium">{setting.label}</p>
+                  <p className="text-xs text-muted-foreground">{setting.description}</p>
+                </div>
                 <div
                   className={cn(
-                    "absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform",
-                    setting.enabled ? "translate-x-4" : "translate-x-0.5"
+                    "relative w-9 h-5 rounded-full transition-colors flex-shrink-0",
+                    isEnabled ? "bg-orange-500" : "bg-muted"
                   )}
-                />
-              </div>
-            </label>
-          ))}
+                >
+                  <div
+                    className={cn(
+                      "absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform",
+                      isEnabled ? "translate-x-4" : "translate-x-0.5"
+                    )}
+                  />
+                </div>
+              </button>
+            )
+          })}
         </div>
       </div>
 
