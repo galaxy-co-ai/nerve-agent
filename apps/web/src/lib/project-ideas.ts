@@ -21,7 +21,163 @@ export type ProjectCategory =
   | "finance"
 
 export const PROJECT_IDEAS: ProjectIdea[] = [
-  // === DEVELOPER TOOLS (High demand, clear value) ===
+  // =====================================================
+  // TOP 25 - "Drop Everything and Build This" Tier
+  // =====================================================
+  {
+    id: "churn-whisperer",
+    name: "Churn Whisperer",
+    tagline: "Predict who's canceling next week—and why",
+    category: "saas",
+  },
+  {
+    id: "twitter-dm-dealflow",
+    name: "Twitter DM Deal Flow",
+    tagline: "CRM for the DMs where you actually close deals",
+    category: "saas",
+  },
+  {
+    id: "competitor-changelog-radar",
+    name: "Competitor Radar",
+    tagline: "Get notified the moment competitors ship something new",
+    category: "developer",
+  },
+  {
+    id: "screenshot-to-tailwind",
+    name: "Screenshot → Tailwind",
+    tagline: "Paste any UI, get production-ready code",
+    category: "developer",
+  },
+  {
+    id: "revenue-attribution-indie",
+    name: "Revenue Attribution",
+    tagline: "Know which tweet actually drove that paying customer",
+    category: "saas",
+  },
+  {
+    id: "pre-money-validation",
+    name: "Pre-Money Validation",
+    tagline: "Collect $5 deposits before you write a line of code",
+    category: "saas",
+  },
+  {
+    id: "hn-reddit-alerts",
+    name: "Mention Alerts",
+    tagline: "Your product mentioned on HN or Reddit? Know in 5 minutes",
+    category: "developer",
+  },
+  {
+    id: "async-demo-autopilot",
+    name: "Async Demo Autopilot",
+    tagline: "Stop doing the same Zoom call 50 times",
+    category: "saas",
+  },
+  {
+    id: "support-to-docs",
+    name: "Support → Docs",
+    tagline: "One click turns support tickets into help articles",
+    category: "saas",
+  },
+  {
+    id: "mrr-milestone-broadcaster",
+    name: "MRR Milestones",
+    tagline: "Auto-celebrate revenue milestones with beautiful graphics",
+    category: "saas",
+  },
+  {
+    id: "founder-accountability",
+    name: "Founder Match",
+    tagline: "Weekly accountability with someone at your revenue stage",
+    category: "productivity",
+  },
+  {
+    id: "anti-meeting-tool",
+    name: "Anti-Meeting",
+    tagline: "Loom + AI action items. Status updates without the calendar cancer",
+    category: "productivity",
+  },
+  {
+    id: "pricing-page-lab",
+    name: "Pricing Page Lab",
+    tagline: "A/B test price points, not just button colors",
+    category: "saas",
+  },
+  {
+    id: "domain-handle-checker",
+    name: "Name Checker",
+    tagline: "Domain, Twitter, GitHub, npm—all available? One search",
+    category: "developer",
+  },
+  {
+    id: "exit-interview-intel",
+    name: "Exit Intel",
+    tagline: "Cancellation surveys that actually get responses",
+    category: "saas",
+  },
+  {
+    id: "stripe-invoice-glowup",
+    name: "Invoice Glow-Up",
+    tagline: "Make Stripe invoices look like you have a design team",
+    category: "finance",
+  },
+  {
+    id: "uptime-for-indies",
+    name: "Uptime for Indies",
+    tagline: "Is it up? Text me if not. $5/month",
+    category: "developer",
+  },
+  {
+    id: "thread-to-blog",
+    name: "Thread → Blog",
+    tagline: "Viral tweet thread to SEO-ready blog post, one click",
+    category: "creative",
+  },
+  {
+    id: "customer-interview-vault",
+    name: "Interview Vault",
+    tagline: "All your user interviews—searchable, with insights extracted",
+    category: "saas",
+  },
+  {
+    id: "feature-voting-simple",
+    name: "Feature Voting",
+    tagline: "Canny without the Canny pricing",
+    category: "saas",
+  },
+  {
+    id: "microsaas-flip-market",
+    name: "Micro Flip Market",
+    tagline: "Buy and sell SaaS projects under $50K",
+    category: "marketplace",
+  },
+  {
+    id: "dunning-savior",
+    name: "Dunning Savior",
+    tagline: "Recover 40% of failed payments automatically",
+    category: "finance",
+  },
+  {
+    id: "solo-ops-stack",
+    name: "Solo Ops Stack",
+    tagline: "Contracts, invoices, expenses, taxes—one dashboard",
+    category: "finance",
+  },
+  {
+    id: "api-usage-pricer",
+    name: "API Pricer",
+    tagline: "Model usage-based pricing before you launch and regret it",
+    category: "developer",
+  },
+  {
+    id: "cold-email-scout",
+    name: "Deliverability Scout",
+    tagline: "Check if your cold email hits inbox before you burn your domain",
+    category: "saas",
+  },
+
+  // =====================================================
+  // DEVELOPER TOOLS
+  // =====================================================
   {
     id: "api-uptime-monitor",
     name: "API Uptime Monitor",
@@ -47,12 +203,6 @@ export const PROJECT_IDEAS: ProjectIdea[] = [
     category: "developer",
   },
   {
-    id: "error-tracking-lite",
-    name: "Error Tracking Lite",
-    tagline: "Sentry alternative that doesn't cost $500/month",
-    category: "developer",
-  },
-  {
     id: "webhook-debugger",
     name: "Webhook Debugger",
     tagline: "Inspect, replay, and test incoming webhooks locally",
@@ -65,7 +215,9 @@ export const PROJECT_IDEAS: ProjectIdea[] = [
     category: "developer",
   },
 
-  // === SAAS & BUSINESS (Solo-friendly, recurring revenue) ===
+  // =====================================================
+  // SAAS & BUSINESS
+  // =====================================================
   {
     id: "client-portal-builder",
     name: "Client Portal Builder",
@@ -85,12 +237,6 @@ export const PROJECT_IDEAS: ProjectIdea[] = [
     category: "saas",
   },
   {
-    id: "contract-vault",
-    name: "Contract Vault",
-    tagline: "Store, e-sign, and never lose a client contract again",
-    category: "saas",
-  },
-  {
     id: "waitlist-viral",
     name: "Viral Waitlist",
     tagline: "Pre-launch pages with referral rewards built in",
@@ -103,25 +249,15 @@ export const PROJECT_IDEAS: ProjectIdea[] = [
     category: "saas",
   },
   {
-    id: "feedback-widget",
-    name: "Feedback Widget",
-    tagline: "Embeddable feedback forms that actually get responses",
-    category: "saas",
-  },
-  {
     id: "appointment-booker",
     name: "Appointment Booker",
     tagline: "Calendly clone with built-in payments and reminders",
     category: "saas",
   },
-  {
-    id: "nps-tracker",
-    name: "NPS Tracker",
-    tagline: "Measure customer loyalty with one-click surveys",
-    category: "saas",
-  },
 
-  // === PRODUCTIVITY (Daily use, habit-forming) ===
+  // =====================================================
+  // PRODUCTIVITY
+  // =====================================================
   {
     id: "focus-mode-app",
     name: "Focus Mode App",
@@ -135,21 +271,9 @@ export const PROJECT_IDEAS: ProjectIdea[] = [
     category: "productivity",
   },
   {
-    id: "standup-bot",
-    name: "Async Standup Bot",
-    tagline: "Daily standups without the daily meetings",
-    category: "productivity",
-  },
-  {
     id: "decision-journal",
     name: "Decision Journal",
     tagline: "Log decisions, revisit outcomes, learn from patterns",
-    category: "productivity",
-  },
-  {
-    id: "reading-queue",
-    name: "Reading Queue",
-    tagline: "Save articles, get daily digests, track what you've read",
     category: "productivity",
   },
   {
@@ -158,14 +282,10 @@ export const PROJECT_IDEAS: ProjectIdea[] = [
     tagline: "Find your peak hours by logging energy levels daily",
     category: "productivity",
   },
-  {
-    id: "weekly-review-app",
-    name: "Weekly Review App",
-    tagline: "Guided reflection prompts every Sunday evening",
-    category: "productivity",
-  },
 
-  // === HEALTH & FITNESS (High engagement, personal) ===
+  // =====================================================
+  // HEALTH & FITNESS
+  // =====================================================
   {
     id: "running-intelligence",
     name: "Running Intelligence",
@@ -187,23 +307,13 @@ export const PROJECT_IDEAS: ProjectIdea[] = [
   {
     id: "workout-streak",
     name: "Workout Streak",
-    tagline: "Don't break the chain - gamified fitness consistency",
-    category: "health",
-  },
-  {
-    id: "supplement-tracker",
-    name: "Supplement Tracker",
-    tagline: "Never forget your vitamins, track what actually works",
-    category: "health",
-  },
-  {
-    id: "hydration-coach",
-    name: "Hydration Coach",
-    tagline: "Smart water reminders based on activity and weather",
+    tagline: "Don't break the chain—gamified fitness consistency",
     category: "health",
   },
 
-  // === FINANCE (Clear ROI, trust required) ===
+  // =====================================================
+  // FINANCE
+  // =====================================================
   {
     id: "subscription-tracker",
     name: "Subscription Tracker",
@@ -217,25 +327,15 @@ export const PROJECT_IDEAS: ProjectIdea[] = [
     category: "finance",
   },
   {
-    id: "net-worth-tracker",
-    name: "Net Worth Tracker",
-    tagline: "One dashboard for all accounts, updated automatically",
-    category: "finance",
-  },
-  {
     id: "side-project-revenue",
     name: "Side Project Revenue",
     tagline: "Track MRR across all your indie hacker projects",
     category: "finance",
   },
-  {
-    id: "expense-splitter",
-    name: "Expense Splitter",
-    tagline: "Split bills with roommates without the awkward math",
-    category: "finance",
-  },
 
-  // === CREATIVE TOOLS (Visual, shareable) ===
+  // =====================================================
+  // CREATIVE TOOLS
+  // =====================================================
   {
     id: "portfolio-builder",
     name: "Portfolio Builder",
@@ -254,20 +354,10 @@ export const PROJECT_IDEAS: ProjectIdea[] = [
     tagline: "Templates that auto-resize for every platform",
     category: "creative",
   },
-  {
-    id: "font-pairing-tool",
-    name: "Font Pairing Tool",
-    tagline: "Find typography combinations that actually work",
-    category: "creative",
-  },
-  {
-    id: "mockup-generator",
-    name: "Mockup Generator",
-    tagline: "See your designs on devices in seconds",
-    category: "creative",
-  },
 
-  // === EDUCATION (Skill-building, retention) ===
+  // =====================================================
+  // EDUCATION
+  // =====================================================
   {
     id: "spaced-repetition",
     name: "Spaced Repetition",
@@ -286,20 +376,10 @@ export const PROJECT_IDEAS: ProjectIdea[] = [
     tagline: "Turn video courses into searchable, summarized notes",
     category: "education",
   },
-  {
-    id: "accountability-pods",
-    name: "Accountability Pods",
-    tagline: "Find learning partners, check in weekly, stay on track",
-    category: "education",
-  },
-  {
-    id: "tutorial-tracker",
-    name: "Tutorial Tracker",
-    tagline: "Stop losing tutorials in browser tabs, organize them",
-    category: "education",
-  },
 
-  // === MARKETPLACE (Network effects, transaction-based) ===
+  // =====================================================
+  // MARKETPLACE
+  // =====================================================
   {
     id: "freelancer-referrals",
     name: "Freelancer Referrals",
@@ -312,24 +392,14 @@ export const PROJECT_IDEAS: ProjectIdea[] = [
     tagline: "Find early adopters hungry to test new products",
     category: "marketplace",
   },
-  {
-    id: "micro-consulting",
-    name: "Micro Consulting",
-    tagline: "Sell 15-minute expert calls, no scheduling hassle",
-    category: "marketplace",
-  },
 
-  // === E-COMMERCE (Transaction revenue) ===
+  // =====================================================
+  // E-COMMERCE
+  // =====================================================
   {
     id: "digital-product-shop",
     name: "Digital Product Shop",
     tagline: "Sell templates, courses, and downloads with zero fees",
-    category: "ecommerce",
-  },
-  {
-    id: "print-on-demand",
-    name: "Print on Demand Hub",
-    tagline: "Design merch once, sell forever, ship automatically",
     category: "ecommerce",
   },
   {
@@ -339,7 +409,9 @@ export const PROJECT_IDEAS: ProjectIdea[] = [
     category: "ecommerce",
   },
 
-  // === MOBILE-FIRST (App store potential) ===
+  // =====================================================
+  // MOBILE
+  // =====================================================
   {
     id: "voice-journal",
     name: "Voice Journal",
