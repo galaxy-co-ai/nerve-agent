@@ -18,10 +18,6 @@ interface Message {
   content: string
 }
 
-interface OnboardingLaunchpadProps {
-  userName?: string
-}
-
 // The sample project for dogfooding
 const SAMPLE_PROJECT = {
   name: "MyStride.ai",
@@ -29,7 +25,7 @@ const SAMPLE_PROJECT = {
     "AI training intelligence for distance runners. Predict injuries before they happen, synthesize personalized training plans from proven coaches, and connect all your running data—Garmin, Strava, Spotify—into one intelligent system that actually coaches you.",
 }
 
-export function OnboardingLaunchpad({ userName }: OnboardingLaunchpadProps) {
+export function OnboardingLaunchpad() {
   const router = useRouter()
   const [ideas, setIdeas] = useState<ProjectIdea[]>([])
   const [seenIds, setSeenIds] = useState<string[]>([])
@@ -183,9 +179,9 @@ export function OnboardingLaunchpad({ userName }: OnboardingLaunchpadProps) {
       <div className="flex flex-1 flex-col items-center justify-center p-6 min-h-screen">
         <div className="w-full max-w-xl space-y-8">
           {/* Welcome header */}
-          <div className="text-center space-y-4">
+          <div className="text-center space-y-3">
             {/* Brand title with bottom glow */}
-            <h1 className="relative text-4xl font-bold tracking-[0.2em] uppercase">
+            <h1 className="relative text-4xl font-bold tracking-[0.25em] uppercase">
               <span className="relative z-10 bg-gradient-to-t from-orange-500 via-white/90 to-white bg-clip-text text-transparent">
                 NERVE AGENT
               </span>
@@ -194,8 +190,8 @@ export function OnboardingLaunchpad({ userName }: OnboardingLaunchpadProps) {
                 NERVE AGENT
               </span>
             </h1>
-            <p className="text-base text-muted-foreground">
-              {userName ? `Hey ${userName.split(" ")[0]}. ` : ""}I'm your AI co-founder. Let's build something together.
+            <p className="text-sm tracking-widest text-muted-foreground font-mono">
+              /build → /ship → /repeat
             </p>
           </div>
 

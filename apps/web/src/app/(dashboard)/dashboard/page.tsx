@@ -27,7 +27,7 @@ export default async function DashboardPage() {
 
   // Show onboarding launchpad for new users
   if (projectCount === 0) {
-    return <OnboardingLaunchpad userName={user.name || undefined} />
+    return <OnboardingLaunchpad />
   }
 
   const today = new Date()
