@@ -176,6 +176,116 @@ export const PROJECT_IDEAS: ProjectIdea[] = [
   },
 
   // =====================================================
+  // HOBBY BANGERS - Ideas for people like us
+  // =====================================================
+
+  // Lifting / Gym
+  {
+    id: "pr-tracker",
+    name: "PR Tracker",
+    tagline: "Track lifting PRs with shareable milestone graphics",
+    category: "health",
+  },
+  {
+    id: "form-check-ai",
+    name: "Form Check AI",
+    tagline: "Upload a squat video, get instant feedback on your form",
+    category: "health",
+  },
+  {
+    id: "gym-crowd-tracker",
+    name: "Gym Crowd Tracker",
+    tagline: "Is my gym packed right now? Know before you go",
+    category: "health",
+  },
+  {
+    id: "home-gym-marketplace",
+    name: "Home Gym Marketplace",
+    tagline: "Buy and sell used racks, plates, and benches locally",
+    category: "marketplace",
+  },
+
+  // Running
+  {
+    id: "route-generator",
+    name: "Route Generator",
+    tagline: "5 mile loop from here, scenic, avoid traffic—generated",
+    category: "health",
+  },
+  {
+    id: "shoe-mileage-tracker",
+    name: "Shoe Mileage Tracker",
+    tagline: "Know exactly when your running shoes need replacing",
+    category: "health",
+  },
+  {
+    id: "race-predictor",
+    name: "Race Predictor",
+    tagline: "Predict your race time based on your actual training data",
+    category: "health",
+  },
+
+  // Gaming
+  {
+    id: "backlog-prioritizer",
+    name: "Backlog Prioritizer",
+    tagline: "200 Steam games—which one tonight? End decision paralysis",
+    category: "mobile",
+  },
+  {
+    id: "game-deal-sniper",
+    name: "Game Deal Sniper",
+    tagline: "Steam, Epic, GOG deals in one feed, filtered by your wishlist",
+    category: "mobile",
+  },
+  {
+    id: "gaming-session-tracker",
+    name: "Session Tracker",
+    tagline: "RescueTime for gaming—see where your hours actually go",
+    category: "mobile",
+  },
+  {
+    id: "cod-loadout-builder",
+    name: "CoD Loadout Builder",
+    tagline: "Build, share, and discover meta loadouts for Warzone",
+    category: "mobile",
+  },
+
+  // Coffee / Obsessive Hobbies
+  {
+    id: "bean-journal",
+    name: "Bean Journal",
+    tagline: "Track every coffee you try, get recommendations—Untappd for beans",
+    category: "creative",
+  },
+  {
+    id: "keyboard-sound-library",
+    name: "Keyboard Sound Library",
+    tagline: "Hear what switches actually sound like before you buy",
+    category: "creative",
+  },
+
+  // Travel / Nomad
+  {
+    id: "nomad-city-ranker",
+    name: "Nomad City Ranker",
+    tagline: "Cost, visa, timezone, wifi—actually useful city comparison",
+    category: "productivity",
+  },
+  {
+    id: "cafe-work-finder",
+    name: "Café Work Finder",
+    tagline: "Wifi speed tested, outlets available, laptop-friendly vibes rated",
+    category: "productivity",
+  },
+  {
+    id: "visa-tracker",
+    name: "Visa Tracker",
+    tagline: "Track your stays, get alerts before you overstay",
+    category: "productivity",
+  },
+
+  // =====================================================
   // DEVELOPER TOOLS
   // =====================================================
   {
