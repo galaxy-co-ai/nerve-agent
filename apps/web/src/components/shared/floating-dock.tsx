@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ChevronUp, ChevronDown, Plus, X } from "lucide-react"
+import { ChevronUp, ChevronDown, X } from "lucide-react"
 import { Dock, DockItem, DockLabel, DockIcon } from "@/components/ui/dock"
 import { cn } from "@/lib/utils"
 
@@ -38,70 +38,92 @@ interface FloatingDockProps {
   className?: string
 }
 
-// Expandable menu that fans out upward from a dock item
-function ExpandableMenu({
-  menu,
-  onClose,
-}: {
-  menu: DockMenuAction
-  onClose: () => void
-}) {
-  const menuRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        onClose()
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [onClose])
-
-  return (
-    <motion.div
-      ref={menuRef}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 flex flex-col-reverse items-center gap-2"
-    >
-      {menu.items.map((item, index) => (
-        <motion.button
-          key={item.id}
-          initial={{ opacity: 0, y: 10, scale: 0.8 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 10, scale: 0.8 }}
-          transition={{
-            type: "spring",
-            stiffness: 400,
-            damping: 25,
-            delay: index * 0.03,
-          }}
-          onClick={() => {
-            item.onClick()
-            onClose()
-          }}
-          className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-neutral-900/95 backdrop-blur-sm border border-border/50 hover:bg-neutral-800 hover:border-border transition-all shadow-lg whitespace-nowrap"
-        >
-          <span className="text-neutral-400 group-hover:text-white transition-colors">
-            {item.icon}
-          </span>
-          <span className="text-sm text-neutral-300 group-hover:text-white transition-colors">
-            {item.label}
-          </span>
-        </motion.button>
-      ))}
-    </motion.div>
-  )
-}
-
 export function FloatingDock({ actions, className }: FloatingDockProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  // Get the menu action if one is open
+  const openMenu = openMenuId
+    ? (actions.find((a) => a.id === openMenuId) as DockMenuAction | undefined)
+    : null
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    if (!openMenuId) return
+
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Node
+      // Don't close if clicking inside the menu
+      if (menuRef.current?.contains(target)) return
+      // Don't close if clicking the dock trigger button (it has its own toggle)
+      const triggerButton = containerRef.current?.querySelector(
+        `[data-menu-trigger="${openMenuId}"]`
+      )
+      if (triggerButton?.contains(target)) return
+
+      setOpenMenuId(null)
+    }
+
+    // Small delay to avoid immediate close on the same click that opened it
+    const timer = setTimeout(() => {
+      document.addEventListener("mousedown", handleClickOutside)
+    }, 10)
+
+    return () => {
+      clearTimeout(timer)
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [openMenuId])
+
+  const handleMenuItemClick = useCallback((item: DockMenuItem) => {
+    item.onClick()
+    setOpenMenuId(null)
+  }, [])
 
   return (
-    <div className={cn("fixed bottom-0 left-1/2 -translate-x-1/2 z-50", className)}>
+    <div
+      ref={containerRef}
+      className={cn("fixed bottom-0 left-1/2 -translate-x-1/2 z-50", className)}
+    >
+      {/* Expandable menu - rendered outside dock to avoid overflow clipping */}
+      <AnimatePresence>
+        {openMenu && (
+          <motion.div
+            ref={menuRef}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-16 flex flex-col-reverse items-center gap-2 z-[60]"
+          >
+            {openMenu.items.map((item, index) => (
+              <motion.button
+                key={item.id}
+                initial={{ opacity: 0, y: 10, scale: 0.8 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.8 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 400,
+                  damping: 25,
+                  delay: index * 0.03,
+                }}
+                onClick={() => handleMenuItemClick(item)}
+                className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-neutral-900/95 backdrop-blur-sm border border-border/50 hover:bg-neutral-800 hover:border-border transition-all shadow-lg whitespace-nowrap"
+              >
+                <span className="text-neutral-400 group-hover:text-white transition-colors">
+                  {item.icon}
+                </span>
+                <span className="text-sm text-neutral-300 group-hover:text-white transition-colors">
+                  {item.label}
+                </span>
+              </motion.button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence mode="wait">
         {isExpanded ? (
           <motion.div
@@ -114,7 +136,7 @@ export function FloatingDock({ actions, className }: FloatingDockProps) {
           >
             <div className="relative">
               <Dock
-                className="border border-border/50 shadow-2xl shadow-black/20"
+                className="border border-border/50 shadow-2xl shadow-black/20 overflow-visible"
                 magnification={60}
                 distance={100}
                 panelHeight={56}
@@ -124,33 +146,24 @@ export function FloatingDock({ actions, className }: FloatingDockProps) {
                     <DockLabel>{action.label}</DockLabel>
                     <DockIcon>
                       {isMenuAction(action) ? (
-                        <div className="relative size-full">
-                          <button
-                            onClick={() =>
-                              setOpenMenuId(openMenuId === action.id ? null : action.id)
-                            }
-                            className={cn(
-                              "size-full flex items-center justify-center transition-colors",
-                              openMenuId === action.id
-                                ? "text-white"
-                                : "text-neutral-400 hover:text-white"
-                            )}
-                          >
-                            {openMenuId === action.id ? (
-                              <X className="size-full" />
-                            ) : (
-                              action.icon
-                            )}
-                          </button>
-                          <AnimatePresence>
-                            {openMenuId === action.id && (
-                              <ExpandableMenu
-                                menu={action}
-                                onClose={() => setOpenMenuId(null)}
-                              />
-                            )}
-                          </AnimatePresence>
-                        </div>
+                        <button
+                          data-menu-trigger={action.id}
+                          onClick={() =>
+                            setOpenMenuId(openMenuId === action.id ? null : action.id)
+                          }
+                          className={cn(
+                            "size-full flex items-center justify-center transition-colors",
+                            openMenuId === action.id
+                              ? "text-white"
+                              : "text-neutral-400 hover:text-white"
+                          )}
+                        >
+                          {openMenuId === action.id ? (
+                            <X className="size-full" />
+                          ) : (
+                            action.icon
+                          )}
+                        </button>
                       ) : (
                         <button
                           onClick={action.onClick}

@@ -10,7 +10,6 @@ import {
   Phone,
   Code2,
   FileUp,
-  Timer,
   Search,
   Sparkles,
 } from "lucide-react"
@@ -98,16 +97,6 @@ export function QuickDock() {
     // ============================================
     // QUICK ACTIONS
     // ============================================
-    {
-      id: "timer",
-      label: "Timer",
-      icon: <Timer className="size-full" />,
-      onClick: () => {
-        window.dispatchEvent(
-          new KeyboardEvent("keydown", { key: "t", shiftKey: true, metaKey: true })
-        )
-      },
-    },
     {
       id: "search",
       label: "Search",
