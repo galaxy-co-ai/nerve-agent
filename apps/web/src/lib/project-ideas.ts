@@ -1,5 +1,5 @@
 // Curated project ideas for first-time user onboarding
-// Sources: Upsilon IT, Eleken, StartupIdeasDB
+// Every idea here is validated - no duds allowed at Nerve Agent
 
 export interface ProjectIdea {
   id: string
@@ -21,322 +21,336 @@ export type ProjectCategory =
   | "finance"
 
 export const PROJECT_IDEAS: ProjectIdea[] = [
-  // SaaS & Business Tools
+  // === DEVELOPER TOOLS (High demand, clear value) ===
   {
-    id: "freelancer-invoicing",
-    name: "Freelancer Invoicing Tool",
-    tagline: "Time tracking that automatically generates beautiful invoices",
-    category: "saas",
-  },
-  {
-    id: "waitlist-manager",
-    name: "Waitlist Manager",
-    tagline: "Pre-launch signup pages with viral referral mechanics",
-    category: "saas",
-  },
-  {
-    id: "client-feedback-tool",
-    name: "Client Feedback Collector",
-    tagline: "Gather and organize design revisions in one place",
-    category: "saas",
-  },
-  {
-    id: "simple-crm",
-    name: "Simple CRM for Freelancers",
-    tagline: "Track clients, projects, and follow-ups without the bloat",
-    category: "saas",
-  },
-  {
-    id: "contract-generator",
-    name: "Contract Generator",
-    tagline: "DIY legal documents for freelancers and startups",
-    category: "saas",
-  },
-  {
-    id: "subscription-manager",
-    name: "Subscription Box Manager",
-    tagline: "Handle recurring orders, renewals, and customer preferences",
-    category: "saas",
-  },
-  {
-    id: "appointment-scheduler",
-    name: "Smart Appointment Scheduler",
-    tagline: "Calendly alternative with built-in payments",
-    category: "saas",
-  },
-  {
-    id: "employee-onboarding",
-    name: "Employee Onboarding App",
-    tagline: "Streamline new hire paperwork and training",
-    category: "saas",
-  },
-
-  // Developer Tools
-  {
-    id: "snippet-library",
-    name: "Code Snippet Library",
-    tagline: "Personal repository for reusable code with search",
+    id: "api-uptime-monitor",
+    name: "API Uptime Monitor",
+    tagline: "Get Slack alerts before your customers notice downtime",
     category: "developer",
   },
   {
-    id: "api-mockup-tool",
-    name: "API Mockup Tool",
-    tagline: "Create realistic API responses for frontend development",
+    id: "changelog-generator",
+    name: "Changelog Generator",
+    tagline: "Auto-generate release notes from your Git commits",
     category: "developer",
   },
   {
-    id: "regex-builder",
-    name: "Visual Regex Builder",
-    tagline: "Build and test regular expressions without the headache",
+    id: "env-secrets-manager",
+    name: "Env Secrets Manager",
+    tagline: "Share environment variables securely across your team",
     category: "developer",
   },
   {
-    id: "tech-stack-planner",
-    name: "Tech Stack Planner",
-    tagline: "Get recommendations for your startup's architecture",
+    id: "feature-flag-dashboard",
+    name: "Feature Flag Dashboard",
+    tagline: "Roll out features to 1% of users, then scale up safely",
     category: "developer",
   },
   {
-    id: "code-quality-checker",
-    name: "AI Code Quality Checker",
-    tagline: "Automated code review powered by LLMs",
+    id: "error-tracking-lite",
+    name: "Error Tracking Lite",
+    tagline: "Sentry alternative that doesn't cost $500/month",
     category: "developer",
   },
   {
-    id: "beta-testing-hub",
-    name: "Beta Testing Hub",
-    tagline: "Connect your app with early adopters for feedback",
+    id: "webhook-debugger",
+    name: "Webhook Debugger",
+    tagline: "Inspect, replay, and test incoming webhooks locally",
     category: "developer",
   },
   {
-    id: "db-query-optimizer",
-    name: "Database Query Optimizer",
-    tagline: "AI suggestions to speed up slow queries",
+    id: "cron-job-monitor",
+    name: "Cron Job Monitor",
+    tagline: "Know instantly when scheduled tasks fail silently",
     category: "developer",
   },
 
-  // Productivity & Personal
+  // === SAAS & BUSINESS (Solo-friendly, recurring revenue) ===
   {
-    id: "habit-tracker",
-    name: "Habit Tracker",
-    tagline: "Build better routines with streaks and analytics",
+    id: "client-portal-builder",
+    name: "Client Portal Builder",
+    tagline: "White-label dashboards for your freelance clients",
+    category: "saas",
+  },
+  {
+    id: "invoice-autopilot",
+    name: "Invoice Autopilot",
+    tagline: "Track time, generate invoices, get paid automatically",
+    category: "saas",
+  },
+  {
+    id: "proposal-templates",
+    name: "Proposal Templates",
+    tagline: "Win more clients with beautiful, trackable proposals",
+    category: "saas",
+  },
+  {
+    id: "contract-vault",
+    name: "Contract Vault",
+    tagline: "Store, e-sign, and never lose a client contract again",
+    category: "saas",
+  },
+  {
+    id: "waitlist-viral",
+    name: "Viral Waitlist",
+    tagline: "Pre-launch pages with referral rewards built in",
+    category: "saas",
+  },
+  {
+    id: "testimonial-collector",
+    name: "Testimonial Collector",
+    tagline: "Capture video testimonials without the awkward asks",
+    category: "saas",
+  },
+  {
+    id: "feedback-widget",
+    name: "Feedback Widget",
+    tagline: "Embeddable feedback forms that actually get responses",
+    category: "saas",
+  },
+  {
+    id: "appointment-booker",
+    name: "Appointment Booker",
+    tagline: "Calendly clone with built-in payments and reminders",
+    category: "saas",
+  },
+  {
+    id: "nps-tracker",
+    name: "NPS Tracker",
+    tagline: "Measure customer loyalty with one-click surveys",
+    category: "saas",
+  },
+
+  // === PRODUCTIVITY (Daily use, habit-forming) ===
+  {
+    id: "focus-mode-app",
+    name: "Focus Mode App",
+    tagline: "Block distractions and track deep work sessions",
     category: "productivity",
   },
   {
-    id: "focus-timer",
-    name: "Focus Timer App",
-    tagline: "Pomodoro with website blocking and session insights",
+    id: "meeting-cost-timer",
+    name: "Meeting Cost Timer",
+    tagline: "Show the real-time dollar cost of every meeting",
     category: "productivity",
   },
   {
-    id: "meal-planner",
-    name: "Meal Planning App",
-    tagline: "Weekly menus with automatic grocery lists",
+    id: "standup-bot",
+    name: "Async Standup Bot",
+    tagline: "Daily standups without the daily meetings",
     category: "productivity",
   },
   {
-    id: "plant-care-app",
-    name: "Plant Care Companion",
-    tagline: "Never forget to water your plants again",
+    id: "decision-journal",
+    name: "Decision Journal",
+    tagline: "Log decisions, revisit outcomes, learn from patterns",
     category: "productivity",
   },
   {
-    id: "digital-journal",
-    name: "Digital Journal",
-    tagline: "Private journaling with mood tracking and prompts",
+    id: "reading-queue",
+    name: "Reading Queue",
+    tagline: "Save articles, get daily digests, track what you've read",
     category: "productivity",
   },
   {
-    id: "personal-finance",
-    name: "Personal Finance Tracker",
-    tagline: "See where your money goes with smart categorization",
+    id: "energy-tracker",
+    name: "Energy Tracker",
+    tagline: "Find your peak hours by logging energy levels daily",
+    category: "productivity",
+  },
+  {
+    id: "weekly-review-app",
+    name: "Weekly Review App",
+    tagline: "Guided reflection prompts every Sunday evening",
+    category: "productivity",
+  },
+
+  // === HEALTH & FITNESS (High engagement, personal) ===
+  {
+    id: "running-intelligence",
+    name: "Running Intelligence",
+    tagline: "AI training plans that adapt to how your body feels",
+    category: "health",
+  },
+  {
+    id: "sleep-debt-tracker",
+    name: "Sleep Debt Tracker",
+    tagline: "Know exactly how much sleep you owe yourself",
+    category: "health",
+  },
+  {
+    id: "meal-prep-planner",
+    name: "Meal Prep Planner",
+    tagline: "Weekly menus with macros and auto grocery lists",
+    category: "health",
+  },
+  {
+    id: "workout-streak",
+    name: "Workout Streak",
+    tagline: "Don't break the chain - gamified fitness consistency",
+    category: "health",
+  },
+  {
+    id: "supplement-tracker",
+    name: "Supplement Tracker",
+    tagline: "Never forget your vitamins, track what actually works",
+    category: "health",
+  },
+  {
+    id: "hydration-coach",
+    name: "Hydration Coach",
+    tagline: "Smart water reminders based on activity and weather",
+    category: "health",
+  },
+
+  // === FINANCE (Clear ROI, trust required) ===
+  {
+    id: "subscription-tracker",
+    name: "Subscription Tracker",
+    tagline: "Find forgotten subscriptions bleeding your bank account",
     category: "finance",
   },
   {
-    id: "wardrobe-organizer",
-    name: "Virtual Closet Organizer",
-    tagline: "Catalog your clothes and plan outfits",
-    category: "productivity",
+    id: "freelancer-taxes",
+    name: "Freelancer Tax Prep",
+    tagline: "Quarterly estimates and write-off tracking for 1099s",
+    category: "finance",
+  },
+  {
+    id: "net-worth-tracker",
+    name: "Net Worth Tracker",
+    tagline: "One dashboard for all accounts, updated automatically",
+    category: "finance",
+  },
+  {
+    id: "side-project-revenue",
+    name: "Side Project Revenue",
+    tagline: "Track MRR across all your indie hacker projects",
+    category: "finance",
+  },
+  {
+    id: "expense-splitter",
+    name: "Expense Splitter",
+    tagline: "Split bills with roommates without the awkward math",
+    category: "finance",
   },
 
-  // Health & Fitness
+  // === CREATIVE TOOLS (Visual, shareable) ===
   {
-    id: "workout-planner",
-    name: "Home Workout Planner",
-    tagline: "Personalized routines that adapt to your progress",
-    category: "health",
+    id: "portfolio-builder",
+    name: "Portfolio Builder",
+    tagline: "Ship a stunning portfolio site in under an hour",
+    category: "creative",
   },
   {
-    id: "running-coach",
-    name: "AI Running Coach",
-    tagline: "Training plans that prevent injury and improve performance",
-    category: "health",
+    id: "color-palette-ai",
+    name: "Color Palette AI",
+    tagline: "Generate brand colors from a single inspiration image",
+    category: "creative",
   },
   {
-    id: "wellness-tracker",
-    name: "Holistic Wellness Tracker",
-    tagline: "Monitor sleep, mood, nutrition, and fitness together",
-    category: "health",
+    id: "social-media-kit",
+    name: "Social Media Kit",
+    tagline: "Templates that auto-resize for every platform",
+    category: "creative",
   },
   {
-    id: "meditation-app",
-    name: "Meditation Timer",
-    tagline: "Simple mindfulness with guided sessions",
-    category: "health",
+    id: "font-pairing-tool",
+    name: "Font Pairing Tool",
+    tagline: "Find typography combinations that actually work",
+    category: "creative",
   },
   {
-    id: "fitness-challenges",
-    name: "Fitness Challenge Platform",
-    tagline: "Host competitions that keep people accountable",
-    category: "health",
+    id: "mockup-generator",
+    name: "Mockup Generator",
+    tagline: "See your designs on devices in seconds",
+    category: "creative",
   },
 
-  // Education & Learning
+  // === EDUCATION (Skill-building, retention) ===
   {
-    id: "language-exchange",
-    name: "Language Exchange App",
-    tagline: "Practice conversations with native speakers",
+    id: "spaced-repetition",
+    name: "Spaced Repetition",
+    tagline: "Remember anything forever with science-backed flashcards",
     category: "education",
   },
   {
-    id: "flashcard-app",
-    name: "Smart Flashcard App",
-    tagline: "Spaced repetition that actually works",
+    id: "skill-tree-tracker",
+    name: "Skill Tree Tracker",
+    tagline: "Visualize your learning path like an RPG character",
     category: "education",
   },
   {
-    id: "online-tutoring",
-    name: "Online Tutoring Platform",
-    tagline: "Connect students with subject matter experts",
+    id: "course-notes-ai",
+    name: "Course Notes AI",
+    tagline: "Turn video courses into searchable, summarized notes",
     category: "education",
   },
   {
-    id: "skill-assessments",
-    name: "Skill Assessment Tool",
-    tagline: "Test and certify abilities with shareable badges",
+    id: "accountability-pods",
+    name: "Accountability Pods",
+    tagline: "Find learning partners, check in weekly, stay on track",
     category: "education",
   },
   {
-    id: "course-creator",
-    name: "Micro Course Creator",
-    tagline: "Build and sell bite-sized educational content",
+    id: "tutorial-tracker",
+    name: "Tutorial Tracker",
+    tagline: "Stop losing tutorials in browser tabs, organize them",
     category: "education",
   },
 
-  // Marketing & Growth
+  // === MARKETPLACE (Network effects, transaction-based) ===
   {
-    id: "social-scheduler",
-    name: "Social Media Scheduler",
-    tagline: "Plan and auto-post across all platforms",
-    category: "saas",
-  },
-  {
-    id: "email-marketing",
-    name: "Simple Email Marketing",
-    tagline: "Drip campaigns without the complexity",
-    category: "saas",
-  },
-  {
-    id: "seo-rank-tracker",
-    name: "SEO Rank Tracker",
-    tagline: "Monitor your search positions daily",
-    category: "saas",
-  },
-  {
-    id: "hashtag-analyzer",
-    name: "Hashtag Performance Tracker",
-    tagline: "Find what tags actually drive engagement",
-    category: "saas",
-  },
-  {
-    id: "influencer-finder",
-    name: "Micro Influencer Finder",
-    tagline: "Discover authentic creators in your niche",
-    category: "saas",
-  },
-
-  // Marketplaces & Platforms
-  {
-    id: "local-services",
-    name: "Local Services Marketplace",
-    tagline: "Connect neighbors with trusted service providers",
+    id: "freelancer-referrals",
+    name: "Freelancer Referrals",
+    tagline: "Get paid for sending overflow work to trusted peers",
     category: "marketplace",
   },
   {
-    id: "freelance-niche",
-    name: "Niche Freelance Marketplace",
-    tagline: "Specialized talent for specialized work",
+    id: "beta-testers-hub",
+    name: "Beta Testers Hub",
+    tagline: "Find early adopters hungry to test new products",
     category: "marketplace",
   },
   {
-    id: "handmade-goods",
-    name: "Handmade Goods Marketplace",
-    tagline: "Etsy alternative for artisan products",
-    category: "marketplace",
-  },
-  {
-    id: "digital-art-market",
-    name: "Digital Art Commission Platform",
-    tagline: "Connect artists with clients for custom work",
-    category: "marketplace",
-  },
-  {
-    id: "local-food-sourcing",
-    name: "Farm to Restaurant Platform",
-    tagline: "Connect local farms with restaurant buyers",
+    id: "micro-consulting",
+    name: "Micro Consulting",
+    tagline: "Sell 15-minute expert calls, no scheduling hassle",
     category: "marketplace",
   },
 
-  // E-commerce Tools
+  // === E-COMMERCE (Transaction revenue) ===
   {
-    id: "abandoned-cart",
+    id: "digital-product-shop",
+    name: "Digital Product Shop",
+    tagline: "Sell templates, courses, and downloads with zero fees",
+    category: "ecommerce",
+  },
+  {
+    id: "print-on-demand",
+    name: "Print on Demand Hub",
+    tagline: "Design merch once, sell forever, ship automatically",
+    category: "ecommerce",
+  },
+  {
+    id: "abandoned-cart-recovery",
     name: "Abandoned Cart Recovery",
-    tagline: "Win back lost sales with smart email sequences",
-    category: "ecommerce",
-  },
-  {
-    id: "dynamic-pricing",
-    name: "Dynamic Pricing Tool",
-    tagline: "Automatically adjust prices based on demand",
-    category: "ecommerce",
-  },
-  {
-    id: "review-analyzer",
-    name: "Customer Review Analyzer",
-    tagline: "Extract insights from product reviews at scale",
-    category: "ecommerce",
-  },
-  {
-    id: "returns-manager",
-    name: "Returns Management System",
-    tagline: "Streamline the returns process for everyone",
+    tagline: "Win back 15% of lost sales with smart email sequences",
     category: "ecommerce",
   },
 
-  // Creative Tools
+  // === MOBILE-FIRST (App store potential) ===
   {
-    id: "resume-builder",
-    name: "AI Resume Builder",
-    tagline: "Create ATS-friendly resumes in minutes",
-    category: "creative",
+    id: "voice-journal",
+    name: "Voice Journal",
+    tagline: "Speak your thoughts, get them transcribed and organized",
+    category: "mobile",
   },
   {
-    id: "logo-preview",
-    name: "Logo Preview Tool",
-    tagline: "See your logo on mockups before finalizing",
-    category: "creative",
-  },
-  {
-    id: "font-pairing",
-    name: "Font Pairing Generator",
-    tagline: "Find typography combinations that work together",
-    category: "creative",
-  },
-  {
-    id: "color-palette",
-    name: "Color Palette Extractor",
-    tagline: "Pull exact colors from any image",
-    category: "creative",
+    id: "parking-reminder",
+    name: "Parking Reminder",
+    tagline: "Never forget where you parked or when the meter expires",
+    category: "mobile",
   },
 ]
 

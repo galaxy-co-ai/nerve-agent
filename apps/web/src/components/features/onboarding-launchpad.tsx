@@ -25,16 +25,16 @@ import { getRandomIdeas, type ProjectIdea, type ProjectCategory } from "@/lib/pr
 
 // Map categories to icons
 const categoryIcons: Record<ProjectCategory, React.ReactNode> = {
-  saas: <Briefcase className="h-3.5 w-3.5" />,
-  developer: <Code className="h-3.5 w-3.5" />,
-  productivity: <Clock className="h-3.5 w-3.5" />,
-  health: <Heart className="h-3.5 w-3.5" />,
-  education: <GraduationCap className="h-3.5 w-3.5" />,
-  marketplace: <Store className="h-3.5 w-3.5" />,
-  ecommerce: <ShoppingCart className="h-3.5 w-3.5" />,
-  creative: <Palette className="h-3.5 w-3.5" />,
-  finance: <DollarSign className="h-3.5 w-3.5" />,
-  mobile: <Smartphone className="h-3.5 w-3.5" />,
+  saas: <Briefcase className="h-4 w-4" />,
+  developer: <Code className="h-4 w-4" />,
+  productivity: <Clock className="h-4 w-4" />,
+  health: <Heart className="h-4 w-4" />,
+  education: <GraduationCap className="h-4 w-4" />,
+  marketplace: <Store className="h-4 w-4" />,
+  ecommerce: <ShoppingCart className="h-4 w-4" />,
+  creative: <Palette className="h-4 w-4" />,
+  finance: <DollarSign className="h-4 w-4" />,
+  mobile: <Smartphone className="h-4 w-4" />,
 }
 
 interface Message {
@@ -284,39 +284,49 @@ export function OnboardingLaunchpad() {
 
           {/* Main glass card */}
           <div className="glass-elevated rounded-2xl p-8 space-y-8">
-            {/* Idea chips */}
-            <div className="space-y-4">
-              <div className="flex flex-wrap gap-2 justify-center">
-                {ideas.map((idea) => (
+            {/* Idea chips - staggered grid */}
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 gap-2">
+                {ideas.map((idea, index) => (
                   <button
                     key={idea.id}
                     onClick={() => handleIdeaClick(idea)}
                     disabled={isShuffling}
                     className={cn(
-                      "glass px-4 py-2 rounded-lg",
-                      "inline-flex items-center gap-2",
-                      "text-sm font-medium text-foreground/90",
-                      "transition-all duration-150",
-                      "hover:bg-white/[0.06] hover:border-white/10",
-                      "hover:shadow-[0_0_20px_rgba(255,255,255,0.05)]",
-                      "active:scale-[0.98]",
-                      "disabled:opacity-50 disabled:cursor-not-allowed"
+                      "group relative px-5 py-3 rounded-xl",
+                      "bg-white/[0.02] border border-white/[0.06]",
+                      "backdrop-blur-sm",
+                      "flex items-center gap-3",
+                      "text-left",
+                      "transition-all duration-200",
+                      "hover:bg-white/[0.05] hover:border-white/[0.12]",
+                      "hover:shadow-[0_0_30px_rgba(255,107,53,0.08)]",
+                      "hover:translate-x-1",
+                      "active:scale-[0.99]",
+                      "disabled:opacity-50 disabled:cursor-not-allowed",
+                      index === 1 && "ml-4",
+                      index === 2 && "ml-8"
                     )}
                   >
-                    <span className="text-orange-400">{categoryIcons[idea.category]}</span>
-                    {idea.name}
+                    <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-500/10 text-orange-400 group-hover:bg-orange-500/20 group-hover:shadow-[0_0_12px_rgba(255,107,53,0.3)] transition-all duration-200">
+                      {categoryIcons[idea.category]}
+                    </span>
+                    <div className="flex flex-col">
+                      <span className="font-medium text-foreground/90">{idea.name}</span>
+                      <span className="text-xs text-muted-foreground/60">{idea.tagline}</span>
+                    </div>
                   </button>
                 ))}
               </div>
-              <div className="flex justify-center">
+              <div className="flex justify-center pt-1">
                 <button
                   onClick={handleShuffle}
                   disabled={isShuffling}
                   className={cn(
                     "flex items-center gap-2 px-3 py-1.5 rounded-md",
-                    "text-xs text-muted-foreground",
+                    "text-xs text-muted-foreground/70",
                     "transition-all duration-150",
-                    "hover:text-foreground hover:bg-white/[0.03]",
+                    "hover:text-foreground/80 hover:bg-white/[0.03]",
                     "disabled:opacity-50"
                   )}
                 >
@@ -325,7 +335,7 @@ export function OnboardingLaunchpad() {
                   ) : (
                     <Shuffle className="h-3 w-3" />
                   )}
-                  Show different ideas
+                  Shuffle
                 </button>
               </div>
             </div>
@@ -345,11 +355,11 @@ export function OnboardingLaunchpad() {
                   onChange={(e) => setCustomIdea(e.target.value)}
                   placeholder={typedPlaceholder || "Describe your project idea..."}
                   className={cn(
-                    "flex-1 px-4 py-2.5 rounded-lg",
+                    "flex-1 px-4 py-3 rounded-xl",
                     "bg-white/[0.03]",
                     "border border-orange-500/20",
                     "shadow-[0_0_10px_rgba(255,107,53,0.08)]",
-                    "text-sm text-foreground placeholder:text-muted-foreground/50",
+                    "text-sm text-white font-medium placeholder:text-muted-foreground/40",
                     "transition-all duration-150",
                     "focus:outline-none focus:border-orange-500/40",
                     "focus:shadow-[0_0_15px_rgba(255,107,53,0.15)]"
@@ -359,7 +369,7 @@ export function OnboardingLaunchpad() {
                   type="submit"
                   disabled={!customIdea.trim()}
                   className={cn(
-                    "px-4 py-2.5 rounded-lg",
+                    "px-4 py-3 rounded-xl",
                     "accent-smolder text-white font-medium",
                     "transition-all duration-150",
                     "hover:accent-smolder-glow",
@@ -379,19 +389,24 @@ export function OnboardingLaunchpad() {
               <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
             </div>
 
-            {/* Brainstorm CTA */}
+            {/* Brainstorm CTA - iOS liquid glass */}
             <div className="text-center">
               <button
                 onClick={handleSampleProject}
                 className={cn(
-                  "inline-flex items-center gap-2 px-5 py-2.5 rounded-lg",
-                  "glass text-sm font-medium",
-                  "transition-all duration-150",
-                  "hover:bg-white/[0.06] hover:border-white/10",
+                  "inline-flex items-center gap-2 px-6 py-3 rounded-2xl",
+                  "bg-white/[0.04] backdrop-blur-xl",
+                  "border border-white/[0.08]",
+                  "text-sm font-medium text-foreground/70",
+                  "shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]",
+                  "transition-all duration-300",
+                  "hover:bg-white/[0.07] hover:text-foreground/90",
+                  "hover:border-white/[0.12]",
+                  "hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_0_20px_rgba(255,255,255,0.03)]",
                   "active:scale-[0.98]"
                 )}
               >
-                <Zap className="h-4 w-4 text-orange-400" />
+                <Zap className="h-4 w-4 text-orange-400/80 group-hover:text-orange-400" />
                 Click to Brainstorm
               </button>
             </div>
