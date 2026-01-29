@@ -34,6 +34,7 @@ import {
   AlertTriangle,
   Plus,
   ChevronRight,
+  LayoutDashboard,
 } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
@@ -130,6 +131,12 @@ export default async function ProjectPage({ params }: PageProps) {
           </BreadcrumbList>
         </Breadcrumb>
         <div className="ml-auto flex items-center gap-2">
+          <Button size="sm" asChild>
+            <Link href={`/projects/${slug}/workspace`}>
+              <LayoutDashboard className="mr-2 h-4 w-4" />
+              Workspace
+            </Link>
+          </Button>
           <Button variant="outline" size="sm" asChild>
             <Link href={`/projects/${slug}/edit`}>
               <Pencil className="mr-2 h-4 w-4" />

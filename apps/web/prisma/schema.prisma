@@ -87,6 +87,11 @@ model Project {
   portalMagicLinks  PortalMagicLink[]
   followUps         FollowUp[]
 
+  // Framework relationships
+  frameworkDocs     ProjectFrameworkDoc[]
+  checkpoints       ProjectCheckpoint[]
+  workspaceNotes    ProjectWorkspaceNote[]
+
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -571,5 +576,206 @@ model Faq {
   updatedAt   DateTime  @updatedAt
 
   @@index([userId])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// Project Framework - Document Templates (01-12)
+// ============================================================================
+
+model ProjectFrameworkDoc {
+  id          String            @id @default(cuid())
+  projectId   String
+  project     Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Document identification
+  docNumber   Int               // 1-12
+  docType     FrameworkDocType
+
+  // Content
+  content     String            @db.Text
+
+  // Status
+  status      FrameworkDocStatus @default(DRAFT)
+  lockedAt    DateTime?
+
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([projectId, docNumber])
+  @@index([projectId])
+  @@index([status])
+}
+
+enum FrameworkDocType {
+  IDEA_AUDIT
+  PROJECT_BRIEF
+  PRD
+  TAD
+  AI_COLLAB_PROTOCOL
+  MTS
+  TEST_PLAN
+  AUDIT_CHECKLIST
+  DECISION_LOG
+  PROJECT_PULSE
+  SHIP_CHECKLIST
+  RETROSPECTIVE
+}
+
+enum FrameworkDocStatus {
+  DRAFT
+  LOCKED
+}
+
+// ============================================================================
+// Project Checkpoint - MTS Phases/Checkpoints with Time Tracking
+// ============================================================================
+
+model ProjectCheckpoint {
+  id            String            @id @default(cuid())
+  projectId     String
+  project       Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Identification
+  checkpointId  String            // "CP-1.1", "CP-2.3", etc.
+  name          String
+  phase         Int               // 1-6
+
+  // Status
+  status        CheckpointStatus  @default(PENDING)
+
+  // Time tracking
+  estimatedMins Int?
+  actualMins    Int               @default(0)
+  startedAt     DateTime?
+  completedAt   DateTime?
+
+  // Relationships
+  sessions      CheckpointSession[]
+  objectives    ProjectObjective[]
+
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@unique([projectId, checkpointId])
+  @@index([projectId])
+  @@index([status])
+  @@index([phase])
+}
+
+enum CheckpointStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETE
+}
+
+// ============================================================================
+// Checkpoint Session - Individual Work Sessions
+// ============================================================================
+
+model CheckpointSession {
+  id            String            @id @default(cuid())
+  checkpointId  String
+  checkpoint    ProjectCheckpoint @relation(fields: [checkpointId], references: [id], onDelete: Cascade)
+
+  // Session timing
+  startedAt     DateTime          @default(now())
+  endedAt       DateTime?
+  durationMins  Int?
+
+  // Optional notes
+  notes         String?           @db.Text
+
+  createdAt     DateTime          @default(now())
+
+  @@index([checkpointId])
+  @@index([startedAt])
+}
+
+// ============================================================================
+// Project Objective - Objectives within Checkpoints
+// ============================================================================
+
+model ProjectObjective {
+  id            String            @id @default(cuid())
+  checkpointId  String
+  checkpoint    ProjectCheckpoint @relation(fields: [checkpointId], references: [id], onDelete: Cascade)
+
+  // Identification
+  objectiveId   String            // "1.1.1", "2.3.2", etc.
+  name          String
+  acceptance    String            @db.Text
+
+  // Status
+  status        ObjectiveStatus   @default(PENDING)
+
+  // Relationships
+  steps         ProjectStep[]
+
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@unique([checkpointId, objectiveId])
+  @@index([checkpointId])
+  @@index([status])
+}
+
+enum ObjectiveStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETE
+}
+
+// ============================================================================
+// Project Step - Steps within Objectives
+// ============================================================================
+
+model ProjectStep {
+  id            String            @id @default(cuid())
+  objectiveId   String
+  objective     ProjectObjective  @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+
+  // Identification
+  stepId        String            // "1.1.1.1", "2.3.2.4", etc.
+  action        String            @db.Text
+  acceptance    String            @db.Text
+
+  // Status
+  status        StepStatus        @default(PENDING)
+  completedAt   DateTime?
+
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@unique([objectiveId, stepId])
+  @@index([objectiveId])
+  @@index([status])
+}
+
+enum StepStatus {
+  PENDING
+  COMPLETE
+}
+
+// ============================================================================
+// Project Workspace Note - Scratchpad for User + Claude
+// ============================================================================
+
+model ProjectWorkspaceNote {
+  id            String    @id @default(cuid())
+  projectId     String
+  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Optional checkpoint association
+  checkpointId  String?
+
+  // Content
+  author        String    // "user" or "claude"
+  content       String    @db.Text
+
+  createdAt     DateTime  @default(now())
+
+  @@index([projectId])
+  @@index([checkpointId])
   @@index([createdAt])
 }
