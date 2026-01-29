@@ -15,18 +15,18 @@ import {
 
 export function AppSidebar() {
   return (
-    <Sidebar collapsible="icon" className="pt-2 pb-2 pl-1">
+    <Sidebar collapsible="icon" className="pt-3 pb-2 pl-1.5 border-r-0">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
+            <SidebarMenuButton size="lg" asChild tooltip="NERVE AGENT">
               <a href="/dashboard">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-white text-black">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/20">
                   <Zap className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">NERVE AGENT</span>
-                  <span className="truncate text-xs text-muted-foreground">Project OS</span>
+                  <span className="truncate font-bold tracking-wide">NERVE AGENT</span>
+                  <span className="truncate text-[10px] text-muted-foreground/60">Project OS</span>
                 </div>
               </a>
             </SidebarMenuButton>

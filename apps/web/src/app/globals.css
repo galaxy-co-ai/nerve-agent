@@ -6,23 +6,23 @@ body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - refined */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #1a1a1a;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #444;
+  background: rgba(255, 255, 255, 0.15);
 }
 
 /* ============================================
@@ -153,6 +153,101 @@ body {
 /* Subtle glow during flip - peaks at midpoint */
 .flip-card-inner.flipping {
   filter: drop-shadow(0 0 40px rgba(255, 122, 69, 0.12));
+}
+
+/* ============================================
+   PREMIUM BACKGROUND PATTERNS
+   Subtle, branded, UX-pleasing
+   ============================================ */
+
+/* Circuit grid pattern - subtle orange accent on dark */
+.bg-pattern-circuit {
+  background-color: hsl(var(--background));
+  background-image:
+    linear-gradient(rgba(255, 122, 69, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 122, 69, 0.03) 1px, transparent 1px),
+    linear-gradient(rgba(255, 122, 69, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 122, 69, 0.02) 1px, transparent 1px);
+  background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+  background-position: -1px -1px, -1px -1px, -1px -1px, -1px -1px;
+}
+
+/* Dot grid pattern - minimal, clean */
+.bg-pattern-dots {
+  background-color: hsl(var(--background));
+  background-image: radial-gradient(rgba(255, 122, 69, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Subtle gradient mesh - premium depth */
+.bg-pattern-mesh {
+  background-color: hsl(var(--background));
+  background-image:
+    radial-gradient(at 40% 20%, rgba(255, 122, 69, 0.04) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(255, 122, 69, 0.03) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(255, 122, 69, 0.02) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, rgba(255, 122, 69, 0.02) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(255, 122, 69, 0.03) 0px, transparent 50%);
+}
+
+/* Topography lines - organic, modern */
+.bg-pattern-topo {
+  background-color: hsl(var(--background));
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M0 50 Q25 30 50 50 T100 50' fill='none' stroke='rgba(255,122,69,0.04)' stroke-width='0.5'/%3E%3Cpath d='M0 30 Q25 10 50 30 T100 30' fill='none' stroke='rgba(255,122,69,0.03)' stroke-width='0.5'/%3E%3Cpath d='M0 70 Q25 50 50 70 T100 70' fill='none' stroke='rgba(255,122,69,0.03)' stroke-width='0.5'/%3E%3C/svg%3E");
+  background-size: 100px 100px;
+}
+
+/* ============================================
+   SIDEBAR POLISH
+   Less suffocating when collapsed
+   ============================================ */
+
+/* Wider collapsed state */
+[data-collapsible=icon] {
+  --sidebar-width-icon: 3.5rem;
+}
+
+/* Glass sidebar background */
+[data-sidebar=sidebar] {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0.01) 100%
+  ) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Collapsed sidebar - breathe */
+.group-data-[collapsible=icon] [data-sidebar=menu-button] {
+  justify-content: center;
+}
+
+/* Active state with orange accent */
+[data-sidebar=menu-button][data-active=true] {
+  background: rgba(255, 122, 69, 0.1) !important;
+  border-left: 2px solid rgba(255, 122, 69, 0.6);
+}
+
+/* Hover glow on sidebar items */
+[data-sidebar=menu-button]:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Main content area with pattern */
+.main-content-area {
+  position: relative;
+}
+
+.main-content-area::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(at 40% 20%, rgba(255, 122, 69, 0.03) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(255, 122, 69, 0.02) 0px, transparent 50%),
+    radial-gradient(at 0% 80%, rgba(255, 122, 69, 0.02) 0px, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 
