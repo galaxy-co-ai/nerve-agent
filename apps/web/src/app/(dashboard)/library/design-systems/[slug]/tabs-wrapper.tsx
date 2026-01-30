@@ -94,8 +94,8 @@ export function DesignSystemTabsWrapper({
   const childArray = React.Children.toArray(children)
   const activeContent = childArray.find((child) => {
     if (React.isValidElement(child)) {
-      const dataTab = child.props?.["data-tab"]
-      return dataTab === activeTab
+      const props = child.props as { "data-tab"?: string }
+      return props["data-tab"] === activeTab
     }
     return false
   })

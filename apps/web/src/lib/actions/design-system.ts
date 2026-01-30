@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
+import type { Prisma } from "@prisma/client"
 
 // Slugify utility
 function slugify(text: string): string {
@@ -120,13 +121,13 @@ export async function updateDesignSystemContent(
   await db.designSystem.update({
     where: { id: systemId },
     data: {
-      cssContent: content.cssContent ?? system.cssContent,
-      components: content.components ?? system.components,
-      palette: content.palette ?? system.palette,
-      typography: content.typography ?? system.typography,
-      utilities: content.utilities ?? system.utilities,
-      primitives: content.primitives ?? system.primitives,
-      backgrounds: content.backgrounds ?? system.backgrounds,
+      cssContent: content.cssContent ?? system.cssContent ?? undefined,
+      components: (content.components ?? system.components ?? undefined) as Prisma.InputJsonValue | undefined,
+      palette: (content.palette ?? system.palette ?? undefined) as Prisma.InputJsonValue | undefined,
+      typography: (content.typography ?? system.typography ?? undefined) as Prisma.InputJsonValue | undefined,
+      utilities: (content.utilities ?? system.utilities ?? undefined) as Prisma.InputJsonValue | undefined,
+      primitives: (content.primitives ?? system.primitives ?? undefined) as Prisma.InputJsonValue | undefined,
+      backgrounds: (content.backgrounds ?? system.backgrounds ?? undefined) as Prisma.InputJsonValue | undefined,
     },
   })
 
@@ -202,7 +203,7 @@ export async function addComponentToDesignSystem(
 
   await db.designSystem.update({
     where: { id: systemId },
-    data: { components },
+    data: { components: components as Prisma.InputJsonValue },
   })
 
   revalidatePath(`/library/design-systems/${system.slug}`)
@@ -229,7 +230,7 @@ export async function removeComponentFromDesignSystem(
 
   await db.designSystem.update({
     where: { id: systemId },
-    data: { components },
+    data: { components: components as Prisma.InputJsonValue },
   })
 
   revalidatePath(`/library/design-systems/${system.slug}`)

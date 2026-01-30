@@ -207,5 +207,3 @@ export {
   NerveToastClose,
   NerveToastAction,
 }
-
-export type { NerveToastProps }

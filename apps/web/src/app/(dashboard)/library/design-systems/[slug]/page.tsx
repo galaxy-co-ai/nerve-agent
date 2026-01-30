@@ -43,11 +43,11 @@ export default async function DesignSystemPage({ params }: DesignSystemPageProps
   }
 
   const isOwner = system.userId === user.id
-  const palette = (system.palette as Record<string, PaletteCategory>) || {}
-  const typography = (system.typography as TypographyConfig) || {}
-  const components = (system.components as ComponentEntry[]) || []
-  const primitives = (system.primitives as PrimitiveEntry[]) || []
-  const backgrounds = (system.backgrounds as BackgroundEntry[]) || []
+  const palette = (system.palette as unknown as Record<string, PaletteCategory>) || {}
+  const typography = (system.typography as unknown as TypographyConfig) || {}
+  const components = (system.components as unknown as ComponentEntry[]) || []
+  const primitives = (system.primitives as unknown as PrimitiveEntry[]) || []
+  const backgrounds = (system.backgrounds as unknown as BackgroundEntry[]) || []
 
   // Determine which tabs have content
   const availableTabs: Array<"colors" | "typography" | "primitives" | "components" | "backgrounds" | "css"> = []
