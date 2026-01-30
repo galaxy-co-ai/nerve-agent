@@ -33,6 +33,7 @@ model User {
   timeEntries       TimeEntry[]
   libraryItems      LibraryItem[]
   libraryTags       LibraryTag[]
+  designSystems     DesignSystem[]
   notes             Note[]
   faqs              Faq[]
 
@@ -783,6 +784,49 @@ model ProjectWorkspaceNote {
   @@index([projectId])
   @@index([checkpointId])
   @@index([createdAt])
+}
+
+// ============================================================================
+// Design System Library - Reusable Design Systems
+// ============================================================================
+
+model DesignSystem {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Identity
+  name        String   // "NERVE"
+  slug        String   @unique
+  description String   @db.Text
+  philosophy  String   @db.Text // 2-3 sentence aesthetic description
+
+  // Visual
+  coverImage  String?  // URL to album cover image
+  coverColor  String?  // Fallback gradient color if no image
+
+  // Versioning
+  version     String   @default("1.0.0")
+
+  // Content (stored as JSON or raw text)
+  cssContent  String   @db.Text // Full CSS variables/utilities content
+  components  Json     @default("[]") // Array of {name, category, code, props, usage}
+  palette     Json     @default("{}") // Color tokens
+  typography  Json     @default("{}") // Type scale
+  utilities   Json     @default("{}") // CSS utility classes
+  primitives  Json     @default("[]") // Array of {name, description, code}
+  backgrounds Json     @default("[]") // Array of {name, description, code}
+
+  // Metadata
+  isPublic    Boolean  @default(false) // Can others see this?
+  usageCount  Int      @default(0)
+  lastUsedAt  DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([slug])
 }
 
 // ============================================================================

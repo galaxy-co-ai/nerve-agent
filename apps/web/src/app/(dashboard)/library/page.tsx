@@ -12,7 +12,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { H2, Muted } from "@/components/ui/typography"
 import { Badge } from "@/components/ui/badge"
-import { Code2, Blocks, Puzzle, Database, Star, TrendingUp } from "lucide-react"
+import { Code2, Blocks, Puzzle, Database, Star, TrendingUp, Palette } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 import { AddLibraryItemDialog } from "@/components/dialogs/add-library-item-dialog"
@@ -39,11 +39,12 @@ export default async function LibraryPage() {
     }),
   ])
 
-  const [blockCount, patternCount, queryCount, favoriteCount] = await Promise.all([
+  const [blockCount, patternCount, queryCount, favoriteCount, designSystemCount] = await Promise.all([
     db.libraryItem.count({ where: { userId: user.id, type: "BLOCK" } }),
     db.libraryItem.count({ where: { userId: user.id, type: "PATTERN" } }),
     db.libraryItem.count({ where: { userId: user.id, type: "QUERY" } }),
     db.libraryItem.count({ where: { userId: user.id, isFavorite: true } }),
+    db.designSystem.count({ where: { userId: user.id } }),
   ])
 
   const recentlyUsed = items
@@ -77,7 +78,20 @@ export default async function LibraryPage() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-5">
+          <Link href="/library/design-systems">
+            <Card className="transition-colors hover:bg-muted/50 border-amber-500/20 hover:border-amber-500/40">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Design Systems</CardTitle>
+                <Palette className="h-4 w-4 text-amber-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{designSystemCount}</div>
+                <p className="text-xs text-muted-foreground">Visual languages</p>
+              </CardContent>
+            </Card>
+          </Link>
+
           <Link href="/library/blocks">
             <Card className="transition-colors hover:bg-muted/50">
               <CardHeader className="flex flex-row items-center justify-between pb-2">

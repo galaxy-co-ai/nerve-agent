@@ -64,7 +64,7 @@ export const NerveInput = React.forwardRef<HTMLInputElement, NerveInputProps>(
             htmlFor={id}
             className={cn(
               "block text-sm font-medium mb-1.5",
-              hasError ? "text-red-400" : "text-zinc-300",
+              hasError ? "text-[var(--nerve-error)]" : "text-[var(--nerve-text-secondary)]",
               disabled && "opacity-50"
             )}
           >
@@ -74,7 +74,7 @@ export const NerveInput = React.forwardRef<HTMLInputElement, NerveInputProps>(
 
         <div className="relative">
           {leftElement && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--nerve-text-muted)]">
               {leftElement}
             </div>
           )}
@@ -87,27 +87,30 @@ export const NerveInput = React.forwardRef<HTMLInputElement, NerveInputProps>(
             className={cn(
               // Base styles
               "flex h-10 w-full rounded-lg px-3 py-2",
-              "text-sm text-zinc-100 placeholder:text-zinc-500",
-              // Well/recessed effect
-              "bg-zinc-900/50",
-              "border border-zinc-700/50",
-              "shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)]",
+              "text-sm text-[var(--nerve-text-primary)] placeholder:text-[var(--nerve-text-muted)]",
+              // Inset well effect - pressed into surface
+              "bg-[var(--nerve-bg-deep)]",
+              "border border-[var(--nerve-border-subtle)]",
+              "shadow-[inset_0_2px_4px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(0,0,0,0.3)]",
               // Transition
               "transition-all duration-200 ease-out",
-              // Focus state with gold glow
+              // Focus state with gold glow ring
               "focus:outline-none",
-              "focus:border-gold-400/50",
-              "focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.2),0_0_0_3px_rgba(251,191,36,0.15),0_0_15px_rgba(251,191,36,0.1)]",
+              "focus:border-[var(--nerve-gold-400)]/50",
+              "focus:bg-[var(--nerve-bg-base)]",
+              "focus:shadow-[inset_0_2px_4px_rgba(0,0,0,0.3),0_0_0_2px_var(--nerve-bg-base),0_0_0_4px_var(--nerve-gold-400),0_0_20px_var(--nerve-gold-glow)]",
               // Hover
-              "hover:border-zinc-600",
+              "hover:border-[var(--nerve-border-default)]",
+              "hover:bg-[var(--nerve-bg-base)]",
               // Disabled
               "disabled:cursor-not-allowed disabled:opacity-50",
-              "disabled:hover:border-zinc-700/50",
+              "disabled:hover:border-[var(--nerve-border-subtle)]",
+              "disabled:hover:bg-[var(--nerve-bg-deep)]",
               // Error state
               hasError && [
-                "border-red-500/50",
-                "focus:border-red-500/50",
-                "focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.2),0_0_0_3px_rgba(239,68,68,0.15),0_0_15px_rgba(239,68,68,0.1)]",
+                "border-[var(--nerve-error)]/50",
+                "focus:border-[var(--nerve-error)]/50",
+                "focus:shadow-[inset_0_2px_4px_rgba(0,0,0,0.3),0_0_0_2px_var(--nerve-bg-base),0_0_0_4px_var(--nerve-error),0_0_20px_var(--nerve-error-glow)]",
               ],
               // Padding adjustments for icons
               leftElement && "pl-10",
@@ -118,7 +121,7 @@ export const NerveInput = React.forwardRef<HTMLInputElement, NerveInputProps>(
           />
 
           {rightElement && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--nerve-text-muted)]">
               {rightElement}
             </div>
           )}
@@ -128,7 +131,7 @@ export const NerveInput = React.forwardRef<HTMLInputElement, NerveInputProps>(
           <p
             className={cn(
               "mt-1.5 text-xs",
-              hasError ? "text-red-400" : "text-zinc-500"
+              hasError ? "text-[var(--nerve-error)]" : "text-[var(--nerve-text-muted)]"
             )}
           >
             {error || helperText}

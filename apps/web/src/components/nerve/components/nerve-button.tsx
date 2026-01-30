@@ -21,75 +21,72 @@ const nerveButtonVariants = cva(
       variant: {
         /**
          * Primary gold button with glow effect
+         * Uses design system gold palette
          */
         primary: [
           // Background with subtle gradient for dimension
-          "bg-gradient-to-b from-gold-400 to-gold-500",
-          "text-zinc-900 font-semibold",
-          // Top highlight for raised effect
-          "shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_1px_2px_rgba(0,0,0,0.2)]",
-          // Glow effect
-          "shadow-[0_0_15px_rgba(251,191,36,0.2),0_1px_2px_rgba(0,0,0,0.2)]",
+          "bg-gradient-to-b from-[var(--nerve-gold-400)] to-[var(--nerve-gold-500)]",
+          "text-[var(--nerve-bg-deep)] font-semibold",
+          // Top highlight for raised effect + layered shadow
+          "shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_1px_1px_rgba(0,0,0,0.08),0_2px_2px_rgba(0,0,0,0.08),0_0_15px_var(--nerve-gold-glow)]",
           // Hover: intensify glow
-          "hover:shadow-[0_0_20px_rgba(251,191,36,0.35),0_0_40px_rgba(251,191,36,0.15),0_2px_4px_rgba(0,0,0,0.2)]",
-          "hover:from-gold-300 hover:to-gold-400",
+          "hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,0,0,0.1),0_0_25px_var(--nerve-gold-glow-medium),0_0_50px_var(--nerve-gold-glow-subtle)]",
+          "hover:from-[var(--nerve-gold-300)] hover:to-[var(--nerve-gold-400)]",
           // Focus: glow ring
-          "focus-visible:shadow-[0_0_0_2px_rgba(9,9,11,1),0_0_0_4px_rgba(251,191,36,0.5),0_0_20px_rgba(251,191,36,0.3)]",
+          "focus-visible:shadow-[0_0_0_2px_var(--nerve-bg-base),0_0_0_4px_var(--nerve-gold-400),0_0_20px_var(--nerve-gold-glow)]",
         ],
         /**
          * Secondary button with subtle surface
          */
         secondary: [
-          "bg-zinc-800",
-          "text-zinc-100",
-          "border border-zinc-700",
-          // Raised effect
-          "shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_1px_2px_rgba(0,0,0,0.2)]",
+          "bg-[var(--nerve-bg-elevated)]",
+          "text-[var(--nerve-text-primary)]",
+          "border border-[var(--nerve-border-default)]",
+          // Raised effect with layered shadow
+          "shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_1px_1px_rgba(0,0,0,0.08),0_2px_2px_rgba(0,0,0,0.08)]",
           // Hover
-          "hover:bg-zinc-700 hover:border-zinc-600",
-          "hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_2px_4px_rgba(0,0,0,0.2)]",
+          "hover:bg-[var(--nerve-bg-hover)] hover:border-[var(--nerve-border-strong)]",
+          "hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,0,0,0.1)]",
           // Focus
-          "focus-visible:shadow-[0_0_0_2px_rgba(9,9,11,1),0_0_0_4px_rgba(251,191,36,0.5)]",
+          "focus-visible:shadow-[0_0_0_2px_var(--nerve-bg-base),0_0_0_4px_var(--nerve-gold-400)]",
         ],
         /**
          * Ghost button - minimal until hovered
          */
         ghost: [
           "bg-transparent",
-          "text-zinc-400",
+          "text-[var(--nerve-text-secondary)]",
           // Hover
-          "hover:bg-zinc-800/50 hover:text-zinc-100",
+          "hover:bg-[var(--nerve-bg-hover)] hover:text-[var(--nerve-text-primary)]",
           // Focus
-          "focus-visible:bg-zinc-800/50",
-          "focus-visible:shadow-[0_0_0_2px_rgba(251,191,36,0.3)]",
+          "focus-visible:bg-[var(--nerve-bg-hover)]",
+          "focus-visible:shadow-[0_0_0_2px_var(--nerve-gold-glow-medium)]",
         ],
         /**
          * Outline button with gold accent
          */
         outline: [
           "bg-transparent",
-          "text-gold-400",
-          "border border-gold-400/50",
+          "text-[var(--nerve-gold-400)]",
+          "border border-[var(--nerve-gold-500)]/50",
           // Hover: fill with gold
-          "hover:bg-gold-400/10 hover:border-gold-400",
-          "hover:shadow-[0_0_10px_rgba(251,191,36,0.15)]",
+          "hover:bg-[var(--nerve-gold-500)]/10 hover:border-[var(--nerve-gold-400)]",
+          "hover:shadow-[0_0_15px_var(--nerve-gold-glow)]",
           // Focus
-          "focus-visible:shadow-[0_0_0_2px_rgba(9,9,11,1),0_0_0_4px_rgba(251,191,36,0.5)]",
+          "focus-visible:shadow-[0_0_0_2px_var(--nerve-bg-base),0_0_0_4px_var(--nerve-gold-400)]",
         ],
         /**
          * Destructive action button
          */
         destructive: [
-          "bg-gradient-to-b from-red-500 to-red-600",
+          "bg-gradient-to-b from-[var(--nerve-error)] to-red-600",
           "text-white font-semibold",
-          "shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_1px_2px_rgba(0,0,0,0.2)]",
-          // Glow
-          "shadow-[0_0_10px_rgba(239,68,68,0.2),0_1px_2px_rgba(0,0,0,0.2)]",
+          "shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_1px_1px_rgba(0,0,0,0.08),0_2px_2px_rgba(0,0,0,0.08),0_0_10px_var(--nerve-error-glow)]",
           // Hover
-          "hover:shadow-[0_0_15px_rgba(239,68,68,0.35),0_0_30px_rgba(239,68,68,0.15)]",
-          "hover:from-red-400 hover:to-red-500",
+          "hover:shadow-[0_0_20px_rgba(239,68,68,0.35),0_0_40px_rgba(239,68,68,0.15)]",
+          "hover:from-red-400 hover:to-[var(--nerve-error)]",
           // Focus
-          "focus-visible:shadow-[0_0_0_2px_rgba(9,9,11,1),0_0_0_4px_rgba(239,68,68,0.5)]",
+          "focus-visible:shadow-[0_0_0_2px_var(--nerve-bg-base),0_0_0_4px_var(--nerve-error)]",
         ],
       },
       size: {

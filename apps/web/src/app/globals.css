@@ -287,39 +287,137 @@ body {
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
   .dark {
-    /* Moltbot-inspired deep navy - richer than flat black */
-    --background: 220 30% 3%; /* #050810 deep navy */
-    --foreground: 220 20% 96%; /* #f0f4ff crisp white-blue */
-    --card: 220 25% 6%; /* #0a0f1a elevated surface */
-    --card-foreground: 220 20% 96%;
-    --popover: 220 25% 7%;
-    --popover-foreground: 220 20% 96%;
-    --primary: 220 20% 96%;
-    --primary-foreground: 220 30% 3%;
-    --secondary: 220 20% 10%; /* #111827 */
-    --secondary-foreground: 220 20% 96%;
-    --muted: 220 15% 12%;
-    --muted-foreground: 220 10% 55%; /* #8892b0 refined gray-blue */
-    --accent: 220 15% 12%;
-    --accent-foreground: 220 20% 96%;
+    /* ═══════════════════════════════════════════════════════════
+       NERVE AGENT DARK THEME
+       Hardware-inspired, premium aesthetic with warm gold accents
+       See: src/components/nerve/DESIGN_SYSTEM.md
+       ═══════════════════════════════════════════════════════════ */
+
+    /* Background Layers (darkest to lightest)
+       Rule: Add 8-10 brightness points per level for consistent "color distance"
+       Never use pure black - it makes shadows invisible */
+    --nerve-bg-deep: #08080a;
+    --nerve-bg-base: #0c0c0e;
+    --nerve-bg-surface: #141416;
+    --nerve-bg-elevated: #1a1a1d;
+    --nerve-bg-hover: #222225;
+    --nerve-bg-active: #2a2a2e;
+
+    /* Border Colors - RGBA for transparency layering */
+    --nerve-border-subtle: rgba(255, 255, 255, 0.05);
+    --nerve-border-default: rgba(255, 255, 255, 0.08);
+    --nerve-border-strong: rgba(255, 255, 255, 0.12);
+    --nerve-border-bright: rgba(255, 255, 255, 0.18);
+
+    /* Text Colors - Avoid pure white on dark (too harsh) */
+    --nerve-text-primary: #f4f4f5;
+    --nerve-text-secondary: #a1a1aa;
+    --nerve-text-muted: #71717a;
+    --nerve-text-faint: #52525b;
+
+    /* ═══════════════════════════════════════════════════════════
+       REFINED GOLD PALETTE - Research-backed, tested on dark
+       These values avoid the "dingy yellow" and "muddy orange" problem
+       Rule: Desaturate accent colors ~20% for dark mode
+       ═══════════════════════════════════════════════════════════ */
+    --nerve-gold-50: #fefce8;
+    --nerve-gold-100: #fef9c3;
+    --nerve-gold-200: #fef08a;
+    --nerve-gold-300: #fde047;
+    --nerve-gold-400: #facc15;
+    --nerve-gold-500: #eab308;
+    --nerve-gold-600: #ca8a04;
+    --nerve-gold-700: #a16207;
+
+    /* Premium Metallic Gold (from research - not too yellow, not orange) */
+    --nerve-gold-metallic: #d4af37;
+    --nerve-gold-premium: #e5b84a;
+
+    /* Glow values - carefully tuned opacity for ambient effect */
+    --nerve-gold-glow-subtle: rgba(234, 179, 8, 0.08);
+    --nerve-gold-glow: rgba(234, 179, 8, 0.12);
+    --nerve-gold-glow-medium: rgba(234, 179, 8, 0.18);
+    --nerve-gold-glow-strong: rgba(234, 179, 8, 0.25);
+
+    /* Semantic Colors */
+    --nerve-success: #22c55e;
+    --nerve-success-glow: rgba(34, 197, 94, 0.15);
+    --nerve-info: #3b82f6;
+    --nerve-info-glow: rgba(59, 130, 246, 0.15);
+    --nerve-warning: #f59e0b;
+    --nerve-warning-glow: rgba(245, 158, 11, 0.15);
+    --nerve-error: #ef4444;
+    --nerve-error-glow: rgba(239, 68, 68, 0.15);
+
+    /* Tag-Specific Colors */
+    --nerve-tag-idea: #a855f7;
+    --nerve-tag-idea-glow: rgba(168, 85, 247, 0.15);
+    --nerve-tag-task: #f97316;
+    --nerve-tag-task-glow: rgba(249, 115, 22, 0.15);
+    --nerve-tag-reference: #3b82f6;
+    --nerve-tag-reference-glow: rgba(59, 130, 246, 0.15);
+    --nerve-tag-insight: #22c55e;
+    --nerve-tag-insight-glow: rgba(34, 197, 94, 0.15);
+    --nerve-tag-decision: #eab308;
+    --nerve-tag-decision-glow: rgba(234, 179, 8, 0.15);
+
+    /* ═══════════════════════════════════════════════════════════
+       LAYERED SHADOW SYSTEM - Josh W. Comeau technique
+       Each layer doubles: 1→2→4→8→16
+       ═══════════════════════════════════════════════════════════ */
+    --nerve-shadow-1:
+      0 1px 1px rgba(0,0,0,0.08),
+      0 2px 2px rgba(0,0,0,0.08),
+      0 4px 4px rgba(0,0,0,0.08);
+    --nerve-shadow-2:
+      0 1px 2px rgba(0,0,0,0.1),
+      0 2px 4px rgba(0,0,0,0.1),
+      0 4px 8px rgba(0,0,0,0.1),
+      0 8px 16px rgba(0,0,0,0.1);
+    --nerve-shadow-3:
+      0 1px 2px rgba(0,0,0,0.08),
+      0 2px 4px rgba(0,0,0,0.08),
+      0 4px 8px rgba(0,0,0,0.08),
+      0 8px 16px rgba(0,0,0,0.08),
+      0 16px 32px rgba(0,0,0,0.08);
+    --nerve-shadow-inset:
+      inset 0 2px 4px rgba(0,0,0,0.4),
+      inset 0 1px 2px rgba(0,0,0,0.3),
+      inset 0 0 0 1px rgba(0,0,0,0.2);
+
+    /* Map to shadcn variables */
+    --background: 240 6% 4%;
+    --foreground: 240 5% 96%;
+    --card: 240 6% 8%;
+    --card-foreground: 240 5% 96%;
+    --popover: 240 6% 9%;
+    --popover-foreground: 240 5% 96%;
+    --primary: 48 96% 53%;
+    --primary-foreground: 240 6% 4%;
+    --secondary: 240 5% 12%;
+    --secondary-foreground: 240 5% 96%;
+    --muted: 240 5% 14%;
+    --muted-foreground: 240 5% 55%;
+    --accent: 240 5% 14%;
+    --accent-foreground: 240 5% 96%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 15% 18%; /* refined border */
-    --input: 220 20% 10%;
-    --ring: 220 20% 80%;
+    --border: 240 5% 18%;
+    --input: 240 5% 12%;
+    --ring: 48 96% 53%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    --sidebar-background: 220 25% 6%;
-    --sidebar-foreground: 220 20% 96%;
-    --sidebar-primary: 24 100% 50%; /* orange primary */
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 12%;
-    --sidebar-accent-foreground: 220 20% 96%;
-    --sidebar-border: 220 15% 15%;
-    --sidebar-ring: 24 100% 55%;
+    --sidebar-background: 240 6% 8%;
+    --sidebar-foreground: 240 5% 96%;
+    --sidebar-primary: 48 96% 53%;
+    --sidebar-primary-foreground: 240 6% 4%;
+    --sidebar-accent: 240 5% 14%;
+    --sidebar-accent-foreground: 240 5% 96%;
+    --sidebar-border: 240 5% 15%;
+    --sidebar-ring: 48 96% 53%;
   }
 }
 
@@ -342,115 +440,232 @@ body {
    ============================================ */
 
 /* ----- NERVE GOLD COLOR UTILITIES ----- */
+/* Research-backed gold palette - avoids "dingy yellow" and "muddy orange" */
 @layer utilities {
   /* Gold text with proper contrast */
   .text-nerve-gold {
-    color: #FBBF24;
+    color: var(--nerve-gold-400);
   }
 
   .text-nerve-gold-bright {
-    color: #FCD34D;
+    color: var(--nerve-gold-300);
+  }
+
+  .text-nerve-gold-muted {
+    color: var(--nerve-gold-600);
   }
 
   /* Gold backgrounds */
   .bg-nerve-gold {
-    background-color: #FBBF24;
+    background-color: var(--nerve-gold-500);
   }
 
   .bg-nerve-gold-gradient {
-    background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+    background: linear-gradient(135deg, var(--nerve-gold-400) 0%, var(--nerve-gold-600) 100%);
+  }
+
+  .bg-nerve-gold-metallic {
+    background: linear-gradient(
+      135deg,
+      var(--nerve-gold-metallic) 0%,
+      var(--nerve-gold-500) 50%,
+      var(--nerve-gold-metallic) 100%
+    );
   }
 
   /* Gold borders */
   .border-nerve-gold {
-    border-color: #FBBF24;
+    border-color: var(--nerve-gold-500);
   }
 
   .border-nerve-gold-subtle {
-    border-color: rgba(251, 191, 36, 0.3);
+    border-color: rgba(234, 179, 8, 0.3);
+  }
+
+  .border-nerve-gold-bright {
+    border-color: var(--nerve-gold-400);
   }
 }
 
 /* ----- NERVE GLOW SYSTEM ----- */
+/* Ambient glow creates life - active states emit subtle light */
 @layer utilities {
-  /* Gold glow levels */
+  /* Gold glow levels using design system variables */
   .glow-gold-subtle {
-    box-shadow: 0 0 10px rgba(251, 191, 36, 0.1);
+    box-shadow: 0 0 10px var(--nerve-gold-glow-subtle);
   }
 
   .glow-gold-soft {
-    box-shadow: 0 0 15px rgba(251, 191, 36, 0.2),
-                0 0 30px rgba(251, 191, 36, 0.1);
+    box-shadow:
+      0 0 15px var(--nerve-gold-glow),
+      0 0 30px var(--nerve-gold-glow-subtle);
   }
 
   .glow-gold-medium {
-    box-shadow: 0 0 20px rgba(251, 191, 36, 0.3),
-                0 0 40px rgba(251, 191, 36, 0.15);
+    box-shadow:
+      0 0 20px var(--nerve-gold-glow-medium),
+      0 0 40px var(--nerve-gold-glow);
   }
 
   .glow-gold-intense {
-    box-shadow: 0 0 15px rgba(251, 191, 36, 0.4),
-                0 0 30px rgba(251, 191, 36, 0.25),
-                0 0 60px rgba(251, 191, 36, 0.1);
+    box-shadow:
+      0 0 15px var(--nerve-gold-glow-strong),
+      0 0 30px var(--nerve-gold-glow-medium),
+      0 0 60px var(--nerve-gold-glow-subtle);
   }
 
-  /* Focus glow ring */
+  /* Focus ring - premium double-ring with glow */
+  .nerve-focus-ring:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--nerve-bg-base),
+      0 0 0 4px var(--nerve-gold-400),
+      0 0 20px var(--nerve-gold-glow);
+  }
+
+  /* Focus glow ring (legacy alias) */
   .focus-glow-gold:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px hsl(var(--background)),
-                0 0 0 4px rgba(251, 191, 36, 0.5),
-                0 0 20px rgba(251, 191, 36, 0.3);
+    box-shadow:
+      0 0 0 2px var(--nerve-bg-base),
+      0 0 0 4px var(--nerve-gold-400),
+      0 0 20px var(--nerve-gold-glow);
   }
 
   /* Hover glow enhancement */
   .hover-glow-gold:hover {
-    box-shadow: 0 0 20px rgba(251, 191, 36, 0.25),
-                0 0 40px rgba(251, 191, 36, 0.1);
+    box-shadow:
+      0 0 20px var(--nerve-gold-glow-medium),
+      0 0 40px var(--nerve-gold-glow-subtle);
+  }
+
+  /* Combined elevation + glow (for interactive cards) */
+  .nerve-glow-gold {
+    box-shadow:
+      0 0 20px var(--nerve-gold-glow),
+      0 0 40px var(--nerve-gold-glow);
+  }
+
+  .nerve-glow-gold-strong {
+    box-shadow:
+      0 0 15px var(--nerve-gold-glow-strong),
+      0 0 30px var(--nerve-gold-glow),
+      0 0 45px var(--nerve-gold-glow);
   }
 }
 
 /* ----- NERVE ELEVATION SYSTEM ----- */
+/* Research: Layered shadows create premium depth. Each layer doubles offset.
+   Source: joshwcomeau.com/css/designing-shadows/ */
 @layer utilities {
-  /* Surface levels with depth */
+  /* Level 0 - Inset (Wells, inputs, recessed areas)
+     Creates the illusion of pressing INTO the surface */
+  .nerve-inset {
+    background: var(--nerve-bg-deep);
+    box-shadow:
+      inset 0 2px 4px rgba(0, 0, 0, 0.4),
+      inset 0 1px 2px rgba(0, 0, 0, 0.3),
+      inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--nerve-border-subtle);
+  }
+
+  /* Level 1 - Surface (Cards at rest)
+     Subtle lift - the "default" card state */
+  .nerve-surface-1 {
+    background: var(--nerve-bg-surface);
+    box-shadow:
+      0 1px 1px rgba(0, 0, 0, 0.08),
+      0 2px 2px rgba(0, 0, 0, 0.08),
+      0 4px 4px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--nerve-border-subtle);
+  }
+
+  /* Level 2 - Elevated (Cards on hover, dropdowns)
+     Medium lift with more spread - indicates interactivity */
+  .nerve-surface-2 {
+    background: var(--nerve-bg-elevated);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.1),
+      0 2px 4px rgba(0, 0, 0, 0.1),
+      0 4px 8px rgba(0, 0, 0, 0.1),
+      0 8px 16px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--nerve-border-default);
+  }
+
+  /* Level 3 - Floating (Modals, popovers, tooltips)
+     High lift - clearly floating above the page */
+  .nerve-surface-3 {
+    background: var(--nerve-bg-elevated);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.08),
+      0 2px 4px rgba(0, 0, 0, 0.08),
+      0 4px 8px rgba(0, 0, 0, 0.08),
+      0 8px 16px rgba(0, 0, 0, 0.08),
+      0 16px 32px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--nerve-border-strong);
+  }
+
+  /* Inner border highlight - "lit from above" effect */
+  .nerve-highlight {
+    position: relative;
+  }
+  .nerve-highlight::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      transparent 50%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Legacy surface classes (keep for backwards compatibility) */
   .surface-0 {
-    background-color: #09090B;
+    background-color: var(--nerve-bg-deep);
   }
 
   .surface-1 {
-    background-color: #18181B;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    background-color: var(--nerve-bg-surface);
+    box-shadow: var(--nerve-shadow-1);
   }
 
   .surface-2 {
-    background-color: #27272A;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3),
-                0 1px 2px rgba(0, 0, 0, 0.2);
+    background-color: var(--nerve-bg-elevated);
+    box-shadow: var(--nerve-shadow-2);
   }
 
   .surface-3 {
-    background-color: #3F3F46;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3),
-                0 2px 4px rgba(0, 0, 0, 0.2);
+    background-color: var(--nerve-bg-hover);
+    box-shadow: var(--nerve-shadow-3);
   }
 
   /* Raised surface with highlight */
   .surface-raised {
     background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05),
-                0 2px 4px rgba(0, 0, 0, 0.3);
+                var(--nerve-shadow-1);
   }
 
   /* Recessed/well surfaces */
   .surface-well {
-    background: rgba(0, 0, 0, 0.2);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3),
-                inset 0 1px 2px rgba(0, 0, 0, 0.2);
+    background: var(--nerve-bg-deep);
+    box-shadow: var(--nerve-shadow-inset);
   }
 
   .surface-well-deep {
     background: rgba(0, 0, 0, 0.3);
-    box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.4),
-                inset 0 1px 3px rgba(0, 0, 0, 0.3);
+    box-shadow:
+      inset 0 3px 6px rgba(0, 0, 0, 0.5),
+      inset 0 1px 3px rgba(0, 0, 0, 0.4),
+      inset 0 0 0 1px rgba(0, 0, 0, 0.3);
   }
 }
 
@@ -499,6 +714,28 @@ body {
       radial-gradient(ellipse at 20% 0%, rgba(251, 191, 36, 0.02) 0%, transparent 50%),
       radial-gradient(circle, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
     background-size: 100% 100%, 24px 24px;
+  }
+
+  /* Noise texture overlay - adds tactile grain to surfaces
+     Apply to cards, panels, or any surface needing texture */
+  .nerve-texture-noise {
+    position: relative;
+  }
+
+  .nerve-texture-noise::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    opacity: 0.03;
+    pointer-events: none;
+    border-radius: inherit;
+    mix-blend-mode: overlay;
+  }
+
+  /* Stronger noise for larger surfaces */
+  .nerve-texture-noise-strong::after {
+    opacity: 0.05;
   }
 }
 

@@ -5,29 +5,36 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const nerveCardVariants = cva(
-  // Base styles
+  // Base styles - using design system tokens
   [
     "rounded-xl",
-    "border border-zinc-800/50",
     "transition-all duration-200 ease-out",
   ],
   {
     variants: {
       /**
        * Surface elevation level
+       * Uses layered shadow technique: 1→2→4→8→16px
+       * See: DESIGN_SYSTEM.md
        */
       elevation: {
         1: [
-          "bg-zinc-900",
-          "shadow-[0_1px_2px_rgba(0,0,0,0.3)]",
+          // Level 1 - Cards at rest (3-layer shadow)
+          "bg-[var(--nerve-bg-surface)]",
+          "border border-[var(--nerve-border-subtle)]",
+          "shadow-[0_1px_1px_rgba(0,0,0,0.08),0_2px_2px_rgba(0,0,0,0.08),0_4px_4px_rgba(0,0,0,0.08)]",
         ],
         2: [
-          "bg-zinc-800",
-          "shadow-[0_2px_4px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2)]",
+          // Level 2 - Elevated (4-layer shadow)
+          "bg-[var(--nerve-bg-elevated)]",
+          "border border-[var(--nerve-border-default)]",
+          "shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,0,0,0.1),0_4px_8px_rgba(0,0,0,0.1),0_8px_16px_rgba(0,0,0,0.1)]",
         ],
         3: [
-          "bg-zinc-700",
-          "shadow-[0_4px_8px_rgba(0,0,0,0.3),0_2px_4px_rgba(0,0,0,0.2)]",
+          // Level 3 - Floating (5-layer shadow)
+          "bg-[var(--nerve-bg-elevated)]",
+          "border border-[var(--nerve-border-strong)]",
+          "shadow-[0_1px_2px_rgba(0,0,0,0.08),0_2px_4px_rgba(0,0,0,0.08),0_4px_8px_rgba(0,0,0,0.08),0_8px_16px_rgba(0,0,0,0.08),0_16px_32px_rgba(0,0,0,0.08)]",
         ],
       },
       /**
@@ -40,26 +47,30 @@ const nerveCardVariants = cva(
         default: "",
         /**
          * Card with subtle top highlight (raised feel)
+         * "Lit from above" effect
          */
         raised: [
-          "bg-gradient-to-b from-white/[0.02] to-transparent",
-          "shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]",
+          "bg-gradient-to-b from-white/[0.03] to-transparent",
+          "shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]",
         ],
         /**
-         * Card with glow border on hover
+         * Card with gold glow border on hover
+         * Uses design system gold glow values
          */
         glow: [
-          "hover:border-gold-400/30",
-          "hover:shadow-[0_0_20px_rgba(251,191,36,0.1),0_4px_8px_rgba(0,0,0,0.3)]",
+          "hover:border-[var(--nerve-gold-500)]/30",
+          "hover:shadow-[0_0_20px_var(--nerve-gold-glow),0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,0,0,0.1),0_4px_8px_rgba(0,0,0,0.1),0_8px_16px_rgba(0,0,0,0.1)]",
         ],
         /**
          * Interactive card that lifts on hover
+         * Elevates from Level 1 → Level 2 on hover
          */
         interactive: [
           "cursor-pointer",
           "hover:-translate-y-0.5",
-          "hover:shadow-[0_8px_16px_rgba(0,0,0,0.3),0_4px_8px_rgba(0,0,0,0.2)]",
-          "hover:border-zinc-700",
+          "hover:bg-[var(--nerve-bg-elevated)]",
+          "hover:border-[var(--nerve-border-default)]",
+          "hover:shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,0,0,0.1),0_4px_8px_rgba(0,0,0,0.1),0_8px_16px_rgba(0,0,0,0.1)]",
           "active:scale-[0.99]",
           "active:translate-y-0",
         ],
@@ -67,14 +78,21 @@ const nerveCardVariants = cva(
          * Glass effect with blur
          */
         glass: [
-          "bg-zinc-900/70",
+          "bg-[var(--nerve-bg-surface)]/70",
           "backdrop-blur-xl",
           "border-white/[0.05]",
+        ],
+        /**
+         * Selected/active card with gold accent
+         */
+        selected: [
+          "border-l-2 border-l-[var(--nerve-gold-400)]",
+          "shadow-[0_0_20px_var(--nerve-gold-glow-subtle),0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,0,0,0.1),0_4px_8px_rgba(0,0,0,0.1)]",
         ],
       },
     },
     defaultVariants: {
-      elevation: 2,
+      elevation: 1,
       variant: "default",
     },
   }
@@ -150,7 +168,7 @@ export const NerveCardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "text-lg font-semibold leading-none tracking-tight text-zinc-100",
+      "text-lg font-semibold leading-none tracking-tight text-[var(--nerve-text-primary)]",
       className
     )}
     {...props}
@@ -167,7 +185,7 @@ export const NerveCardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-zinc-400", className)}
+    className={cn("text-sm text-[var(--nerve-text-secondary)]", className)}
     {...props}
   />
 ))
@@ -195,7 +213,7 @@ export const NerveCardFooter = React.forwardRef<
     ref={ref}
     className={cn(
       "flex items-center p-5 pt-0",
-      "border-t border-zinc-800/50 mt-4 pt-4",
+      "border-t border-[var(--nerve-border-subtle)] mt-4 pt-4",
       className
     )}
     {...props}

@@ -20,62 +20,107 @@ const nerveBadgeVariants = cva(
          * Default neutral badge
          */
         default: [
-          "bg-zinc-800/80",
-          "text-zinc-300",
-          "border-zinc-700",
+          "bg-[var(--nerve-bg-elevated)]/80",
+          "text-[var(--nerve-text-secondary)]",
+          "border-[var(--nerve-border-default)]",
         ],
         /**
          * Gold/primary badge with subtle glow
          */
         primary: [
-          "bg-gold-400/10",
-          "text-gold-400",
-          "border-gold-400/30",
-          "shadow-[0_0_8px_rgba(251,191,36,0.1)]",
+          "bg-[var(--nerve-gold-500)]/10",
+          "text-[var(--nerve-gold-400)]",
+          "border-[var(--nerve-gold-500)]/30",
+          "shadow-[0_0_8px_var(--nerve-gold-glow-subtle)]",
         ],
         /**
          * Success badge
          */
         success: [
-          "bg-green-500/10",
-          "text-green-400",
-          "border-green-500/30",
-          "shadow-[0_0_8px_rgba(34,197,94,0.1)]",
+          "bg-[var(--nerve-success)]/10",
+          "text-[var(--nerve-success)]",
+          "border-[var(--nerve-success)]/30",
+          "shadow-[0_0_8px_var(--nerve-success-glow)]",
         ],
         /**
          * Warning badge
          */
         warning: [
-          "bg-yellow-500/10",
-          "text-yellow-400",
-          "border-yellow-500/30",
-          "shadow-[0_0_8px_rgba(234,179,8,0.1)]",
+          "bg-[var(--nerve-warning)]/10",
+          "text-[var(--nerve-warning)]",
+          "border-[var(--nerve-warning)]/30",
+          "shadow-[0_0_8px_var(--nerve-warning-glow)]",
         ],
         /**
          * Error/destructive badge
          */
         error: [
-          "bg-red-500/10",
-          "text-red-400",
-          "border-red-500/30",
-          "shadow-[0_0_8px_rgba(239,68,68,0.1)]",
+          "bg-[var(--nerve-error)]/10",
+          "text-[var(--nerve-error)]",
+          "border-[var(--nerve-error)]/30",
+          "shadow-[0_0_8px_var(--nerve-error-glow)]",
         ],
         /**
          * Info badge
          */
         info: [
-          "bg-blue-500/10",
-          "text-blue-400",
-          "border-blue-500/30",
-          "shadow-[0_0_8px_rgba(59,130,246,0.1)]",
+          "bg-[var(--nerve-info)]/10",
+          "text-[var(--nerve-info)]",
+          "border-[var(--nerve-info)]/30",
+          "shadow-[0_0_8px_var(--nerve-info-glow)]",
         ],
         /**
          * Outline only - minimal
          */
         outline: [
           "bg-transparent",
-          "text-zinc-400",
-          "border-zinc-600",
+          "text-[var(--nerve-text-secondary)]",
+          "border-[var(--nerve-border-strong)]",
+        ],
+        /**
+         * Idea tag (purple)
+         */
+        idea: [
+          "bg-[var(--nerve-tag-idea)]/10",
+          "text-[var(--nerve-tag-idea)]",
+          "border-[var(--nerve-tag-idea)]/30",
+          "shadow-[0_0_8px_var(--nerve-tag-idea-glow)]",
+        ],
+        /**
+         * Task tag (orange)
+         */
+        task: [
+          "bg-[var(--nerve-tag-task)]/10",
+          "text-[var(--nerve-tag-task)]",
+          "border-[var(--nerve-tag-task)]/30",
+          "shadow-[0_0_8px_var(--nerve-tag-task-glow)]",
+        ],
+        /**
+         * Reference tag (blue) - alias for info
+         */
+        reference: [
+          "bg-[var(--nerve-tag-reference)]/10",
+          "text-[var(--nerve-tag-reference)]",
+          "border-[var(--nerve-tag-reference)]/30",
+          "shadow-[0_0_8px_var(--nerve-tag-reference-glow)]",
+        ],
+        /**
+         * Insight tag (green)
+         */
+        insight: [
+          "bg-[var(--nerve-tag-insight)]/10",
+          "text-[var(--nerve-tag-insight)]",
+          "border-[var(--nerve-tag-insight)]/30",
+          "shadow-[0_0_8px_var(--nerve-tag-insight-glow)]",
+        ],
+        /**
+         * Decision tag (gold)
+         */
+        decision: [
+          "bg-[var(--nerve-tag-decision)]/10",
+          "text-[var(--nerve-tag-decision)]",
+          "border-[var(--nerve-tag-decision)]/30",
+          "shadow-[0_0_8px_var(--nerve-tag-decision-glow)]",
         ],
       },
       size: {
@@ -130,13 +175,18 @@ export const NerveBadge = React.forwardRef<HTMLSpanElement, NerveBadgeProps>(
           <span
             className={cn(
               "mr-1.5 h-1.5 w-1.5 rounded-full",
-              variant === "success" && "bg-green-400",
-              variant === "warning" && "bg-yellow-400",
-              variant === "error" && "bg-red-400",
-              variant === "info" && "bg-blue-400",
-              variant === "primary" && "bg-gold-400",
+              variant === "success" && "bg-[var(--nerve-success)]",
+              variant === "warning" && "bg-[var(--nerve-warning)]",
+              variant === "error" && "bg-[var(--nerve-error)]",
+              variant === "info" && "bg-[var(--nerve-info)]",
+              variant === "primary" && "bg-[var(--nerve-gold-400)]",
+              variant === "idea" && "bg-[var(--nerve-tag-idea)]",
+              variant === "task" && "bg-[var(--nerve-tag-task)]",
+              variant === "reference" && "bg-[var(--nerve-tag-reference)]",
+              variant === "insight" && "bg-[var(--nerve-tag-insight)]",
+              variant === "decision" && "bg-[var(--nerve-tag-decision)]",
               (!variant || variant === "default" || variant === "outline") &&
-                "bg-zinc-400"
+                "bg-[var(--nerve-text-muted)]"
             )}
           />
         )}
