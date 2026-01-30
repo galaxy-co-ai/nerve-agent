@@ -1,0 +1,68 @@
+"use client"
+
+import * as React from "react"
+import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+import { cn } from "@/lib/utils"
+
+const NerveTooltipProvider = TooltipPrimitive.Provider
+const NerveTooltip = TooltipPrimitive.Root
+const NerveTooltipTrigger = TooltipPrimitive.Trigger
+
+/**
+ * Tooltip content with premium styling
+ */
+const NerveTooltipContent = React.forwardRef<
+  React.ElementRef<typeof TooltipPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
+>(({ className, sideOffset = 4, ...props }, ref) => (
+  <TooltipPrimitive.Portal>
+    <TooltipPrimitive.Content
+      ref={ref}
+      sideOffset={sideOffset}
+      className={cn(
+        "z-50 overflow-hidden",
+        "rounded-md px-3 py-1.5",
+        // Surface styling
+        "bg-zinc-800",
+        "border border-zinc-700",
+        // Text
+        "text-xs text-zinc-200",
+        // Shadow
+        "shadow-[0_4px_8px_rgba(0,0,0,0.3),0_2px_4px_rgba(0,0,0,0.2)]",
+        // Animation
+        "animate-in fade-in-0 zoom-in-95",
+        "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
+        "data-[side=bottom]:slide-in-from-top-2",
+        "data-[side=left]:slide-in-from-right-2",
+        "data-[side=right]:slide-in-from-left-2",
+        "data-[side=top]:slide-in-from-bottom-2",
+        className
+      )}
+      {...props}
+    />
+  </TooltipPrimitive.Portal>
+))
+NerveTooltipContent.displayName = TooltipPrimitive.Content.displayName
+
+/**
+ * Tooltip arrow pointing to trigger
+ */
+const NerveTooltipArrow = React.forwardRef<
+  React.ElementRef<typeof TooltipPrimitive.Arrow>,
+  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Arrow>
+>(({ className, ...props }, ref) => (
+  <TooltipPrimitive.Arrow
+    ref={ref}
+    className={cn("fill-zinc-800", className)}
+    {...props}
+  />
+))
+NerveTooltipArrow.displayName = TooltipPrimitive.Arrow.displayName
+
+export {
+  NerveTooltip,
+  NerveTooltipTrigger,
+  NerveTooltipContent,
+  NerveTooltipProvider,
+  NerveTooltipArrow,
+}
