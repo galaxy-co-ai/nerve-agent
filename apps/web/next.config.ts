@@ -16,7 +16,11 @@ const nextConfig: NextConfig = {
     webpackMemoryOptimizations: true,
   },
 
-  // Webpack config for file watching on Windows
+  // Turbopack config (Next.js 16+ uses Turbopack by default)
+  // Empty config signals we're aware webpack config exists but want Turbopack for builds
+  turbopack: {},
+
+  // Webpack config for file watching on Windows (dev only)
   webpack: (config, { dev }) => {
     if (dev) {
       config.watchOptions = {
