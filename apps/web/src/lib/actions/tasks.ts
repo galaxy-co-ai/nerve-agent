@@ -21,7 +21,7 @@ export async function createTask(
   })
 
   if (!parsed.success) {
-    throw new Error(parsed.error.errors[0].message)
+    throw new Error(parsed.error.issues[0].message)
   }
 
   const { title, description, estimatedHours, category } = parsed.data
@@ -194,7 +194,7 @@ export async function completeTaskWithExtras(data: {
   // Validate input
   const parsed = completeTaskWithExtrasSchema.safeParse(data)
   if (!parsed.success) {
-    throw new Error(parsed.error.errors[0].message)
+    throw new Error(parsed.error.issues[0].message)
   }
 
   const { taskId, projectId, durationMinutes, notes, startNextTaskId } = parsed.data

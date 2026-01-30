@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 export default {
-  darkMode: ["class"],
+  darkMode: ["class", ".dark"],
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -101,6 +101,8 @@ export default {
         float: "float 6s ease-in-out infinite",
         // Shimmer effect for loading states
         shimmer: "shimmer 2s linear infinite",
+        // Progress bar indeterminate state
+        "progress-indeterminate": "progress-indeterminate 1.5s ease-in-out infinite",
       },
       keyframes: {
         "glow-pulse": {
@@ -125,6 +127,17 @@ export default {
           },
           "100%": {
             backgroundPosition: "200% 0",
+          },
+        },
+        "progress-indeterminate": {
+          "0%": {
+            transform: "translateX(-100%)",
+          },
+          "50%": {
+            transform: "translateX(0%)",
+          },
+          "100%": {
+            transform: "translateX(100%)",
           },
         },
       },

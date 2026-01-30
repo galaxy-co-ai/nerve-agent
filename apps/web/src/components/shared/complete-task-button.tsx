@@ -39,6 +39,8 @@ export function CompleteTaskButton({
   const [showDialog, setShowDialog] = useState(false)
   const [nextTask, setNextTask] = useState<Task | null>(null)
   const [loadingNext, setLoadingNext] = useState(false)
+  // State for fallback simple completion mode
+  const [pending, setPending] = useState(false)
 
   // Load next task when dialog opens
   useEffect(() => {
@@ -79,7 +81,7 @@ export function CompleteTaskButton({
   }
 
   // Fallback: simple completion (for backwards compatibility)
-  const [pending, setPending] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { completeTask } = require("@/lib/actions/tasks")
 
   async function handleComplete() {

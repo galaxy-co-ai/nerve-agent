@@ -58,6 +58,7 @@ export default function GlobalError({
                 >
                   Try again
                 </button>
+{/* eslint-disable-next-line @next/next/no-html-link-for-pages -- Can't use Link in global error boundary */}
                 <a
                   href="/"
                   className="inline-flex items-center justify-center rounded-md border border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-50 hover:bg-zinc-800 transition-colors"

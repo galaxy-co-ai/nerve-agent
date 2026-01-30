@@ -1,0 +1,29 @@
+#!/bin/sh
+# Pre-commit hook: Fast checks before committing
+
+echo "Running pre-commit checks..."
+echo ""
+
+cd apps/web
+
+echo "[1/2] TypeScript check..."
+npm run typecheck
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ TypeScript check failed. Commit aborted."
+    echo "   Run 'cd apps/web && npm run typecheck' to see errors."
+    exit 1
+fi
+
+echo ""
+echo "[2/2] ESLint check..."
+npm run lint
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ Lint check failed. Commit aborted."
+    echo "   Run 'cd apps/web && npm run lint:fix' to auto-fix issues."
+    exit 1
+fi
+
+echo ""
+echo "✅ Pre-commit checks passed!"

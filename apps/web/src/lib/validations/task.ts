@@ -10,7 +10,7 @@ export const createTaskSchema = z.object({
   title: formString.pipe(z.string().min(1, "Title is required").max(200, "Title too long")),
   description: formString.pipe(z.string().max(2000, "Description too long")).optional(),
   estimatedHours: z.coerce
-    .number({ invalid_type_error: "Estimated hours must be a number" })
+    .number({ message: "Estimated hours must be a number" })
     .positive("Estimated hours must be positive")
     .max(1000, "Estimate too high"),
   category: formString.pipe(z.string().max(50)).optional(),
