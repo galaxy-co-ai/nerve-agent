@@ -176,3 +176,43 @@ export {
   NerveToastAction,
 } from "./components/nerve-toast"
 export type { NerveToastProps } from "./components/nerve-toast"
+
+// Popover
+export {
+  NervePopover,
+  NervePopoverTrigger,
+  NervePopoverContent,
+  NervePopoverAnchor,
+  NervePopoverClose,
+  NervePopoverArrow,
+} from "./components/nerve-popover"
+
+// Sheet
+export {
+  NerveSheet,
+  NerveSheetPortal,
+  NerveSheetOverlay,
+  NerveSheetTrigger,
+  NerveSheetClose,
+  NerveSheetContent,
+  NerveSheetHeader,
+  NerveSheetFooter,
+  NerveSheetTitle,
+  NerveSheetDescription,
+} from "./components/nerve-sheet"
+export type { NerveSheetContentProps } from "./components/nerve-sheet"
+
+// Alert Dialog
+export {
+  NerveAlertDialog,
+  NerveAlertDialogPortal,
+  NerveAlertDialogOverlay,
+  NerveAlertDialogTrigger,
+  NerveAlertDialogContent,
+  NerveAlertDialogHeader,
+  NerveAlertDialogFooter,
+  NerveAlertDialogTitle,
+  NerveAlertDialogDescription,
+  NerveAlertDialogAction,
+  NerveAlertDialogCancel,
+} from "./components/nerve-alert-dialog"
