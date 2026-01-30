@@ -21,10 +21,10 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.72.0",
-    "@mendable/firecrawl-js": "^1.19.0",
-    "@mistralai/mistralai": "^1.5.0",
     "@clerk/nextjs": "^6.37.0",
     "@clerk/themes": "^2.4.51",
+    "@mendable/firecrawl-js": "^1.19.0",
+    "@mistralai/mistralai": "^1.5.0",
     "@neondatabase/serverless": "^1.0.2",
     "@prisma/adapter-neon": "^7.3.0",
     "@prisma/client": "^7.3.0",
@@ -64,6 +64,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
+    "@tailwindcss/postcss": "^4.1.18",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
