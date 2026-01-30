@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import "@fontsource-variable/geist";
+import "@fontsource-variable/geist-mono";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className="antialiased bg-[#0a0a0a] text-white">
+      <body className="font-sans antialiased bg-[var(--nerve-bg-base)] text-[var(--nerve-text-primary)]">
         {children}
       </body>
     </html>

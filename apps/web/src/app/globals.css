@@ -1,7 +1,11 @@
 @import "tailwindcss";
 
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Geist Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+code, pre, .font-mono {
+  font-family: 'Geist Mono Variable', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
 }
 
 /* Custom scrollbar - refined */
@@ -288,20 +292,21 @@ body {
   }
   .dark {
     /* ═══════════════════════════════════════════════════════════
-       NERVE AGENT DARK THEME
-       Hardware-inspired, premium aesthetic with warm gold accents
+       NERVE AGENT DARK THEME v2.0
+       Premium audio plugin aesthetic - tactile, physical, hardware-inspired
+       Inspired by: Modartt Piano VST, Knorr Audio Plugins
        See: src/components/nerve/DESIGN_SYSTEM.md
        ═══════════════════════════════════════════════════════════ */
 
     /* Background Layers (darkest to lightest)
-       Rule: Add 8-10 brightness points per level for consistent "color distance"
-       Never use pure black - it makes shadows invisible */
-    --nerve-bg-deep: #08080a;
-    --nerve-bg-base: #0c0c0e;
-    --nerve-bg-surface: #141416;
-    --nerve-bg-elevated: #1a1a1d;
-    --nerve-bg-hover: #222225;
-    --nerve-bg-active: #2a2a2e;
+       Rule: 10-12 brightness point jumps for CLEAR hierarchy
+       Creates distinguishable elevation levels */
+    --nerve-bg-deep: #050507;      /* (5,5,7) - Deepest insets */
+    --nerve-bg-base: #0A0A0C;      /* (10,10,12) - Page background */
+    --nerve-bg-surface: #141418;   /* (20,20,24) - Cards at rest */
+    --nerve-bg-elevated: #1E1E22;  /* (30,30,34) - Elevated cards, dropdowns */
+    --nerve-bg-hover: #28282E;     /* (40,40,46) - Hover states */
+    --nerve-bg-active: #32323A;    /* (50,50,58) - Active/pressed states */
 
     /* Border Colors - RGBA for transparency layering */
     --nerve-border-subtle: rgba(255, 255, 255, 0.05);
@@ -309,35 +314,35 @@ body {
     --nerve-border-strong: rgba(255, 255, 255, 0.12);
     --nerve-border-bright: rgba(255, 255, 255, 0.18);
 
-    /* Text Colors - Avoid pure white on dark (too harsh) */
-    --nerve-text-primary: #f4f4f5;
-    --nerve-text-secondary: #a1a1aa;
-    --nerve-text-muted: #71717a;
-    --nerve-text-faint: #52525b;
+    /* Text Colors - Refined for readability */
+    --nerve-text-primary: #F0F0F2;   /* Slightly warm white */
+    --nerve-text-secondary: #A0A0A8; /* More visible secondary */
+    --nerve-text-muted: #68687A;     /* Cooler muted with slight blue */
+    --nerve-text-faint: #404052;     /* Disabled/decorative */
 
     /* ═══════════════════════════════════════════════════════════
-       REFINED GOLD PALETTE - Research-backed, tested on dark
-       These values avoid the "dingy yellow" and "muddy orange" problem
-       Rule: Desaturate accent colors ~20% for dark mode
+       COOL PALE GOLD PALETTE - Premium, desaturated, sophisticated
+       Inspired by: Brushed metallic knobs, champagne gold
+       Avoids: "highlighter yellow", "construction sign" look
        ═══════════════════════════════════════════════════════════ */
-    --nerve-gold-50: #fefce8;
-    --nerve-gold-100: #fef9c3;
-    --nerve-gold-200: #fef08a;
-    --nerve-gold-300: #fde047;
-    --nerve-gold-400: #facc15;
-    --nerve-gold-500: #eab308;
-    --nerve-gold-600: #ca8a04;
-    --nerve-gold-700: #a16207;
+    --nerve-gold-50: #FDF6E8;      /* Cream highlight */
+    --nerve-gold-100: #F5E6C4;     /* Light champagne */
+    --nerve-gold-200: #E8D4A0;     /* Soft gold */
+    --nerve-gold-300: #D4B878;     /* Medium gold */
+    --nerve-gold-400: #C9A84C;     /* PRIMARY ACCENT - cool pale gold */
+    --nerve-gold-500: #B8943C;     /* Rich gold */
+    --nerve-gold-600: #9A7B2E;     /* Deep gold */
+    --nerve-gold-700: #7A5F20;     /* Dark gold */
 
-    /* Premium Metallic Gold (from research - not too yellow, not orange) */
-    --nerve-gold-metallic: #d4af37;
-    --nerve-gold-premium: #e5b84a;
+    /* Premium Metallic Gold - Hero accent for knobs/CTAs */
+    --nerve-gold-metallic: #D4A84C;
+    --nerve-gold-premium: #C9A84C;
 
-    /* Glow values - carefully tuned opacity for ambient effect */
-    --nerve-gold-glow-subtle: rgba(234, 179, 8, 0.08);
-    --nerve-gold-glow: rgba(234, 179, 8, 0.12);
-    --nerve-gold-glow-medium: rgba(234, 179, 8, 0.18);
-    --nerve-gold-glow-strong: rgba(234, 179, 8, 0.25);
+    /* Glow values - Tuned for the new palette */
+    --nerve-gold-glow-subtle: rgba(201, 168, 76, 0.15);
+    --nerve-gold-glow: rgba(201, 168, 76, 0.25);
+    --nerve-gold-glow-medium: rgba(201, 168, 76, 0.4);
+    --nerve-gold-glow-strong: rgba(201, 168, 76, 0.6);
 
     /* Semantic Colors */
     --nerve-success: #22c55e;
@@ -358,66 +363,74 @@ body {
     --nerve-tag-reference-glow: rgba(59, 130, 246, 0.15);
     --nerve-tag-insight: #22c55e;
     --nerve-tag-insight-glow: rgba(34, 197, 94, 0.15);
-    --nerve-tag-decision: #eab308;
-    --nerve-tag-decision-glow: rgba(234, 179, 8, 0.15);
+    --nerve-tag-decision: #C9A84C;
+    --nerve-tag-decision-glow: rgba(201, 168, 76, 0.15);
 
     /* ═══════════════════════════════════════════════════════════
-       LAYERED SHADOW SYSTEM - Josh W. Comeau technique
-       Each layer doubles: 1→2→4→8→16
+       LAYERED SHADOW SYSTEM - More dramatic for clear hierarchy
+       Inspired by: Hardware plugin depth, floating modals
        ═══════════════════════════════════════════════════════════ */
     --nerve-shadow-1:
-      0 1px 1px rgba(0,0,0,0.08),
-      0 2px 2px rgba(0,0,0,0.08),
-      0 4px 4px rgba(0,0,0,0.08);
+      0 1px 3px rgba(0,0,0,0.4),
+      0 1px 2px rgba(0,0,0,0.3);
     --nerve-shadow-2:
-      0 1px 2px rgba(0,0,0,0.1),
-      0 2px 4px rgba(0,0,0,0.1),
-      0 4px 8px rgba(0,0,0,0.1),
-      0 8px 16px rgba(0,0,0,0.1);
+      0 4px 8px rgba(0,0,0,0.4),
+      0 2px 4px rgba(0,0,0,0.3);
     --nerve-shadow-3:
-      0 1px 2px rgba(0,0,0,0.08),
-      0 2px 4px rgba(0,0,0,0.08),
-      0 4px 8px rgba(0,0,0,0.08),
-      0 8px 16px rgba(0,0,0,0.08),
-      0 16px 32px rgba(0,0,0,0.08);
+      0 8px 16px rgba(0,0,0,0.4),
+      0 4px 8px rgba(0,0,0,0.3);
+    --nerve-shadow-4:
+      0 16px 32px rgba(0,0,0,0.5),
+      0 8px 16px rgba(0,0,0,0.3);
     --nerve-shadow-inset:
-      inset 0 2px 4px rgba(0,0,0,0.4),
-      inset 0 1px 2px rgba(0,0,0,0.3),
-      inset 0 0 0 1px rgba(0,0,0,0.2);
+      inset 0 2px 4px rgba(0,0,0,0.5),
+      inset 0 1px 2px rgba(0,0,0,0.3);
 
-    /* Map to shadcn variables */
-    --background: 240 6% 4%;
-    --foreground: 240 5% 96%;
-    --card: 240 6% 8%;
-    --card-foreground: 240 5% 96%;
-    --popover: 240 6% 9%;
-    --popover-foreground: 240 5% 96%;
-    --primary: 48 96% 53%;
-    --primary-foreground: 240 6% 4%;
-    --secondary: 240 5% 12%;
-    --secondary-foreground: 240 5% 96%;
-    --muted: 240 5% 14%;
+    /* ═══════════════════════════════════════════════════════════
+       BEVEL/EDGE SYSTEM - Hardware-inspired depth
+       Creates carved, tactile surface feel
+       ═══════════════════════════════════════════════════════════ */
+    --nerve-bevel-highlight: inset 0 1px 0 rgba(255,255,255,0.08);
+    --nerve-bevel-shadow: inset 0 -1px 0 rgba(0,0,0,0.2);
+    --nerve-bevel-full:
+      inset 0 1px 0 rgba(255,255,255,0.08),
+      inset 0 -1px 0 rgba(0,0,0,0.2);
+    --nerve-inset-border: 1px solid rgba(0,0,0,0.3);
+    --nerve-inset-highlight: inset 0 -1px 0 rgba(255,255,255,0.03);
+
+    /* Map to shadcn variables - Updated for new palette */
+    --background: 240 10% 4%;
+    --foreground: 240 5% 95%;
+    --card: 240 8% 8%;
+    --card-foreground: 240 5% 95%;
+    --popover: 240 8% 12%;
+    --popover-foreground: 240 5% 95%;
+    --primary: 43 54% 54%;      /* Cool pale gold #C9A84C */
+    --primary-foreground: 240 10% 4%;
+    --secondary: 240 8% 18%;
+    --secondary-foreground: 240 5% 95%;
+    --muted: 240 8% 14%;
     --muted-foreground: 240 5% 55%;
-    --accent: 240 5% 14%;
-    --accent-foreground: 240 5% 96%;
+    --accent: 240 8% 18%;
+    --accent-foreground: 240 5% 95%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5% 18%;
-    --input: 240 5% 12%;
-    --ring: 48 96% 53%;
+    --border: 240 8% 18%;
+    --input: 240 8% 12%;
+    --ring: 43 54% 54%;         /* Cool pale gold */
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
+    --chart-3: 43 54% 54%;      /* Gold */
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    --sidebar-background: 240 6% 8%;
-    --sidebar-foreground: 240 5% 96%;
-    --sidebar-primary: 48 96% 53%;
-    --sidebar-primary-foreground: 240 6% 4%;
-    --sidebar-accent: 240 5% 14%;
-    --sidebar-accent-foreground: 240 5% 96%;
-    --sidebar-border: 240 5% 15%;
-    --sidebar-ring: 48 96% 53%;
+    --sidebar-background: 240 10% 5%;
+    --sidebar-foreground: 240 5% 95%;
+    --sidebar-primary: 43 54% 54%;
+    --sidebar-primary-foreground: 240 10% 4%;
+    --sidebar-accent: 240 8% 14%;
+    --sidebar-accent-foreground: 240 5% 95%;
+    --sidebar-border: 240 8% 15%;
+    --sidebar-ring: 43 54% 54%;
   }
 }
 
@@ -434,13 +447,14 @@ body {
 }
 
 /* ============================================
-   NERVE UI KIT - Premium Design System
-   Gold accent, tactile depth, glow effects
-   See: docs/DESIGN_SYSTEM.md
+   NERVE UI KIT v2.0 - Premium Audio Plugin Aesthetic
+   Tactile depth, hardware-inspired, cool pale gold accents
+   Inspired by: Modartt, Knorr Audio Plugins
+   See: src/components/nerve/DESIGN_SYSTEM.md
    ============================================ */
 
 /* ----- NERVE GOLD COLOR UTILITIES ----- */
-/* Research-backed gold palette - avoids "dingy yellow" and "muddy orange" */
+/* Cool pale gold palette - sophisticated, desaturated, premium */
 @layer utilities {
   /* Gold text with proper contrast */
   .text-nerve-gold {
@@ -461,15 +475,18 @@ body {
   }
 
   .bg-nerve-gold-gradient {
-    background: linear-gradient(135deg, var(--nerve-gold-400) 0%, var(--nerve-gold-600) 100%);
+    background: linear-gradient(135deg, var(--nerve-gold-300) 0%, var(--nerve-gold-500) 100%);
   }
 
+  /* Metallic brushed gold - like audio plugin knobs */
   .bg-nerve-gold-metallic {
     background: linear-gradient(
-      135deg,
-      var(--nerve-gold-metallic) 0%,
+      145deg,
+      var(--nerve-gold-200) 0%,
+      var(--nerve-gold-400) 30%,
       var(--nerve-gold-500) 50%,
-      var(--nerve-gold-metallic) 100%
+      var(--nerve-gold-400) 70%,
+      var(--nerve-gold-300) 100%
     );
   }
 
@@ -479,7 +496,7 @@ body {
   }
 
   .border-nerve-gold-subtle {
-    border-color: rgba(234, 179, 8, 0.3);
+    border-color: rgba(201, 168, 76, 0.3);
   }
 
   .border-nerve-gold-bright {
@@ -488,17 +505,17 @@ body {
 }
 
 /* ----- NERVE GLOW SYSTEM ----- */
-/* Ambient glow creates life - active states emit subtle light */
+/* Subtle ambient glow - like the warm light under active tabs in audio plugins */
 @layer utilities {
-  /* Gold glow levels using design system variables */
+  /* Gold glow levels - tuned for cool pale gold */
   .glow-gold-subtle {
-    box-shadow: 0 0 10px var(--nerve-gold-glow-subtle);
+    box-shadow: 0 0 12px var(--nerve-gold-glow-subtle);
   }
 
   .glow-gold-soft {
     box-shadow:
-      0 0 15px var(--nerve-gold-glow),
-      0 0 30px var(--nerve-gold-glow-subtle);
+      0 0 16px var(--nerve-gold-glow),
+      0 0 32px var(--nerve-gold-glow-subtle);
   }
 
   .glow-gold-medium {
@@ -509,18 +526,25 @@ body {
 
   .glow-gold-intense {
     box-shadow:
-      0 0 15px var(--nerve-gold-glow-strong),
-      0 0 30px var(--nerve-gold-glow-medium),
-      0 0 60px var(--nerve-gold-glow-subtle);
+      0 0 16px var(--nerve-gold-glow-strong),
+      0 0 32px var(--nerve-gold-glow-medium),
+      0 0 64px var(--nerve-gold-glow);
   }
 
-  /* Focus ring - premium double-ring with glow */
+  /* Ambient underglow - like the glow bleeding from under active tabs */
+  .glow-gold-ambient {
+    box-shadow:
+      0 4px 12px var(--nerve-gold-glow-medium),
+      0 0 20px var(--nerve-gold-glow-subtle);
+  }
+
+  /* Focus ring - premium double-ring with subtle glow */
   .nerve-focus-ring:focus-visible {
     outline: none;
     box-shadow:
       0 0 0 2px var(--nerve-bg-base),
       0 0 0 4px var(--nerve-gold-400),
-      0 0 20px var(--nerve-gold-glow);
+      0 0 16px var(--nerve-gold-glow);
   }
 
   /* Focus glow ring (legacy alias) */
@@ -529,28 +553,28 @@ body {
     box-shadow:
       0 0 0 2px var(--nerve-bg-base),
       0 0 0 4px var(--nerve-gold-400),
-      0 0 20px var(--nerve-gold-glow);
+      0 0 16px var(--nerve-gold-glow);
   }
 
   /* Hover glow enhancement */
   .hover-glow-gold:hover {
     box-shadow:
-      0 0 20px var(--nerve-gold-glow-medium),
-      0 0 40px var(--nerve-gold-glow-subtle);
+      0 4px 12px var(--nerve-gold-glow-medium),
+      0 0 20px var(--nerve-gold-glow-subtle);
   }
 
   /* Combined elevation + glow (for interactive cards) */
   .nerve-glow-gold {
     box-shadow:
       0 0 20px var(--nerve-gold-glow),
-      0 0 40px var(--nerve-gold-glow);
+      0 0 40px var(--nerve-gold-glow-subtle);
   }
 
   .nerve-glow-gold-strong {
     box-shadow:
-      0 0 15px var(--nerve-gold-glow-strong),
-      0 0 30px var(--nerve-gold-glow),
-      0 0 45px var(--nerve-gold-glow);
+      0 0 16px var(--nerve-gold-glow-strong),
+      0 0 32px var(--nerve-gold-glow-medium),
+      0 0 48px var(--nerve-gold-glow);
   }
 }
 
@@ -670,18 +694,45 @@ body {
 }
 
 /* ----- NERVE BACKGROUND TREATMENTS ----- */
+/* Inspired by Knorr audio plugin - dot grids, vignettes, tactile textures */
 @layer utilities {
-  /* Dot grid background */
-  .bg-nerve-dots {
+  /* Dot grid background - from Knorr reference */
+  .nerve-dots {
     background-image: radial-gradient(
-      circle,
-      rgba(255, 255, 255, 0.03) 1px,
+      rgba(255, 255, 255, 0.08) 1px,
       transparent 1px
     );
-    background-size: 24px 24px;
+    background-size: 16px 16px;
   }
 
-  /* Vignette overlay */
+  /* Legacy alias */
+  .bg-nerve-dots {
+    background-image: radial-gradient(
+      rgba(255, 255, 255, 0.08) 1px,
+      transparent 1px
+    );
+    background-size: 16px 16px;
+  }
+
+  /* Vignette overlay - creates depth around edges like Modartt */
+  .nerve-vignette {
+    position: relative;
+  }
+
+  .nerve-vignette::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 0%,
+      rgba(0, 0, 0, 0.4) 100%
+    );
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  /* Legacy alias */
   .bg-nerve-vignette {
     position: relative;
   }
@@ -692,32 +743,31 @@ body {
     inset: 0;
     background: radial-gradient(
       ellipse at center,
-      transparent 50%,
-      rgba(0, 0, 0, 0.3) 100%
+      transparent 0%,
+      rgba(0, 0, 0, 0.4) 100%
     );
     pointer-events: none;
   }
 
-  /* Gold ambient glow */
+  /* Gold ambient glow - updated for cool pale gold */
   .bg-nerve-ambient {
     background: radial-gradient(
       ellipse at 20% 0%,
-      rgba(251, 191, 36, 0.03) 0%,
+      rgba(201, 168, 76, 0.04) 0%,
       transparent 50%
     );
   }
 
   /* Combined premium background */
   .bg-nerve-premium {
-    background-color: #09090B;
+    background-color: var(--nerve-bg-base);
     background-image:
-      radial-gradient(ellipse at 20% 0%, rgba(251, 191, 36, 0.02) 0%, transparent 50%),
-      radial-gradient(circle, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-    background-size: 100% 100%, 24px 24px;
+      radial-gradient(ellipse at 20% 0%, rgba(201, 168, 76, 0.03) 0%, transparent 50%),
+      radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 100% 100%, 16px 16px;
   }
 
-  /* Noise texture overlay - adds tactile grain to surfaces
-     Apply to cards, panels, or any surface needing texture */
+  /* Noise texture overlay - tactile grain like hardware surfaces */
   .nerve-texture-noise {
     position: relative;
   }
@@ -736,6 +786,57 @@ body {
   /* Stronger noise for larger surfaces */
   .nerve-texture-noise-strong::after {
     opacity: 0.05;
+  }
+
+  /* Corner brackets - decorative frame from Knorr reference */
+  .nerve-brackets {
+    position: relative;
+  }
+
+  .nerve-brackets::before,
+  .nerve-brackets::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    pointer-events: none;
+  }
+
+  .nerve-brackets::before {
+    top: 8px;
+    left: 8px;
+    border-right: none;
+    border-bottom: none;
+  }
+
+  .nerve-brackets::after {
+    bottom: 8px;
+    right: 8px;
+    border-left: none;
+    border-top: none;
+  }
+
+  /* All four corner brackets */
+  .nerve-brackets-full {
+    position: relative;
+  }
+
+  .nerve-brackets-full::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    pointer-events: none;
+    -webkit-mask-image:
+      linear-gradient(to right, black 12px, transparent 12px, transparent calc(100% - 12px), black calc(100% - 12px)),
+      linear-gradient(to bottom, black 12px, transparent 12px, transparent calc(100% - 12px), black calc(100% - 12px));
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(to right, black 12px, transparent 12px, transparent calc(100% - 12px), black calc(100% - 12px)),
+      linear-gradient(to bottom, black 12px, transparent 12px, transparent calc(100% - 12px), black calc(100% - 12px));
+    mask-composite: intersect;
   }
 }
 
@@ -763,14 +864,40 @@ body {
 }
 
 /* ----- NERVE TYPOGRAPHY ----- */
+/* Audio plugin style - all-caps labels with wide tracking */
 @layer utilities {
-  /* Uppercase label style */
+  /* Uppercase label style - like audio plugin controls */
   .text-label {
-    font-size: 0.75rem;
+    font-size: 0.6875rem;   /* 11px */
     font-weight: 500;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: #A1A1AA;
+    color: var(--nerve-text-muted);
+  }
+
+  .text-label-sm {
+    font-size: 0.625rem;    /* 10px */
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--nerve-text-muted);
+  }
+
+  .text-label-lg {
+    font-size: 0.75rem;     /* 12px */
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--nerve-text-secondary);
+  }
+
+  /* Display text - hero/headline */
+  .text-display {
+    font-size: 2.5rem;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--nerve-text-primary);
   }
 
   /* Tabular numbers for data */
@@ -778,23 +905,30 @@ body {
     font-variant-numeric: tabular-nums;
   }
 
-  /* Gold gradient text */
+  /* Gold gradient text - updated for cool pale gold */
   .text-gradient-gold {
-    background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+    background: linear-gradient(135deg, var(--nerve-gold-300) 0%, var(--nerve-gold-500) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  /* Monospace code style */
+  .text-code {
+    font-family: 'Geist Mono Variable', ui-monospace, monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
   }
 }
 
 /* ----- NERVE ANIMATIONS ----- */
 @keyframes nerve-glow-pulse {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(251, 191, 36, 0.2);
+    box-shadow: 0 0 20px var(--nerve-gold-glow);
   }
   50% {
-    box-shadow: 0 0 30px rgba(251, 191, 36, 0.4),
-                0 0 60px rgba(251, 191, 36, 0.1);
+    box-shadow: 0 0 30px var(--nerve-gold-glow-medium),
+                0 0 60px var(--nerve-gold-glow-subtle);
   }
 }
 
@@ -802,7 +936,7 @@ body {
   animation: nerve-glow-pulse 2s ease-in-out infinite;
 }
 
-/* Shimmer loading effect */
+/* Shimmer loading effect - updated for cool pale gold */
 @keyframes nerve-shimmer {
   0% {
     background-position: -200% 0;
@@ -816,9 +950,23 @@ body {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(251, 191, 36, 0.1) 50%,
+    var(--nerve-gold-glow-subtle) 50%,
     transparent 100%
   );
   background-size: 200% 100%;
   animation: nerve-shimmer 2s linear infinite;
+}
+
+/* Ambient pulse - subtle breathing effect for active elements */
+@keyframes nerve-ambient-pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-nerve-ambient {
+  animation: nerve-ambient-pulse 3s ease-in-out infinite;
 }

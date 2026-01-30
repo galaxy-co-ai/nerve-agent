@@ -10,23 +10,24 @@ export default {
   theme: {
     extend: {
       // =================================================================
-      // NERVE GOLD PALETTE
-      // Premium gold accent that doesn't look brown
+      // NERVE GOLD PALETTE v2.0
+      // Cool pale gold - sophisticated, desaturated, premium
+      // Inspired by: Brushed metallic knobs, champagne gold
       // =================================================================
       colors: {
-        // Nerve Gold - Primary accent
+        // Nerve Gold - Primary accent (cool pale gold)
         gold: {
-          50: "#FFFBEB",
-          100: "#FEF3C7",
-          200: "#FDE68A",
-          300: "#FCD34D",
-          400: "#FBBF24", // PRIMARY
-          500: "#F59E0B",
-          600: "#D97706",
-          700: "#B45309",
-          800: "#92400E",
-          900: "#78350F",
-          950: "#451A03",
+          50: "#FDF6E8",   // Cream highlight
+          100: "#F5E6C4",  // Light champagne
+          200: "#E8D4A0",  // Soft gold
+          300: "#D4B878",  // Medium gold
+          400: "#C9A84C",  // PRIMARY - cool pale gold
+          500: "#B8943C",  // Rich gold
+          600: "#9A7B2E",  // Deep gold
+          700: "#7A5F20",  // Dark gold
+          800: "#5C4718",  // Very dark gold
+          900: "#3E3010",  // Nearly black gold
+          950: "#201808",  // Deepest gold
         },
 
         // shadcn/ui CSS variable colors (keep for compatibility)
@@ -92,7 +93,7 @@ export default {
       },
 
       // =================================================================
-      // NERVE ANIMATIONS
+      // NERVE ANIMATIONS v2.0
       // =================================================================
       animation: {
         // Glow pulse for attention
@@ -103,14 +104,16 @@ export default {
         shimmer: "shimmer 2s linear infinite",
         // Progress bar indeterminate state
         "progress-indeterminate": "progress-indeterminate 1.5s ease-in-out infinite",
+        // Ambient breathing effect
+        "ambient-pulse": "ambient-pulse 3s ease-in-out infinite",
       },
       keyframes: {
         "glow-pulse": {
           "0%, 100%": {
-            boxShadow: "0 0 20px rgba(251, 191, 36, 0.2)",
+            boxShadow: "0 0 20px rgba(201, 168, 76, 0.25)",
           },
           "50%": {
-            boxShadow: "0 0 30px rgba(251, 191, 36, 0.4), 0 0 60px rgba(251, 191, 36, 0.1)",
+            boxShadow: "0 0 30px rgba(201, 168, 76, 0.4), 0 0 60px rgba(201, 168, 76, 0.15)",
           },
         },
         float: {
@@ -140,24 +143,35 @@ export default {
             transform: "translateX(100%)",
           },
         },
+        "ambient-pulse": {
+          "0%, 100%": {
+            opacity: "0.6",
+          },
+          "50%": {
+            opacity: "1",
+          },
+        },
       },
 
       // =================================================================
-      // NERVE BOX SHADOWS
-      // Elevation system + glow effects
+      // NERVE BOX SHADOWS v2.0
+      // More dramatic elevation + cool pale gold glow
       // =================================================================
       boxShadow: {
-        // Elevation levels
-        "elevation-1": "0 1px 2px rgba(0, 0, 0, 0.3)",
-        "elevation-2": "0 2px 4px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)",
-        "elevation-3": "0 4px 8px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2)",
-        "elevation-4": "0 8px 16px rgba(0, 0, 0, 0.3), 0 4px 8px rgba(0, 0, 0, 0.2)",
+        // Elevation levels - more dramatic for clear hierarchy
+        "elevation-1": "0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3)",
+        "elevation-2": "0 4px 8px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3)",
+        "elevation-3": "0 8px 16px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3)",
+        "elevation-4": "0 16px 32px rgba(0, 0, 0, 0.5), 0 8px 16px rgba(0, 0, 0, 0.3)",
 
-        // Gold glow levels
-        "glow-gold-subtle": "0 0 10px rgba(251, 191, 36, 0.1)",
-        "glow-gold-soft": "0 0 15px rgba(251, 191, 36, 0.2), 0 0 30px rgba(251, 191, 36, 0.1)",
-        "glow-gold-medium": "0 0 20px rgba(251, 191, 36, 0.3), 0 0 40px rgba(251, 191, 36, 0.15)",
-        "glow-gold-intense": "0 0 15px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.25), 0 0 60px rgba(251, 191, 36, 0.1)",
+        // Gold glow levels - updated for cool pale gold
+        "glow-gold-subtle": "0 0 12px rgba(201, 168, 76, 0.15)",
+        "glow-gold-soft": "0 0 16px rgba(201, 168, 76, 0.25), 0 0 32px rgba(201, 168, 76, 0.15)",
+        "glow-gold-medium": "0 0 20px rgba(201, 168, 76, 0.4), 0 0 40px rgba(201, 168, 76, 0.25)",
+        "glow-gold-intense": "0 0 16px rgba(201, 168, 76, 0.6), 0 0 32px rgba(201, 168, 76, 0.4), 0 0 64px rgba(201, 168, 76, 0.25)",
+
+        // Ambient underglow - like the glow bleeding from under active tabs
+        "glow-gold-ambient": "0 4px 12px rgba(201, 168, 76, 0.4), 0 0 20px rgba(201, 168, 76, 0.15)",
 
         // Success glow
         "glow-success": "0 0 15px rgba(34, 197, 94, 0.3), 0 0 30px rgba(34, 197, 94, 0.1)",
@@ -165,13 +179,16 @@ export default {
         // Error glow
         "glow-error": "0 0 15px rgba(239, 68, 68, 0.3), 0 0 30px rgba(239, 68, 68, 0.1)",
 
-        // Inner shadows for wells/recessed areas
-        "inner-subtle": "inset 0 1px 2px rgba(0, 0, 0, 0.2)",
-        "inner-medium": "inset 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(0, 0, 0, 0.2)",
-        "inner-deep": "inset 0 3px 6px rgba(0, 0, 0, 0.4), inset 0 1px 3px rgba(0, 0, 0, 0.3)",
+        // Inner shadows for wells/recessed areas - deeper for hardware feel
+        "inner-subtle": "inset 0 1px 2px rgba(0, 0, 0, 0.3)",
+        "inner-medium": "inset 0 2px 4px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(0, 0, 0, 0.3)",
+        "inner-deep": "inset 0 3px 6px rgba(0, 0, 0, 0.6), inset 0 1px 3px rgba(0, 0, 0, 0.4)",
 
-        // Raised surface with top highlight
-        raised: "inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 2px 4px rgba(0, 0, 0, 0.3)",
+        // Raised surface with top highlight (bevel effect)
+        raised: "inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 4px rgba(0, 0, 0, 0.4)",
+
+        // Bevel full (top highlight + bottom shadow)
+        bevel: "inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.2)",
       },
 
       // =================================================================
@@ -182,14 +199,23 @@ export default {
       },
 
       // =================================================================
-      // TYPOGRAPHY EXTENSIONS
+      // TYPOGRAPHY v2.0
+      // Geist font family - technical, modern, audio software DNA
       // =================================================================
       fontFamily: {
-        sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
-        mono: ["JetBrains Mono", "Fira Code", "monospace"],
+        sans: ["Geist Variable", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+        mono: ["Geist Mono Variable", "JetBrains Mono", "Fira Code", "monospace"],
       },
       letterSpacing: {
-        label: "0.05em", // For uppercase labels
+        label: "0.1em",    // For uppercase labels (audio plugin style)
+        "label-tight": "0.08em",
+        "label-wide": "0.12em",
+      },
+      fontSize: {
+        // Label sizes (all-caps style)
+        "label-xs": ["0.625rem", { lineHeight: "1", letterSpacing: "0.12em" }],  // 10px
+        "label-sm": ["0.6875rem", { lineHeight: "1", letterSpacing: "0.1em" }],  // 11px
+        "label-base": ["0.75rem", { lineHeight: "1", letterSpacing: "0.08em" }], // 12px
       },
     },
   },
