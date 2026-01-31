@@ -504,6 +504,8 @@ export function OnboardingLaunchpad() {
                     if (isFlipped) flipBack()
                   }}
                   disabled={!isOn}
+                  data-ax-intent="switch:dashboard-mode"
+                  data-ax-context="dashboard-widget"
                   className="relative z-10 flex-1 text-center font-semibold text-[11px] tracking-[0.08em] transition-colors duration-200 disabled:opacity-30"
                   style={{
                     color: option.value === mode ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.35)",
@@ -667,6 +669,8 @@ function SuggestMode({
             key={idea.id}
             onClick={() => onIdeaClick(idea)}
             disabled={isShuffling || !isOn}
+            data-ax-intent="select:project-suggestion"
+            data-ax-context="dashboard-widget"
             className={cn(
               "group relative w-full px-4 py-3 rounded-xl",
               "bg-white/[0.03] border border-white/[0.08]",
@@ -701,6 +705,8 @@ function SuggestMode({
         <button
           onClick={onShuffle}
           disabled={isShuffling || !isOn}
+          data-ax-intent="shuffle:suggestions"
+          data-ax-context="dashboard-widget"
           className={cn(
             "flex items-center gap-2 px-4 py-2 rounded-lg",
             "text-xs text-white/40",
@@ -771,6 +777,8 @@ function AskMode({
           <button
             type="submit"
             disabled={!customIdea.trim() || !isOn}
+            data-ax-intent="submit:project-idea"
+            data-ax-context="dashboard-widget"
             className={cn(
               "w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl",
               "bg-[#C9A84C]/10 border border-[#C9A84C]/30",
@@ -814,6 +822,8 @@ function BrainstormMode({
         <button
           onClick={onBrainstorm}
           disabled={!isOn}
+          data-ax-intent="start:brainstorm"
+          data-ax-context="dashboard-widget"
           className={cn(
             "inline-flex items-center gap-2 px-8 py-4 rounded-xl",
             "bg-[#C9A84C]/10 border border-[#C9A84C]/30",
