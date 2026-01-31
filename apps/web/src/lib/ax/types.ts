@@ -16,6 +16,7 @@ export interface AXStateGraph {
   currentView: AXCurrentView
   staleness?: AXStalenessOverview
   relationships?: import("./relationships").AXRelationshipMap
+  userPatterns?: import("./patterns").AXUserPatterns
 }
 
 export interface AXUser {
@@ -60,6 +61,7 @@ export interface AXInboxItem {
   title: string
   createdAt: string
   priority: "low" | "medium" | "high"
+  confidence?: import("./confidence").AXActionConfidence
 }
 
 export interface AXNotes {
