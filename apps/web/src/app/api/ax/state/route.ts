@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { requireUser } from "@/lib/auth"
-import { fetchAXWorkspaceData, buildAXUser } from "@/lib/ax"
+import { fetchAXExtendedData, buildAXUser } from "@/lib/ax"
 import type { AXStateGraph } from "@/lib/ax"
 
 export const dynamic = "force-dynamic"
@@ -15,8 +15,8 @@ export async function GET() {
   try {
     const user = await requireUser()
 
-    // Fetch workspace data
-    const workspace = await fetchAXWorkspaceData(user.id)
+    // Fetch extended workspace data (workspace + staleness + relationships)
+    const { workspace, staleness, relationships } = await fetchAXExtendedData(user.id)
 
     // Build user data
     const axUser = buildAXUser(user)
@@ -32,6 +32,8 @@ export async function GET() {
         activeModal: null,
         activeDrawer: null,
       },
+      staleness,
+      relationships,
     }
 
     return NextResponse.json(stateGraph, {

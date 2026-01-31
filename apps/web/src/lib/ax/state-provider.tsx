@@ -10,7 +10,8 @@ import {
   type ReactNode,
 } from "react"
 import { usePathname } from "next/navigation"
-import type { AXStateGraph, AXWorkspace, AXUser, AXCurrentView } from "./types"
+import type { AXStateGraph, AXWorkspace, AXUser, AXCurrentView, AXStalenessOverview } from "./types"
+import type { AXRelationshipMap } from "./relationships"
 
 // =============================================================================
 // CONTEXT
@@ -46,6 +47,8 @@ interface AXStateProviderProps {
   children: ReactNode
   initialUser: AXUser
   initialWorkspace: AXWorkspace
+  initialStaleness?: AXStalenessOverview
+  initialRelationships?: AXRelationshipMap
 }
 
 // =============================================================================
@@ -56,17 +59,21 @@ export function AXStateProvider({
   children,
   initialUser,
   initialWorkspace,
+  initialStaleness,
+  initialRelationships,
 }: AXStateProviderProps) {
   const pathname = usePathname()
   const [user] = useState<AXUser>(initialUser)
   const [workspace, setWorkspace] = useState<AXWorkspace>(initialWorkspace)
+  const [staleness] = useState<AXStalenessOverview | undefined>(initialStaleness)
+  const [relationships] = useState<AXRelationshipMap | undefined>(initialRelationships)
   const [activeModal, setActiveModal] = useState<string | null>(null)
   const [activeDrawer, setActiveDrawer] = useState<AXCurrentView["activeDrawer"]>(null)
 
   // Debounce state graph updates
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const [stateGraph, setStateGraph] = useState<AXStateGraph>(() =>
-    buildStateGraph(user, workspace, pathname, activeModal, activeDrawer)
+    buildStateGraph(user, workspace, pathname, activeModal, activeDrawer, staleness, relationships)
   )
 
   // Update state graph when dependencies change (debounced)
@@ -76,7 +83,7 @@ export function AXStateProvider({
     }
 
     updateTimeoutRef.current = setTimeout(() => {
-      setStateGraph(buildStateGraph(user, workspace, pathname, activeModal, activeDrawer))
+      setStateGraph(buildStateGraph(user, workspace, pathname, activeModal, activeDrawer, staleness, relationships))
     }, 150) // 150ms debounce
 
     return () => {
@@ -84,7 +91,7 @@ export function AXStateProvider({
         clearTimeout(updateTimeoutRef.current)
       }
     }
-  }, [user, workspace, pathname, activeModal, activeDrawer])
+  }, [user, workspace, pathname, activeModal, activeDrawer, staleness, relationships])
 
   const updateWorkspace = useCallback((partial: Partial<AXWorkspace>) => {
     setWorkspace((prev) => ({ ...prev, ...partial }))
@@ -121,7 +128,9 @@ function buildStateGraph(
   workspace: AXWorkspace,
   pathname: string,
   activeModal: string | null,
-  activeDrawer: AXCurrentView["activeDrawer"]
+  activeDrawer: AXCurrentView["activeDrawer"],
+  staleness?: AXStalenessOverview,
+  relationships?: AXRelationshipMap
 ): AXStateGraph {
   return {
     timestamp: new Date().toISOString(),
@@ -132,6 +141,8 @@ function buildStateGraph(
       activeModal,
       activeDrawer,
     },
+    staleness,
+    relationships,
   }
 }
 

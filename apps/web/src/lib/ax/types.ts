@@ -307,9 +307,8 @@ export function axEntityAttrs(
     }
   }
 
-  if (relationships && relationships.length > 0) {
-    attrs["data-ax-relationships"] = JSON.stringify(relationships)
-  }
+  // Always include relationships, even if empty array
+  attrs["data-ax-relationships"] = JSON.stringify(relationships || [])
 
   return attrs
 }

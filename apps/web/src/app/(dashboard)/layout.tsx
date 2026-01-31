@@ -8,7 +8,7 @@ import { AgentDrawer } from "@/components/agent/agent-drawer"
 import { TimerWrapper } from "@/components/timer/timer-wrapper"
 import { SidebarInset } from "@/components/ui/sidebar"
 import { SidebarWrapper } from "@/components/navigation/sidebar-wrapper"
-import { AXStateProvider, fetchAXWorkspaceData, buildAXUser } from "@/lib/ax"
+import { AXStateProvider, fetchAXExtendedData, buildAXUser } from "@/lib/ax"
 import { syncUser, requireUser } from "@/lib/auth"
 import { db } from "@/lib/db"
 
@@ -21,9 +21,9 @@ export default async function DashboardLayout({
   await syncUser()
   const user = await requireUser()
 
-  // Fetch AX workspace data and command palette data in parallel
-  const [axWorkspace, projects, notes, inProgressTasks] = await Promise.all([
-    fetchAXWorkspaceData(user.id),
+  // Fetch AX extended data (workspace + staleness + relationships) and command palette data in parallel
+  const [axExtended, projects, notes, inProgressTasks] = await Promise.all([
+    fetchAXExtendedData(user.id),
     db.project.findMany({
       where: { userId: user.id },
       orderBy: { updatedAt: "desc" },
@@ -61,7 +61,12 @@ export default async function DashboardLayout({
 
   return (
     <TimerWrapper>
-      <AXStateProvider initialUser={axUser} initialWorkspace={axWorkspace}>
+      <AXStateProvider
+        initialUser={axUser}
+        initialWorkspace={axExtended.workspace}
+        initialStaleness={axExtended.staleness}
+        initialRelationships={axExtended.relationships}
+      >
         <SidebarWrapper>
           <AppSidebar />
           <SidebarInset>
