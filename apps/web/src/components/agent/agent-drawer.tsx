@@ -473,11 +473,13 @@ export function AgentDrawer() {
                 {TABS.map((tab) => (
                   <button
                     key={tab.id}
+                    type="button"
                     onClick={() => setActiveTab(tab.id)}
                     className={cn(
-                      "relative flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg",
-                      "text-[10px] font-semibold tracking-wider uppercase",
-                      "transition-colors duration-200 z-10"
+                      "relative flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg",
+                      "text-[11px] font-semibold tracking-wider uppercase",
+                      "transition-colors duration-200 z-10",
+                      "min-h-[36px]" // Ensure adequate tap target
                     )}
                     style={{
                       color: activeTab === tab.id ? AGENT_COLORS.gold : AGENT_COLORS.textMuted,

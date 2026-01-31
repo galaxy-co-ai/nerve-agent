@@ -127,7 +127,7 @@ export default async function DashboardPage() {
         <div className="text-sm text-muted-foreground">{todayFormatted}</div>
       </header>
 
-      <div className="flex flex-1 flex-col gap-6 p-6">
+      <div className="flex flex-1 flex-col gap-6 p-6 max-w-7xl mx-auto w-full">
         {/* Welcome Section */}
         <div>
           <H2>
@@ -136,7 +136,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Stats Row */}
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Time Today</CardTitle>
@@ -201,7 +201,7 @@ export default async function DashboardPage() {
         />
 
         {/* Main Content */}
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
           {/* AI Focus Wizard */}
           <AiFocusWizard />
 
