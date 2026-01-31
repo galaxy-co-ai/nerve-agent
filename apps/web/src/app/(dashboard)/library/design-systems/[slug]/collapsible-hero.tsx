@@ -9,7 +9,9 @@ import { Sparkles } from "lucide-react"
 interface CollapsibleHeroProps {
   name: string
   version: string
+  /** @ai-context Philosophy statement for AI agents to understand design system intent */
   philosophy?: string | null
+  /** @ai-context Full description for AI agents - not displayed in UI */
   description?: string | null
   coverColor?: string | null
   coverImage?: string | null
@@ -41,8 +43,8 @@ export function CollapsibleHero({
     const handleScroll = () => {
       // Get scroll position from the scroll container, fall back to window
       const scrollTop = scrollContainer?.scrollTop ?? window.scrollY
-      // Collapse over first 150px of scroll
-      const progress = Math.min(1, Math.max(0, scrollTop / 150))
+      // Collapse over first 80px of scroll (smaller hero = faster collapse)
+      const progress = Math.min(1, Math.max(0, scrollTop / 80))
       setScrollProgress(progress)
     }
 
@@ -59,25 +61,32 @@ export function CollapsibleHero({
     }
   }, [])
 
-  // Interpolated values
-  const imageSize = 192 - scrollProgress * 112 // 192px -> 80px
-  const descOpacity = 1 - scrollProgress * 1.5 // Fade faster
-  const statsTranslateY = scrollProgress * -60 // Move up
+  // Interpolated values - smaller image (120px -> 64px)
+  const imageSize = 120 - scrollProgress * 56
+  const statsOpacity = 1 - scrollProgress * 1.5
 
   const gradientBg = coverImage
     ? `url(${coverImage})`
     : `linear-gradient(135deg, ${coverColor || "#eab308"} 0%, ${adjustColor(coverColor || "#eab308", -30)} 100%)`
 
   return (
-    <div ref={containerRef} className="p-6 pb-2 transition-all duration-100">
-      <div className="flex gap-6">
-        {/* Cover Image - Shrinks */}
+    <div ref={containerRef} className="px-6 pt-5 pb-3 transition-all duration-100">
+      {/* Hidden AI context - philosophy and description available for AI agents */}
+      {(philosophy || description) && (
+        <div className="sr-only" aria-hidden="true" data-ai-context>
+          {philosophy && <p data-philosophy>{philosophy}</p>}
+          {description && <p data-description>{description}</p>}
+        </div>
+      )}
+
+      <div className="flex gap-5 items-start">
+        {/* Cover Image - Smaller, shrinks on scroll */}
         <div
           className="rounded-lg shadow-lg flex-shrink-0 transition-all duration-100 ease-out"
           style={{
             width: imageSize,
             height: imageSize,
-            minWidth: 80,
+            minWidth: 64,
             backgroundColor: coverColor || "#eab308",
             backgroundImage: gradientBg,
             backgroundSize: "cover",
@@ -85,53 +94,33 @@ export function CollapsibleHero({
           }}
         />
 
-        {/* Info */}
-        <div className="flex-1 min-w-0">
+        {/* Info - Compact layout */}
+        <div className="flex-1 min-w-0 py-1">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold">{name}</h1>
-              <Badge variant="outline" className="mt-2">v{version}</Badge>
+              {/* Title + Version inline */}
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold">{name}</h1>
+                <Badge variant="outline" className="text-xs">v{version}</Badge>
+              </div>
+
+              {/* Stats directly below title */}
+              <div
+                className="flex flex-wrap gap-x-3 gap-y-1 mt-1.5 text-sm text-muted-foreground transition-opacity duration-100"
+                style={{ opacity: statsOpacity }}
+              >
+                <span>{stats.components} components</span>
+                <span className="text-border">•</span>
+                <span>{stats.primitives} primitives</span>
+                <span className="text-border">•</span>
+                <span>{stats.backgrounds} backgrounds</span>
+              </div>
             </div>
-            <Button className="shrink-0">
+
+            <Button className="shrink-0" size="sm">
               <Sparkles className="mr-2 h-4 w-4" />
               Add to Project
             </Button>
-          </div>
-
-          {/* Philosophy & Description - Fades out */}
-          <div
-            className="overflow-hidden transition-all duration-100"
-            style={{
-              opacity: descOpacity,
-              maxHeight: descOpacity > 0.1 ? 200 : 0,
-            }}
-          >
-            {philosophy && (
-              <p className="text-base text-muted-foreground mt-3 italic line-clamp-2">
-                &ldquo;{philosophy}&rdquo;
-              </p>
-            )}
-            {description && (
-              <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{description}</p>
-            )}
-          </div>
-
-          {/* Stats - Moves up */}
-          <div
-            className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-sm text-muted-foreground transition-transform duration-100"
-            style={{ transform: `translateY(${statsTranslateY}px)` }}
-          >
-            <span>{stats.components} components</span>
-            <span className="text-border">•</span>
-            <span>{stats.primitives} primitives</span>
-            <span className="text-border">•</span>
-            <span>{stats.backgrounds} backgrounds</span>
-            {stats.usageCount != null && stats.usageCount > 0 && (
-              <>
-                <span className="text-border">•</span>
-                <span>Used {stats.usageCount} times</span>
-              </>
-            )}
           </div>
         </div>
       </div>

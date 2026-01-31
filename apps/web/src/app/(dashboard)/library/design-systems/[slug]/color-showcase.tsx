@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useState } from "react"
+import { useState, useRef, useCallback } from "react"
 import { Power } from "lucide-react"
 
 interface ColorShowcaseProps {
@@ -16,7 +16,8 @@ export function ColorShowcase({ palette }: ColorShowcaseProps) {
   const [activeCategory, setActiveCategory] = useState<string>("tags")
   const [isOn, setIsOn] = useState(true)
   const [outputValue] = useState(0.75)
-  const [mode, setMode] = useState<"colors" | "typography" | "components">("colors")
+  const [intensity, setIntensity] = useState(0.65) // Orb slider intensity
+  const [mode, setMode] = useState<"colors" | "typography" | "primitives" | "components" | "backgrounds" | "css">("colors")
 
   // Extract palette categories
   const tags = palette["tags"] || {}
@@ -45,69 +46,119 @@ export function ColorShowcase({ palette }: ColorShowcaseProps) {
 
   return (
     <div className="space-y-4">
-      {/* Chrome Shell Container */}
+      {/* Chrome Shell Container - Dark Matte Metal Housing */}
       <div
-        className="relative p-3 sm:p-4 md:p-5 rounded-2xl sm:rounded-[20px] md:rounded-[24px] bg-[#f8f8fa]"
+        className="relative p-2.5 sm:p-3 md:p-4 rounded-[16px] sm:rounded-[20px] md:rounded-[24px]"
         style={{
-          boxShadow: "0 4px 24px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08)",
+          backgroundColor: "#1c1c1f",
+          borderTop: "1px solid rgba(255,255,255,0.08)",
+          borderBottom: "1px solid rgba(0,0,0,0.4)",
+          borderLeft: "1px solid rgba(255,255,255,0.05)",
+          borderRight: "1px solid rgba(0,0,0,0.3)",
+          boxShadow: `
+            0 25px 50px -12px rgba(0,0,0,0.5),
+            0 12px 24px -8px rgba(0,0,0,0.4),
+            0 4px 8px -2px rgba(0,0,0,0.3),
+            inset 0 1px 0 rgba(255,255,255,0.05)
+          `,
         }}
       >
-        {/* Subtle gradient overlay */}
+        {/* Subtle brushed metal highlight */}
         <div
-          className="absolute inset-0 rounded-[24px] pointer-events-none"
+          className="absolute inset-0 rounded-[inherit] pointer-events-none"
           style={{
-            background: "linear-gradient(180deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 50%)",
+            background: "linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0) 30%, rgba(0,0,0,0.1) 100%)",
           }}
         />
 
         {/* Header */}
-        <div className="relative flex items-center justify-between px-1 sm:px-2 py-1 sm:py-2 mb-2 sm:mb-3 md:mb-4">
-          {/* Power Button */}
-          <button
-            onClick={() => setIsOn(!isOn)}
-            className="relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full transition-all duration-200 hover:scale-105 active:scale-95"
+        <div className="relative flex items-center justify-between px-1 sm:px-2 py-2 sm:py-3 mb-1.5">
+          {/* Left: Intensity Slider with Orb */}
+          <IntensitySlider
+            value={intensity}
+            onChange={setIntensity}
+            color={goldPrimary}
+            lightColor={goldLight}
+          />
+
+          {/* Center: Logo/Title - Engraved with gold glow based on intensity */}
+          <span
+            className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-[0.25em] sm:tracking-[0.3em]"
             style={{
-              border: `2px solid ${isOn ? goldPrimary : "#9ca3af"}`,
-              boxShadow: isOn ? `0 0 12px ${goldPrimary}40` : "none",
+              color: "#151517",
+              textShadow: `
+                0 -1px 1px rgba(0,0,0,0.6),
+                0 1px 1px rgba(255,255,255,0.1),
+                0 2px 3px rgba(0,0,0,0.4),
+                0 0 ${20 + intensity * 30}px rgba(201, 168, 76, ${intensity * 0.4}),
+                0 0 ${10 + intensity * 20}px rgba(201, 168, 76, ${intensity * 0.3})
+              `,
             }}
           >
-            <Power
-              size={16}
-              strokeWidth={2.5}
-              className="sm:w-[18px] sm:h-[18px]"
-              style={{ color: isOn ? goldPrimary : "#9ca3af" }}
-            />
-          </button>
-
-          {/* Logo/Title */}
-          <span className="text-base sm:text-lg md:text-xl font-bold tracking-[0.15em] sm:tracking-[0.2em] text-[#1a1a1e]">
-            NERVE
+            NERVE UI
           </span>
 
-          {/* Output Knob */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <span className="hidden sm:inline text-[10px] font-medium tracking-wider text-[#6b7280] uppercase">
-              Output
-            </span>
-            <DialKnob value={outputValue} />
+          {/* Right: Output + Power */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-1 sm:gap-1.5">
+              <span className="hidden sm:inline text-[9px] font-semibold tracking-[0.1em] text-white/40 uppercase">
+                Out
+              </span>
+              <DialKnob value={outputValue} />
+            </div>
+            <button
+              onClick={() => setIsOn(!isOn)}
+              className="relative flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full transition-all duration-200 hover:scale-105 active:scale-95"
+              style={{
+                border: `2px solid ${isOn ? goldPrimary : "rgba(255,255,255,0.2)"}`,
+                backgroundColor: "#0f0f11",
+                boxShadow: isOn
+                  ? `0 0 16px ${goldPrimary}40, inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 4px rgba(0,0,0,0.3)`
+                  : "inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 4px rgba(0,0,0,0.3)",
+              }}
+            >
+              <Power
+                size={16}
+                strokeWidth={2.5}
+                style={{ color: isOn ? goldPrimary : "rgba(255,255,255,0.4)" }}
+              />
+            </button>
           </div>
         </div>
 
-        {/* Canvas Area */}
-        <div
-          className="relative overflow-hidden rounded-2xl"
-          style={{
-            backgroundColor: "#0a0a0c",
-            boxShadow: "inset 0 2px 12px rgba(0,0,0,0.6), inset 0 1px 2px rgba(0,0,0,0.4)",
-            height: "clamp(280px, 40vh, 400px)",
-          }}
-        >
-          {/* Dot Grid */}
+        {/* Canvas Area - Recessed into dark metal housing */}
+        <div className="relative rounded-xl" style={{ padding: "2px" }}>
+          {/* Outer bezel - dark metal recess */}
+          <div
+            className="absolute inset-0 rounded-xl"
+            style={{
+              background: `linear-gradient(180deg,
+                rgba(0,0,0,0.5) 0%,
+                rgba(0,0,0,0.2) 30%,
+                rgba(255,255,255,0.02) 70%,
+                rgba(255,255,255,0.04) 100%
+              )`,
+            }}
+          />
+          {/* Inner screen */}
+          <div
+            className="relative overflow-hidden rounded-[10px]"
+            style={{
+              backgroundColor: "#08080a",
+              boxShadow: `
+                inset 0 3px 12px rgba(0,0,0,0.9),
+                inset 0 1px 3px rgba(0,0,0,0.6),
+                inset 0 0 0 1px rgba(0,0,0,0.5)
+              `,
+              height: "clamp(280px, 40vh, 400px)",
+            }}
+          >
+          {/* Dot Grid - Enhanced visibility */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
-              backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 1px)",
-              backgroundSize: "20px 20px",
+              backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.18) 1.5px, transparent 1.5px)",
+              backgroundSize: "24px 24px",
             }}
           />
 
@@ -117,17 +168,17 @@ export function ColorShowcase({ palette }: ColorShowcaseProps) {
           <CornerBracket position="bottom-left" />
           <CornerBracket position="bottom-right" />
 
-          {/* Top Label */}
-          <div className="absolute top-2 sm:top-3 md:top-4 left-1/2 -translate-x-1/2 z-10">
-            <span className="text-[9px] sm:text-[10px] md:text-[11px] font-medium tracking-[0.1em] sm:tracking-[0.12em] text-white/40 uppercase">
-              {activeCategory.replace("-", " ").replace("nerve ", "")} — {Object.keys(palette[activeCategory] || {}).length} colors
+          {/* Top Label - Instrument style */}
+          <div className="absolute top-3 sm:top-4 md:top-5 left-1/2 -translate-x-1/2 z-10">
+            <span className="text-[9px] sm:text-[10px] font-medium tracking-[0.15em] text-white/35 uppercase">
+              {activeCategory.replace("-", " ").replace("nerve ", "")} — {Object.keys(palette[activeCategory] || {}).length}
             </span>
           </div>
 
-          {/* Left Label */}
-          <div className="absolute left-2 sm:left-3 md:left-4 top-1/2 -translate-y-1/2 z-10 hidden sm:block">
+          {/* Left Label - Instrument style */}
+          <div className="absolute left-3 sm:left-4 md:left-5 top-1/2 -translate-y-1/2 z-10 hidden sm:block">
             <span
-              className="text-[10px] md:text-[11px] font-medium tracking-[0.1em] md:tracking-[0.12em] text-white/40 uppercase block"
+              className="text-[9px] sm:text-[10px] font-medium tracking-[0.15em] text-white/35 uppercase block"
               style={{ writingMode: "vertical-lr", transform: "rotate(180deg)" }}
             >
               Intensity — {Math.round(orbPos.y * 100)}%
@@ -194,45 +245,81 @@ export function ColorShowcase({ palette }: ColorShowcaseProps) {
               </button>
             ))}
           </div>
+          </div>
         </div>
 
-        {/* Pill Toggle Footer */}
-        <div className="mt-2 sm:mt-3 md:mt-4">
+        {/* Pill Toggle Footer - Hardware segmented control (6 categories) */}
+        {/* Recessed channel in dark metal housing */}
+        <div
+          className="mt-2 sm:mt-2.5 rounded-full"
+          style={{
+            padding: "2px",
+            background: `linear-gradient(180deg,
+              rgba(0,0,0,0.4) 0%,
+              rgba(0,0,0,0.2) 40%,
+              rgba(255,255,255,0.02) 100%
+            )`,
+          }}
+        >
           <div
-            className="relative flex items-center h-10 sm:h-11 md:h-12 p-1 sm:p-1.5 rounded-full"
+            className="relative flex items-center h-10 sm:h-11 p-1 sm:p-1.5 rounded-full"
             style={{
-              backgroundColor: "#1a1a1e",
-              boxShadow: "inset 0 1px 3px rgba(0,0,0,0.4)",
+              backgroundColor: "#0f0f11",
+              boxShadow: `
+                inset 0 2px 6px rgba(0,0,0,0.6),
+                inset 0 -1px 0 rgba(255,255,255,0.03)
+              `,
+              border: "1px solid rgba(0,0,0,0.3)",
             }}
           >
-            {/* Sliding indicator */}
+            {/* Sliding indicator - 6 segments, tactile motion */}
             <div
-              className="absolute bg-white rounded-full transition-all duration-200 ease-out"
+              className="absolute"
               style={{
-                width: "calc(33.333% - 4px)",
-                height: "calc(100% - 6px)",
-                left: mode === "colors" ? "3px" : mode === "typography" ? "calc(33.333% + 1px)" : "calc(66.666% - 1px)",
-                top: "3px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                width: "calc(16.666% - 5px)",
+                height: "calc(100% - 8px)",
+                borderRadius: "9999px",
+                backgroundColor: "#2a2a2e",
+                left: (() => {
+                  const positions = {
+                    colors: "4px",
+                    typography: "calc(16.666% + 0.5px)",
+                    primitives: "calc(33.333% - 1px)",
+                    components: "calc(50% - 2.5px)",
+                    backgrounds: "calc(66.666% - 4px)",
+                    css: "calc(83.333% - 5.5px)",
+                  }
+                  return positions[mode]
+                })(),
+                top: "4px",
+                boxShadow: `
+                  0 2px 6px rgba(0,0,0,0.4),
+                  inset 0 1px 0 rgba(255,255,255,0.08),
+                  inset 0 -1px 0 rgba(0,0,0,0.2)
+                `,
+                transition: "left 350ms cubic-bezier(0.25, 1.15, 0.5, 1)",
               }}
             />
 
-            {/* Options */}
+            {/* Options - 6 categories */}
             {[
-              { value: "colors", label: "COLORS" },
-              { value: "typography", label: "TYPE" },
-              { value: "components", label: "COMPONENTS" },
+              { value: "colors", label: "COLORS", short: "CLR" },
+              { value: "typography", label: "TYPE", short: "TYP" },
+              { value: "primitives", label: "PRIM", short: "PRM" },
+              { value: "components", label: "COMP", short: "CMP" },
+              { value: "backgrounds", label: "BG", short: "BG" },
+              { value: "css", label: "CSS", short: "CSS" },
             ].map((option) => (
               <button
                 key={option.value}
                 onClick={() => setMode(option.value as typeof mode)}
-                className="relative z-10 flex-1 text-center font-semibold text-xs sm:text-sm tracking-wide transition-colors duration-200"
+                className="relative z-10 flex-1 text-center font-semibold text-[9px] sm:text-[10px] md:text-xs tracking-[0.05em] transition-colors duration-200"
                 style={{
-                  color: option.value === mode ? "#0a0a0c" : "rgba(255,255,255,0.5)",
+                  color: option.value === mode ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.35)",
                 }}
               >
                 <span className="hidden sm:inline">{option.label}</span>
-                <span className="sm:hidden">{option.label.slice(0, 4)}</span>
+                <span className="sm:hidden">{option.short}</span>
               </button>
             ))}
           </div>
@@ -286,83 +373,137 @@ export function ColorShowcase({ palette }: ColorShowcaseProps) {
 }
 
 /**
- * Corner bracket decoration
+ * Corner bracket decoration - Chunky hardware style with rounded corners
  */
 function CornerBracket({ position }: { position: "top-left" | "top-right" | "bottom-left" | "bottom-right" }) {
   const positionStyles = {
-    "top-left": "top-3 left-3 sm:top-4 sm:left-4 md:top-5 md:left-5",
-    "top-right": "top-3 right-3 sm:top-4 sm:right-4 md:top-5 md:right-5 rotate-90",
-    "bottom-left": "bottom-3 left-3 sm:bottom-4 sm:left-4 md:bottom-5 md:left-5 -rotate-90",
-    "bottom-right": "bottom-3 right-3 sm:bottom-4 sm:right-4 md:bottom-5 md:right-5 rotate-180",
+    "top-left": "top-4 left-4 sm:top-5 sm:left-5 md:top-6 md:left-6",
+    "top-right": "top-4 right-4 sm:top-5 sm:right-5 md:top-6 md:right-6",
+    "bottom-left": "bottom-4 left-4 sm:bottom-5 sm:left-5 md:bottom-6 md:left-6",
+    "bottom-right": "bottom-4 right-4 sm:bottom-5 sm:right-5 md:bottom-6 md:right-6",
+  }
+
+  // SVG path for each corner - creates L-shape with rounded outer corner
+  const pathData = {
+    "top-left": "M 0 20 L 0 4 Q 0 0 4 0 L 20 0",
+    "top-right": "M 0 0 L 16 0 Q 20 0 20 4 L 20 20",
+    "bottom-left": "M 0 0 L 0 16 Q 0 20 4 20 L 20 20",
+    "bottom-right": "M 20 0 L 20 16 Q 20 20 16 20 L 0 20",
   }
 
   return (
-    <div className={`absolute w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 pointer-events-none ${positionStyles[position]}`}>
-      <div className="absolute top-0 left-0 w-full h-px bg-white/20" />
-      <div className="absolute top-0 left-0 w-px h-full bg-white/20" />
+    <div className={`absolute pointer-events-none ${positionStyles[position]}`}>
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 20 20"
+        fill="none"
+        className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7"
+      >
+        <path
+          d={pathData[position]}
+          stroke="rgba(255,255,255,0.25)"
+          strokeWidth="2"
+          strokeLinecap="round"
+          fill="none"
+        />
+      </svg>
     </div>
   )
 }
 
 /**
- * Glowing orb element
+ * Orb element - Physical ball bearing / polished metal sphere
  */
 function GlowingOrb({ color, lightColor, size = 48 }: { color: string; lightColor: string; size?: number }) {
-  const satelliteSize = Math.max(8, size * 0.2)
+  const satelliteSize = Math.max(10, size * 0.25)
 
   return (
     <div className="relative" style={{ width: size * 2, height: size * 2 }}>
-      {/* Outer glow */}
+      {/* Subtle ambient shadow on surface */}
       <div
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
         style={{
-          width: size * 1.8,
-          height: size * 1.8,
-          background: `radial-gradient(circle, ${color}80 0%, transparent 70%)`,
-          filter: "blur(12px)",
+          width: size * 1.4,
+          height: size * 0.4,
+          marginTop: size * 0.6,
+          background: `radial-gradient(ellipse, rgba(0,0,0,0.4) 0%, transparent 70%)`,
+          filter: "blur(8px)",
         }}
       />
 
-      {/* Main orb */}
+      {/* Main orb - polished metal/glass sphere */}
       <div
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
         style={{
           width: size,
           height: size,
-          background: `linear-gradient(135deg, ${lightColor} 0%, ${color} 50%, ${color}cc 100%)`,
+          background: `
+            radial-gradient(ellipse 40% 25% at 30% 20%, rgba(255,255,255,0.7) 0%, transparent 50%),
+            radial-gradient(ellipse 100% 100% at 50% 50%, ${lightColor} 0%, ${color} 35%, #1a1500 100%)
+          `,
           boxShadow: `
-            inset -4px -4px 12px rgba(0,0,0,0.4),
-            inset 2px 2px 8px rgba(255,255,255,0.3),
-            0 0 20px ${color}80,
-            0 0 40px ${color}40
+            inset -8px -8px 20px rgba(0,0,0,0.6),
+            inset 4px 4px 10px rgba(255,255,255,0.15),
+            0 4px 12px rgba(0,0,0,0.5),
+            0 2px 4px rgba(0,0,0,0.3)
           `,
         }}
       >
-        {/* Highlight */}
+        {/* Primary specular highlight - sharp */}
         <div
-          className="absolute rounded-full bg-white/50"
+          className="absolute rounded-full"
           style={{
-            width: size * 0.25,
-            height: size * 0.15,
-            top: size * 0.15,
+            width: size * 0.22,
+            height: size * 0.12,
+            top: size * 0.12,
             left: size * 0.2,
-            filter: "blur(2px)",
-            transform: "rotate(-30deg)",
+            background: "rgba(255,255,255,0.9)",
+            filter: "blur(1px)",
+            transform: "rotate(-25deg)",
+          }}
+        />
+        {/* Secondary highlight - softer */}
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: size * 0.35,
+            height: size * 0.2,
+            top: size * 0.08,
+            left: size * 0.15,
+            background: "rgba(255,255,255,0.25)",
+            filter: "blur(4px)",
+            transform: "rotate(-25deg)",
+          }}
+        />
+        {/* Rim light - bottom edge catch */}
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: size * 0.5,
+            height: size * 0.15,
+            bottom: size * 0.08,
+            right: size * 0.1,
+            background: "rgba(255,255,255,0.08)",
+            filter: "blur(3px)",
           }}
         />
       </div>
 
-      {/* Satellite */}
+      {/* Satellite ring - metal ring */}
       <div
-        className="absolute rounded-full border-2"
+        className="absolute rounded-full"
         style={{
           width: satelliteSize,
           height: satelliteSize,
-          borderColor: `${color}80`,
-          backgroundColor: "transparent",
+          border: `2px solid ${color}`,
+          backgroundColor: "rgba(0,0,0,0.3)",
           top: size * 0.3,
-          right: size * 0.3,
-          boxShadow: `0 0 8px ${color}60`,
+          right: size * 0.25,
+          boxShadow: `
+            inset 1px 1px 2px rgba(255,255,255,0.2),
+            0 2px 4px rgba(0,0,0,0.4)
+          `,
         }}
       />
     </div>
@@ -370,28 +511,139 @@ function GlowingOrb({ color, lightColor, size = 48 }: { color: string; lightColo
 }
 
 /**
- * Dial Knob control
+ * Intensity Slider with draggable orb
+ */
+function IntensitySlider({
+  value,
+  onChange,
+  color,
+  lightColor,
+}: {
+  value: number
+  onChange: (v: number) => void
+  color: string
+  lightColor: string
+}) {
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [isDragging, setIsDragging] = useState(false)
+
+  const handleMove = useCallback(
+    (clientX: number) => {
+      if (!trackRef.current) return
+      const rect = trackRef.current.getBoundingClientRect()
+      const orbSize = 28
+      const padding = 4
+      const trackWidth = rect.width - orbSize - padding * 2
+      const x = clientX - rect.left - orbSize / 2 - padding
+      const newValue = Math.max(0, Math.min(1, x / trackWidth))
+      onChange(newValue)
+    },
+    [onChange]
+  )
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true)
+    handleMove(e.clientX)
+
+    const handleMouseMove = (e: MouseEvent) => handleMove(e.clientX)
+    const handleMouseUp = () => {
+      setIsDragging(false)
+      window.removeEventListener("mousemove", handleMouseMove)
+      window.removeEventListener("mouseup", handleMouseUp)
+    }
+
+    window.addEventListener("mousemove", handleMouseMove)
+    window.addEventListener("mouseup", handleMouseUp)
+  }
+
+  const orbSize = 28
+  const padding = 4
+
+  return (
+    <div
+      ref={trackRef}
+      className="relative h-9 sm:h-10 w-24 sm:w-32 rounded-full cursor-pointer"
+      style={{
+        backgroundColor: "#0a0a0c",
+        boxShadow: `
+          inset 0 2px 6px rgba(0,0,0,0.8),
+          inset 0 1px 2px rgba(0,0,0,0.5),
+          0 1px 0 rgba(255,255,255,0.05)
+        `,
+        border: "1px solid rgba(0,0,0,0.3)",
+      }}
+      onMouseDown={handleMouseDown}
+    >
+      {/* Orb */}
+      <div
+        className="absolute top-1/2 -translate-y-1/2 transition-transform duration-75"
+        style={{
+          left: `calc(${padding}px + ${value} * (100% - ${orbSize + padding * 2}px))`,
+          width: orbSize,
+          height: orbSize,
+          transform: `translateY(-50%) scale(${isDragging ? 1.05 : 1})`,
+        }}
+      >
+        <div
+          className="w-full h-full rounded-full"
+          style={{
+            background: `
+              radial-gradient(ellipse 40% 25% at 30% 20%, rgba(255,255,255,0.7) 0%, transparent 50%),
+              radial-gradient(ellipse 100% 100% at 50% 50%, ${lightColor} 0%, ${color} 35%, #1a1500 100%)
+            `,
+            boxShadow: `
+              inset -4px -4px 10px rgba(0,0,0,0.6),
+              inset 2px 2px 6px rgba(255,255,255,0.15),
+              0 2px 8px rgba(0,0,0,0.5)
+            `,
+          }}
+        >
+          <div
+            className="absolute rounded-full"
+            style={{
+              width: "30%",
+              height: "18%",
+              top: "15%",
+              left: "20%",
+              background: "rgba(255,255,255,0.8)",
+              filter: "blur(1px)",
+              transform: "rotate(-25deg)",
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Dial Knob control - Dark matte metal style
  */
 function DialKnob({ value }: { value: number }) {
-  const size = 32
   const minAngle = 135
   const maxAngle = 405
   const angle = minAngle + value * (maxAngle - minAngle)
 
-  const dotDistance = size * 0.32
+  const dotDistance = 10
   const dotAngle = (angle * Math.PI) / 180
   const dotX = Math.cos(dotAngle) * dotDistance
   const dotY = Math.sin(dotAngle) * dotDistance
 
   return (
     <div
-      className="relative flex items-center justify-center rounded-full cursor-pointer bg-white border border-[#e5e7eb] hover:scale-105 active:scale-95 transition-transform w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9"
+      className="relative flex items-center justify-center rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-transform w-8 h-8 sm:w-9 sm:h-9"
       style={{
-        boxShadow: "0 2px 8px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8)",
+        backgroundColor: "#0f0f11",
+        border: "2px solid rgba(255,255,255,0.15)",
+        boxShadow: `
+          0 2px 8px rgba(0,0,0,0.4),
+          0 1px 2px rgba(0,0,0,0.2),
+          inset 0 1px 0 rgba(255,255,255,0.05)
+        `,
       }}
     >
       <div
-        className="absolute rounded-full bg-[#1a1a1e] w-1 h-1"
+        className="absolute rounded-full bg-white/80 w-1.5 h-1.5"
         style={{
           transform: `translate(${dotX}px, ${dotY}px)`,
         }}
