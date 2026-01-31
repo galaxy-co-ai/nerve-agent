@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import {
   NerveDialog,
   NerveDialogContent,
@@ -13,6 +13,12 @@ import {
   NerveBadge,
 } from "@/components/nerve"
 import { Monitor, RefreshCw, Download, CheckCircle2, XCircle } from "lucide-react"
+import {
+  getPusherClient,
+  PUSHER_EVENTS,
+  type DesktopConnectedPayload,
+} from "@/lib/pusher-client"
+import type { Channel } from "pusher-js"
 
 // =============================================================================
 // Types
@@ -22,6 +28,7 @@ interface PairingCode {
   code: string
   expiresAt: string
   expiresIn: number
+  userId: string
 }
 
 type PairingStatus = "idle" | "loading" | "code" | "success" | "error"
@@ -44,6 +51,8 @@ export function DesktopPairingDialog({
   const [pairingCode, setPairingCode] = useState<PairingCode | null>(null)
   const [timeRemaining, setTimeRemaining] = useState(0)
   const [error, setError] = useState<string | null>(null)
+  const [deviceName, setDeviceName] = useState<string | null>(null)
+  const channelRef = useRef<Channel | null>(null)
 
   // Generate a new pairing code
   const generateCode = useCallback(async () => {
@@ -93,6 +102,44 @@ export function DesktopPairingDialog({
       generateCode()
     }
   }, [open, status, generateCode])
+
+  // Subscribe to Pusher for real-time pairing success
+  useEffect(() => {
+    if (!pairingCode?.userId || status !== "code") return
+
+    try {
+      const pusher = getPusherClient()
+      const channelName = `private-desktop-${pairingCode.userId}`
+      const channel = pusher.subscribe(channelName)
+      channelRef.current = channel
+
+      // Listen for desktop app connection
+      channel.bind(
+        PUSHER_EVENTS.DESKTOP_CONNECTED,
+        (data: DesktopConnectedPayload) => {
+          console.log("[Pairing] Desktop connected:", data)
+          setDeviceName(data.name || `${data.platform} Device`)
+          setStatus("success")
+          onPairingSuccess?.()
+        }
+      )
+    } catch (err) {
+      console.error("[Pairing] Pusher subscription error:", err)
+    }
+
+    return () => {
+      if (channelRef.current) {
+        channelRef.current.unbind_all()
+        try {
+          const pusher = getPusherClient()
+          pusher.unsubscribe(`private-desktop-${pairingCode.userId}`)
+        } catch {
+          // Ignore cleanup errors
+        }
+        channelRef.current = null
+      }
+    }
+  }, [pairingCode?.userId, status, onPairingSuccess])
 
   // Reset state when dialog closes
   const handleOpenChange = (newOpen: boolean) => {
@@ -201,9 +248,16 @@ export function DesktopPairingDialog({
                   Successfully Paired!
                 </p>
                 <p className="text-sm text-zinc-400 mt-1">
-                  Your desktop app is now connected
+                  {deviceName ? `"${deviceName}" is now connected` : "Your desktop app is now connected"}
                 </p>
               </div>
+              <NerveButton
+                variant="primary"
+                onClick={() => setOpen(false)}
+                className="mt-2"
+              >
+                Done
+              </NerveButton>
             </div>
           )}
 

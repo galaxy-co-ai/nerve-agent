@@ -40,6 +40,7 @@ export async function POST() {
       code,
       expiresAt: expiresAt.toISOString(),
       expiresIn: 300, // seconds
+      userId: user.id, // For Pusher channel subscription
     })
   } catch (error) {
     console.error("Pairing code generation error:", error)
