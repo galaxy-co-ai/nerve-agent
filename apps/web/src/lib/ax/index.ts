@@ -5,10 +5,5 @@
  */
 
 export * from "./types"
-export {
-  AXStateProvider,
-  useAXState,
-  useAXStateOptional,
-  fetchAXWorkspaceData,
-  buildAXUser,
-} from "./state-provider"
+export { AXStateProvider, useAXState, useAXStateOptional } from "./state-provider"
+export { fetchAXWorkspaceData, buildAXUser } from "./server"
