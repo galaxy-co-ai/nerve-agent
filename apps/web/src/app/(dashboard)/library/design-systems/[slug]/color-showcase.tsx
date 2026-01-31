@@ -15,7 +15,7 @@ interface ColorShowcaseProps {
 export function ColorShowcase({ palette }: ColorShowcaseProps) {
   const [activeCategory, setActiveCategory] = useState<string>("tags")
   const [isOn, setIsOn] = useState(true)
-  const [outputValue, setOutputValue] = useState(0.75)
+  const [outputValue] = useState(0.75)
   const [mode, setMode] = useState<"colors" | "typography" | "components">("colors")
 
   // Extract palette categories
@@ -47,7 +47,7 @@ export function ColorShowcase({ palette }: ColorShowcaseProps) {
     <div className="space-y-4">
       {/* Chrome Shell Container */}
       <div
-        className="relative p-5 rounded-[24px] bg-[#f8f8fa]"
+        className="relative p-3 sm:p-4 md:p-5 rounded-2xl sm:rounded-[20px] md:rounded-[24px] bg-[#f8f8fa]"
         style={{
           boxShadow: "0 4px 24px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08)",
         }}
@@ -61,34 +61,35 @@ export function ColorShowcase({ palette }: ColorShowcaseProps) {
         />
 
         {/* Header */}
-        <div className="relative flex items-center justify-between px-2 py-2 mb-4">
+        <div className="relative flex items-center justify-between px-1 sm:px-2 py-1 sm:py-2 mb-2 sm:mb-3 md:mb-4">
           {/* Power Button */}
           <button
             onClick={() => setIsOn(!isOn)}
-            className="relative flex items-center justify-center w-11 h-11 rounded-full transition-all duration-200 hover:scale-105 active:scale-95"
+            className="relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full transition-all duration-200 hover:scale-105 active:scale-95"
             style={{
               border: `2px solid ${isOn ? goldPrimary : "#9ca3af"}`,
               boxShadow: isOn ? `0 0 12px ${goldPrimary}40` : "none",
             }}
           >
             <Power
-              size={18}
+              size={16}
               strokeWidth={2.5}
+              className="sm:w-[18px] sm:h-[18px]"
               style={{ color: isOn ? goldPrimary : "#9ca3af" }}
             />
           </button>
 
           {/* Logo/Title */}
-          <span className="text-xl font-bold tracking-[0.2em] text-[#1a1a1e]">
+          <span className="text-base sm:text-lg md:text-xl font-bold tracking-[0.15em] sm:tracking-[0.2em] text-[#1a1a1e]">
             NERVE
           </span>
 
           {/* Output Knob */}
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-medium tracking-wider text-[#6b7280] uppercase">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <span className="hidden sm:inline text-[10px] font-medium tracking-wider text-[#6b7280] uppercase">
               Output
             </span>
-            <DialKnob value={outputValue} onChange={setOutputValue} />
+            <DialKnob value={outputValue} />
           </div>
         </div>
 
@@ -98,7 +99,7 @@ export function ColorShowcase({ palette }: ColorShowcaseProps) {
           style={{
             backgroundColor: "#0a0a0c",
             boxShadow: "inset 0 2px 12px rgba(0,0,0,0.6), inset 0 1px 2px rgba(0,0,0,0.4)",
-            aspectRatio: "16/10",
+            height: "clamp(280px, 40vh, 400px)",
           }}
         >
           {/* Dot Grid */}
@@ -117,16 +118,16 @@ export function ColorShowcase({ palette }: ColorShowcaseProps) {
           <CornerBracket position="bottom-right" />
 
           {/* Top Label */}
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
-            <span className="text-[11px] font-medium tracking-[0.12em] text-white/40 uppercase">
+          <div className="absolute top-2 sm:top-3 md:top-4 left-1/2 -translate-x-1/2 z-10">
+            <span className="text-[9px] sm:text-[10px] md:text-[11px] font-medium tracking-[0.1em] sm:tracking-[0.12em] text-white/40 uppercase">
               {activeCategory.replace("-", " ").replace("nerve ", "")} — {Object.keys(palette[activeCategory] || {}).length} colors
             </span>
           </div>
 
           {/* Left Label */}
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
+          <div className="absolute left-2 sm:left-3 md:left-4 top-1/2 -translate-y-1/2 z-10 hidden sm:block">
             <span
-              className="text-[11px] font-medium tracking-[0.12em] text-white/40 uppercase block"
+              className="text-[10px] md:text-[11px] font-medium tracking-[0.1em] md:tracking-[0.12em] text-white/40 uppercase block"
               style={{ writingMode: "vertical-lr", transform: "rotate(180deg)" }}
             >
               Intensity — {Math.round(orbPos.y * 100)}%
@@ -153,7 +154,7 @@ export function ColorShowcase({ palette }: ColorShowcaseProps) {
             }}
           />
 
-          {/* Glowing Orb */}
+          {/* Glowing Orb - responsive size */}
           <div
             className="absolute transition-all duration-300 ease-out"
             style={{
@@ -162,7 +163,18 @@ export function ColorShowcase({ palette }: ColorShowcaseProps) {
               transform: "translate(-50%, -50%)",
             }}
           >
-            <GlowingOrb color={goldPrimary} lightColor={goldLight} />
+            {/* Small screens */}
+            <div className="block sm:hidden">
+              <GlowingOrb color={goldPrimary} lightColor={goldLight} size={32} />
+            </div>
+            {/* Medium screens */}
+            <div className="hidden sm:block md:hidden">
+              <GlowingOrb color={goldPrimary} lightColor={goldLight} size={40} />
+            </div>
+            {/* Large screens */}
+            <div className="hidden md:block">
+              <GlowingOrb color={goldPrimary} lightColor={goldLight} size={48} />
+            </div>
           </div>
 
           {/* Category Hotspots (clickable regions) */}
@@ -185,9 +197,9 @@ export function ColorShowcase({ palette }: ColorShowcaseProps) {
         </div>
 
         {/* Pill Toggle Footer */}
-        <div className="mt-4">
+        <div className="mt-2 sm:mt-3 md:mt-4">
           <div
-            className="relative flex items-center h-12 p-1.5 rounded-full"
+            className="relative flex items-center h-10 sm:h-11 md:h-12 p-1 sm:p-1.5 rounded-full"
             style={{
               backgroundColor: "#1a1a1e",
               boxShadow: "inset 0 1px 3px rgba(0,0,0,0.4)",
@@ -208,18 +220,19 @@ export function ColorShowcase({ palette }: ColorShowcaseProps) {
             {/* Options */}
             {[
               { value: "colors", label: "COLORS" },
-              { value: "typography", label: "TYPOGRAPHY" },
+              { value: "typography", label: "TYPE" },
               { value: "components", label: "COMPONENTS" },
             ].map((option) => (
               <button
                 key={option.value}
                 onClick={() => setMode(option.value as typeof mode)}
-                className="relative z-10 flex-1 text-center font-semibold text-sm tracking-wide transition-colors duration-200"
+                className="relative z-10 flex-1 text-center font-semibold text-xs sm:text-sm tracking-wide transition-colors duration-200"
                 style={{
                   color: option.value === mode ? "#0a0a0c" : "rgba(255,255,255,0.5)",
                 }}
               >
-                {option.label}
+                <span className="hidden sm:inline">{option.label}</span>
+                <span className="sm:hidden">{option.label.slice(0, 4)}</span>
               </button>
             ))}
           </div>
@@ -228,23 +241,23 @@ export function ColorShowcase({ palette }: ColorShowcaseProps) {
 
       {/* Color Palette Strip */}
       <div
-        className="rounded-xl border overflow-hidden"
+        className="rounded-lg sm:rounded-xl border overflow-hidden"
         style={{
           backgroundColor: "#0c0c0e",
           borderColor: "rgba(255,255,255,0.05)",
         }}
       >
-        <div className="px-5 py-4">
-          <div className="flex items-center gap-4">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-white/30 whitespace-nowrap flex-shrink-0">
+        <div className="px-3 py-3 sm:px-4 sm:py-3 md:px-5 md:py-4">
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+            <span className="text-[9px] sm:text-[10px] font-medium uppercase tracking-wider text-white/30 whitespace-nowrap flex-shrink-0">
               {activeCategory.replace("-", " ").replace("nerve ", "")}
             </span>
-            <div className="flex flex-wrap gap-2 flex-1">
+            <div className="flex flex-wrap gap-1 sm:gap-2 flex-1 overflow-hidden">
               {Object.entries(palette[activeCategory] || {}).map(([name, value]) => (
                 <ColorChip key={name} name={name} value={value} />
               ))}
             </div>
-            <span className="text-[10px] text-white/20 whitespace-nowrap flex-shrink-0">
+            <span className="hidden sm:inline text-[10px] text-white/20 whitespace-nowrap flex-shrink-0">
               Click to copy
             </span>
           </div>
@@ -252,12 +265,12 @@ export function ColorShowcase({ palette }: ColorShowcaseProps) {
       </div>
 
       {/* Quick Category Buttons */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5 sm:gap-2">
         {Object.keys(palette).map((category) => (
           <button
             key={category}
             onClick={() => setActiveCategory(category)}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150"
+            className="px-2 py-1 sm:px-3 sm:py-1.5 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-medium transition-all duration-150"
             style={{
               backgroundColor: activeCategory === category ? goldPrimary : "rgba(255,255,255,0.05)",
               color: activeCategory === category ? "#0a0a0c" : "rgba(255,255,255,0.6)",
@@ -277,14 +290,14 @@ export function ColorShowcase({ palette }: ColorShowcaseProps) {
  */
 function CornerBracket({ position }: { position: "top-left" | "top-right" | "bottom-left" | "bottom-right" }) {
   const positionStyles = {
-    "top-left": "top-5 left-5",
-    "top-right": "top-5 right-5 rotate-90",
-    "bottom-left": "bottom-5 left-5 -rotate-90",
-    "bottom-right": "bottom-5 right-5 rotate-180",
+    "top-left": "top-3 left-3 sm:top-4 sm:left-4 md:top-5 md:left-5",
+    "top-right": "top-3 right-3 sm:top-4 sm:right-4 md:top-5 md:right-5 rotate-90",
+    "bottom-left": "bottom-3 left-3 sm:bottom-4 sm:left-4 md:bottom-5 md:left-5 -rotate-90",
+    "bottom-right": "bottom-3 right-3 sm:bottom-4 sm:right-4 md:bottom-5 md:right-5 rotate-180",
   }
 
   return (
-    <div className={`absolute w-6 h-6 pointer-events-none ${positionStyles[position]}`}>
+    <div className={`absolute w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 pointer-events-none ${positionStyles[position]}`}>
       <div className="absolute top-0 left-0 w-full h-px bg-white/20" />
       <div className="absolute top-0 left-0 w-px h-full bg-white/20" />
     </div>
@@ -294,9 +307,8 @@ function CornerBracket({ position }: { position: "top-left" | "top-right" | "bot
 /**
  * Glowing orb element
  */
-function GlowingOrb({ color, lightColor }: { color: string; lightColor: string }) {
-  const size = 48
-  const satelliteSize = 10
+function GlowingOrb({ color, lightColor, size = 48 }: { color: string; lightColor: string; size?: number }) {
+  const satelliteSize = Math.max(8, size * 0.2)
 
   return (
     <div className="relative" style={{ width: size * 2, height: size * 2 }}>
@@ -360,8 +372,8 @@ function GlowingOrb({ color, lightColor }: { color: string; lightColor: string }
 /**
  * Dial Knob control
  */
-function DialKnob({ value, onChange }: { value: number; onChange: (v: number) => void }) {
-  const size = 36
+function DialKnob({ value }: { value: number }) {
+  const size = 32
   const minAngle = 135
   const maxAngle = 405
   const angle = minAngle + value * (maxAngle - minAngle)
@@ -373,18 +385,14 @@ function DialKnob({ value, onChange }: { value: number; onChange: (v: number) =>
 
   return (
     <div
-      className="relative flex items-center justify-center rounded-full cursor-pointer bg-white border border-[#e5e7eb] hover:scale-105 active:scale-95 transition-transform"
+      className="relative flex items-center justify-center rounded-full cursor-pointer bg-white border border-[#e5e7eb] hover:scale-105 active:scale-95 transition-transform w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9"
       style={{
-        width: size,
-        height: size,
         boxShadow: "0 2px 8px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8)",
       }}
     >
       <div
-        className="absolute rounded-full bg-[#1a1a1e]"
+        className="absolute rounded-full bg-[#1a1a1e] w-1 h-1"
         style={{
-          width: 4,
-          height: 4,
           transform: `translate(${dotX}px, ${dotY}px)`,
         }}
       />
