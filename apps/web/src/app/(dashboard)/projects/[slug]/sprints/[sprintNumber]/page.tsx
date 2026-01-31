@@ -38,6 +38,7 @@ import { requireUser } from "@/lib/auth"
 import { updateSprintStatus, deleteSprint } from "@/lib/actions/sprints"
 import { updateTaskStatus, deleteTask } from "@/lib/actions/tasks"
 import { AddTaskDialog } from "@/components/dialogs/add-task-dialog"
+import { axEntityAttrs, computeStaleness } from "@/lib/ax"
 
 const statusColors: Record<string, string> = {
   NOT_STARTED: "bg-gray-500/10 text-gray-400 border-gray-500/20",
@@ -242,11 +243,20 @@ export default async function SprintPage({ params }: PageProps) {
                 {sprint.tasks.map((task) => {
                   const taskMinutes = task.timeEntries.reduce((m, e) => m + e.durationMinutes, 0)
                   const taskHours = taskMinutes / 60
+                  const staleness = computeStaleness(task.updatedAt, {
+                    isBlocked: task.status === "BLOCKED",
+                    isInProgress: task.status === "IN_PROGRESS",
+                  })
+                  const relationships = [
+                    { type: "belongs-to", entity: "sprint", id: sprint.id, name: `Sprint ${sprint.number}` },
+                    { type: "belongs-to", entity: "project", id: project.id, name: project.name },
+                  ]
 
                   return (
                     <div
                       key={task.id}
                       className="flex items-center gap-3 rounded-lg border p-3 hover:bg-accent/30 transition-colors"
+                      {...axEntityAttrs("task", task.id, staleness, relationships)}
                     >
                       <div className="flex-shrink-0">
                         {taskStatusIcons[task.status]}

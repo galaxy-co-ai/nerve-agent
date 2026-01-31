@@ -14,6 +14,8 @@ export interface AXStateGraph {
   user: AXUser
   workspace: AXWorkspace
   currentView: AXCurrentView
+  staleness?: AXStalenessOverview
+  relationships?: import("./relationships").AXRelationshipMap
 }
 
 export interface AXUser {
@@ -84,6 +86,36 @@ export interface AXCurrentView {
   page: string // e.g., "/dashboard", "/projects"
   activeModal: string | null
   activeDrawer: "inbox" | "chat" | "actions" | "memory" | null
+}
+
+// =============================================================================
+// STALENESS TYPES
+// =============================================================================
+
+export interface AXStalenessOverview {
+  freshCount: number
+  agingCount: number
+  staleCount: number
+  criticalCount: number
+  criticalItems: Array<{
+    type: string
+    id: string
+    title: string
+    ageInDays: number
+    reason: string
+  }>
+  oldestUnresolvedBlocker: {
+    id: string
+    title: string
+    projectName: string
+    ageInDays: number
+  } | null
+  stuckTasks: Array<{
+    id: string
+    title: string
+    projectName: string
+    stuckDays: number
+  }>
 }
 
 // =============================================================================
@@ -213,5 +245,71 @@ export function axAttrs(intent: AXIntent, context?: AXContext): AXProps {
   if (context) {
     attrs["data-ax-context"] = context
   }
+  return attrs
+}
+
+// =============================================================================
+// ENTITY ATTRIBUTE TYPES
+// =============================================================================
+
+export type AXEntityType =
+  | "project"
+  | "task"
+  | "blocker"
+  | "note"
+  | "call"
+  | "library-item"
+
+export interface AXEntityProps {
+  "data-ax-entity"?: AXEntityType
+  "data-ax-entity-id"?: string
+  "data-ax-stale-level"?: "fresh" | "aging" | "stale" | "critical"
+  "data-ax-stale-days"?: string
+  "data-ax-needs-attention"?: "true" | "false"
+  "data-ax-attention-reason"?: string
+  "data-ax-relationships"?: string // JSON stringified
+}
+
+export interface AXStalenessInput {
+  staleLevel: "fresh" | "aging" | "stale" | "critical"
+  ageInDays: number
+  needsAttention: boolean
+  attentionReason?: string
+}
+
+export interface AXRelationshipInput {
+  type: string
+  entity: string
+  id: string
+  name?: string
+}
+
+/**
+ * Type-safe helper for creating AX entity attributes
+ */
+export function axEntityAttrs(
+  entity: AXEntityType,
+  id: string,
+  staleness?: AXStalenessInput,
+  relationships?: AXRelationshipInput[]
+): AXEntityProps {
+  const attrs: AXEntityProps = {
+    "data-ax-entity": entity,
+    "data-ax-entity-id": id,
+  }
+
+  if (staleness) {
+    attrs["data-ax-stale-level"] = staleness.staleLevel
+    attrs["data-ax-stale-days"] = String(staleness.ageInDays)
+    attrs["data-ax-needs-attention"] = staleness.needsAttention ? "true" : "false"
+    if (staleness.attentionReason) {
+      attrs["data-ax-attention-reason"] = staleness.attentionReason
+    }
+  }
+
+  if (relationships && relationships.length > 0) {
+    attrs["data-ax-relationships"] = JSON.stringify(relationships)
+  }
+
   return attrs
 }

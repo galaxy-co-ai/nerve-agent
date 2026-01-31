@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Blocks, Puzzle, Database, Star, Copy, FolderKanban } from "lucide-react"
 import { LibraryItemType } from "@prisma/client"
 import { CopyCodeButton } from "@/components/shared/copy-code-button"
+import { axEntityAttrs, type AXEntityType } from "@/lib/ax"
 
 const typeIcons = {
   BLOCK: Blocks,
@@ -30,6 +31,7 @@ interface LibraryItem {
   usageCount: number
   tags: { id: string; name: string; color: string }[]
   project: { id: string; name: string; slug: string } | null
+  updatedAt?: Date
 }
 
 interface LibraryItemCardProps {
@@ -39,12 +41,16 @@ interface LibraryItemCardProps {
 
 export function LibraryItemCard({ item, compact = false }: LibraryItemCardProps) {
   const Icon = typeIcons[item.type]
+  const relationships = item.project
+    ? [{ type: "belongs-to", entity: "project", id: item.project.id, name: item.project.name }]
+    : []
 
   if (compact) {
     return (
       <Link
         href={`/library/${item.id}`}
         className="flex items-center justify-between p-3 rounded-lg border border-border/40 hover:bg-muted/50 transition-colors"
+        {...axEntityAttrs("library-item" as AXEntityType, item.id, undefined, relationships)}
       >
         <div className="flex items-center gap-3 min-w-0">
           <Icon className={`h-4 w-4 flex-shrink-0 ${typeColors[item.type]}`} />
@@ -62,7 +68,7 @@ export function LibraryItemCard({ item, compact = false }: LibraryItemCardProps)
   }
 
   return (
-    <Card className="group transition-colors hover:bg-muted/50">
+    <Card className="group transition-colors hover:bg-muted/50" {...axEntityAttrs("library-item" as AXEntityType, item.id, undefined, relationships)}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">

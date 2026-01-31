@@ -4,7 +4,15 @@
  */
 
 import { db } from "@/lib/db"
-import type { AXWorkspace, AXUser } from "./types"
+import type { AXWorkspace, AXUser, AXStalenessOverview } from "./types"
+import { computeStaleness, computeAgeInDays } from "./staleness"
+import { buildRelationshipMap, type AXRelationshipMap } from "./relationships"
+
+export interface AXExtendedData {
+  workspace: AXWorkspace
+  staleness: AXStalenessOverview
+  relationships: AXRelationshipMap
+}
 
 export async function fetchAXWorkspaceData(userId: string): Promise<AXWorkspace> {
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
@@ -133,6 +141,169 @@ export async function fetchAXWorkspaceData(userId: string): Promise<AXWorkspace>
       patterns,
       queries,
     },
+  }
+}
+
+/**
+ * Fetch extended AX data including staleness and relationships
+ */
+export async function fetchAXExtendedData(userId: string): Promise<AXExtendedData> {
+  const workspace = await fetchAXWorkspaceData(userId)
+  const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+
+  // Fetch additional data for staleness and relationships
+  const [
+    blockersWithTasks,
+    stuckTasks,
+    allProjects,
+    allNotes,
+    allCalls,
+  ] = await Promise.all([
+    // Blockers with blocked tasks
+    db.blocker.findMany({
+      where: { project: { userId }, status: "ACTIVE" },
+      include: {
+        project: { select: { id: true, name: true, slug: true } },
+        tasks: { select: { id: true, title: true } },
+      },
+      orderBy: { createdAt: "asc" },
+    }),
+    // Stuck tasks (IN_PROGRESS for 3+ days)
+    db.task.findMany({
+      where: {
+        sprint: { project: { userId } },
+        status: "IN_PROGRESS",
+        updatedAt: { lt: threeDaysAgo },
+      },
+      include: {
+        sprint: { include: { project: { select: { id: true, name: true, slug: true } } } },
+      },
+    }),
+    // All projects for relationship mapping
+    db.project.findMany({
+      where: { userId },
+      select: { id: true, name: true, slug: true, updatedAt: true },
+    }),
+    // All notes for relationship mapping
+    db.note.findMany({
+      where: { userId },
+      select: { id: true, title: true, projectId: true, updatedAt: true },
+    }),
+    // All calls for relationship mapping
+    db.call.findMany({
+      where: { userId },
+      select: { id: true, title: true, projectId: true, createdAt: true },
+    }),
+  ])
+
+  // Compute staleness overview
+  let freshCount = 0
+  let agingCount = 0
+  let staleCount = 0
+  let criticalCount = 0
+  const criticalItems: AXStalenessOverview["criticalItems"] = []
+
+  // Check projects
+  for (const project of workspace.projects) {
+    const staleness = computeStaleness(new Date(project.lastActivity), {
+      hasBlockers: project.hasBlockers,
+    })
+    switch (staleness.staleLevel) {
+      case "fresh":
+        freshCount++
+        break
+      case "aging":
+        agingCount++
+        break
+      case "stale":
+        staleCount++
+        break
+      case "critical":
+        criticalCount++
+        criticalItems.push({
+          type: "project",
+          id: project.id,
+          title: project.name,
+          ageInDays: staleness.ageInDays,
+          reason: staleness.attentionReason || "Not updated in 14+ days",
+        })
+        break
+    }
+  }
+
+  // Check blockers
+  for (const blocker of blockersWithTasks) {
+    const ageInDays = computeAgeInDays(blocker.createdAt)
+    if (ageInDays >= 14) {
+      criticalCount++
+      criticalItems.push({
+        type: "blocker",
+        id: blocker.id,
+        title: blocker.title,
+        ageInDays,
+        reason: `Active blocker for ${ageInDays} days`,
+      })
+    } else if (ageInDays >= 5) {
+      staleCount++
+    } else if (ageInDays >= 2) {
+      agingCount++
+    } else {
+      freshCount++
+    }
+  }
+
+  // Find oldest unresolved blocker
+  const oldestUnresolvedBlocker =
+    blockersWithTasks.length > 0
+      ? {
+          id: blockersWithTasks[0].id,
+          title: blockersWithTasks[0].title,
+          projectName: blockersWithTasks[0].project.name,
+          ageInDays: computeAgeInDays(blockersWithTasks[0].createdAt),
+        }
+      : null
+
+  // Map stuck tasks
+  const stuckTasksList: AXStalenessOverview["stuckTasks"] = stuckTasks.map((task) => ({
+    id: task.id,
+    title: task.title,
+    projectName: task.sprint.project.name,
+    stuckDays: computeAgeInDays(task.updatedAt),
+  }))
+
+  // Build relationship map
+  const relationships = buildRelationshipMap({
+    projects: allProjects,
+    tasks: stuckTasks.map((t) => ({
+      id: t.id,
+      title: t.title,
+      projectId: t.sprint.project.id,
+      sprintId: t.sprintId,
+      updatedAt: t.updatedAt,
+    })),
+    blockers: blockersWithTasks.map((b) => ({
+      id: b.id,
+      title: b.title,
+      projectId: b.projectId,
+      tasks: b.tasks,
+      createdAt: b.createdAt,
+    })),
+    notes: allNotes,
+    calls: allCalls,
+  })
+
+  return {
+    workspace,
+    staleness: {
+      freshCount,
+      agingCount,
+      staleCount,
+      criticalCount,
+      criticalItems,
+      oldestUnresolvedBlocker,
+      stuckTasks: stuckTasksList,
+    },
+    relationships,
   }
 }
 

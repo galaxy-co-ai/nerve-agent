@@ -17,6 +17,7 @@ import { requireUser } from "@/lib/auth"
 import { NotesToolbar } from "@/components/features/notes-toolbar"
 import { formatDistanceToNow } from "date-fns"
 import { cn } from "@/lib/utils"
+import { axEntityAttrs, computeStaleness } from "@/lib/ax"
 
 // AI tag categories with NerveBadge variant mapping
 const TAG_VARIANTS: Record<string, "primary" | "info" | "success" | "warning" | "error" | "default"> = {
@@ -212,8 +213,14 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
                   {pinnedNotes.map((note) => {
                     const tags = note.tags as string[]
                     const primaryTag = tags?.[0]
+                    const staleness = computeStaleness(note.updatedAt, {
+                      hasUntaggedContent: !tags || tags.length === 0,
+                    })
+                    const relationships = note.project
+                      ? [{ type: "belongs-to", entity: "project", id: note.project.id, name: note.project.name }]
+                      : []
                     return (
-                    <Link key={note.id} href={`/notes/${note.slug}`} data-ax-intent="navigate:note-detail" data-ax-context="list-item">
+                    <Link key={note.id} href={`/notes/${note.slug}`} data-ax-intent="navigate:note-detail" data-ax-context="list-item" {...axEntityAttrs("note", note.id, staleness, relationships)}>
                       <NerveCard variant="interactive" elevation={2} className="h-full relative">
                         {primaryTag && (
                           <NerveBadge
@@ -266,8 +273,14 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
                   {regularNotes.map((note) => {
                     const tags = note.tags as string[]
                     const primaryTag = tags?.[0]
+                    const staleness = computeStaleness(note.updatedAt, {
+                      hasUntaggedContent: !tags || tags.length === 0,
+                    })
+                    const relationships = note.project
+                      ? [{ type: "belongs-to", entity: "project", id: note.project.id, name: note.project.name }]
+                      : []
                     return (
-                    <Link key={note.id} href={`/notes/${note.slug}`} data-ax-intent="navigate:note-detail" data-ax-context="list-item">
+                    <Link key={note.id} href={`/notes/${note.slug}`} data-ax-intent="navigate:note-detail" data-ax-context="list-item" {...axEntityAttrs("note", note.id, staleness, relationships)}>
                       <NerveCard variant="interactive" elevation={2} className="h-full relative">
                         {primaryTag && (
                           <NerveBadge

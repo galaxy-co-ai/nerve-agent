@@ -27,6 +27,7 @@ import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 import { formatDistanceToNow, format } from "date-fns"
 import { CallSentiment } from "@prisma/client"
+import { axEntityAttrs, computeStaleness } from "@/lib/ax"
 
 interface CallsPageProps {
   searchParams: Promise<{ project?: string; q?: string }>
@@ -210,9 +211,15 @@ export default async function CallsPage({ searchParams }: CallsPageProps) {
             {filteredCalls.map((call) => {
               const actionItems = call.actionItems as Array<{ text: string }>
               const decisions = call.decisions as Array<{ text: string }>
+              const staleness = computeStaleness(call.createdAt, {
+                hasPendingBrief: !call.summary,
+              })
+              const relationships = [
+                { type: "belongs-to", entity: "project", id: call.project.id, name: call.project.name },
+              ]
 
               return (
-                <Link key={call.id} href={`/calls/${call.id}`}>
+                <Link key={call.id} href={`/calls/${call.id}`} {...axEntityAttrs("call", call.id, staleness, relationships)}>
                   <Card className="h-full transition-colors hover:bg-muted/50">
                     <CardHeader className="pb-2">
                       <div className="flex items-start justify-between gap-2">

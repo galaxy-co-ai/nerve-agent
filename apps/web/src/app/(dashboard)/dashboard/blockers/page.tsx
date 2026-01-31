@@ -22,6 +22,7 @@ import {
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 import { BlockerActions } from "@/components/features/blocker-actions"
+import { axEntityAttrs, computeStaleness } from "@/lib/ax"
 
 function formatAge(date: Date): string {
   const now = new Date()
@@ -151,8 +152,15 @@ export default async function BlockersPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {clientBlockers.map((blocker) => (
-                    <div key={blocker.id} className="flex items-start gap-3 rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-3">
+                  {clientBlockers.map((blocker) => {
+                    const staleness = computeStaleness(blocker.createdAt, {
+                      isBlocked: true,
+                    })
+                    const relationships = [
+                      { type: "belongs-to", entity: "project", id: blocker.project.slug, name: blocker.project.name },
+                    ]
+                    return (
+                    <div key={blocker.id} className="flex items-start gap-3 rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-3" {...axEntityAttrs("blocker", blocker.id, staleness, relationships)}>
                       <div className="flex-1 min-w-0">
                         <div className="font-medium">{blocker.title}</div>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -179,7 +187,7 @@ export default async function BlockersPage() {
                         <BlockerActions blockerId={blocker.id} />
                       </div>
                     </div>
-                  ))}
+                  )})}
                 </div>
               )}
             </CardContent>
@@ -201,8 +209,15 @@ export default async function BlockersPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {[...selfBlockers, ...thirdPartyBlockers].map((blocker) => (
-                    <div key={blocker.id} className="flex items-start gap-3 rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-3">
+                  {[...selfBlockers, ...thirdPartyBlockers].map((blocker) => {
+                    const staleness = computeStaleness(blocker.createdAt, {
+                      isBlocked: true,
+                    })
+                    const relationships = [
+                      { type: "belongs-to", entity: "project", id: blocker.project.slug, name: blocker.project.name },
+                    ]
+                    return (
+                    <div key={blocker.id} className="flex items-start gap-3 rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-3" {...axEntityAttrs("blocker", blocker.id, staleness, relationships)}>
                       <div className="flex-1 min-w-0">
                         <div className="font-medium">{blocker.title}</div>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -229,7 +244,7 @@ export default async function BlockersPage() {
                         <BlockerActions blockerId={blocker.id} />
                       </div>
                     </div>
-                  ))}
+                  )})}
                 </div>
               )}
             </CardContent>

@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge"
 import { Plus, FolderKanban, Upload } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
+import { axEntityAttrs, computeStaleness } from "@/lib/ax"
 
 const statusColors: Record<string, string> = {
   PLANNING: "bg-blue-500/10 text-blue-500 border-blue-500/20",
@@ -110,12 +111,20 @@ export default async function ProjectsPage() {
           </Card>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {projects.map((project) => (
+            {projects.map((project) => {
+              const staleness = computeStaleness(project.updatedAt, {
+                hasBlockers: project._count.blockers > 0,
+              })
+              const relationships = [
+                { type: "parent-of", entity: "sprint", id: "", name: `${project._count.sprints} sprints` },
+              ]
+              return (
               <Link
                 key={project.id}
                 href={`/projects/${project.slug}`}
                 data-ax-intent="navigate:project-detail"
                 data-ax-context="list-item"
+                {...axEntityAttrs("project", project.id, staleness, relationships)}
               >
                 <Card className="h-full transition-colors hover:bg-muted/50">
                   <CardHeader className="pb-3">
@@ -147,7 +156,7 @@ export default async function ProjectsPage() {
                   </CardContent>
                 </Card>
               </Link>
-            ))}
+            )})}
           </div>
         )}
       </div>
