@@ -17,6 +17,8 @@ export interface AXStateGraph {
   staleness?: AXStalenessOverview
   relationships?: import("./relationships").AXRelationshipMap
   userPatterns?: import("./patterns").AXUserPatterns
+  scratchpad?: import("./scratchpad").AXScratchpadSummary
+  quietSignals?: import("./quiet-signals").AXQuietSignals
 }
 
 export interface AXUser {
