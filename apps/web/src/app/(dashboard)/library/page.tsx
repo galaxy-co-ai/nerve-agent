@@ -1,7 +1,6 @@
 export const dynamic = "force-dynamic"
 
 import Link from "next/link"
-import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import {
   Breadcrumb,
@@ -9,9 +8,16 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { H2, Muted } from "@/components/ui/typography"
-import { Badge } from "@/components/ui/badge"
+import {
+  NerveCard,
+  NerveCardContent,
+  NerveCardDescription,
+  NerveCardHeader,
+  NerveCardTitle,
+  NerveBadge,
+  NerveSeparator,
+} from "@/components/nerve"
+import { H2 } from "@/components/ui/typography"
 import { Code2, Blocks, Puzzle, Database, Star, TrendingUp, Palette } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
@@ -58,7 +64,7 @@ export default async function LibraryPage() {
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border/40 px-4">
         <SidebarTrigger className="-ml-1" />
-        <Separator orientation="vertical" className="mr-2 h-4" />
+        <NerveSeparator orientation="vertical" className="mr-2 h-4" />
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -74,89 +80,89 @@ export default async function LibraryPage() {
       <div className="flex flex-1 flex-col gap-6 p-6">
         <div>
           <H2>Library</H2>
-          <Muted>Your reusable code library. Ship faster with battle-tested patterns.</Muted>
+          <p className="text-zinc-400">Your reusable code library. Ship faster with battle-tested patterns.</p>
         </div>
 
         {/* Stats Grid */}
         <div className="grid gap-4 md:grid-cols-5">
           <Link href="/library/design-systems" data-ax-intent="navigate:library" data-ax-context="card-action">
-            <Card className="transition-colors hover:bg-muted/50 border-amber-500/20 hover:border-amber-500/40">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Design Systems</CardTitle>
-                <Palette className="h-4 w-4 text-amber-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{designSystemCount}</div>
-                <p className="text-xs text-muted-foreground">Visual languages</p>
-              </CardContent>
-            </Card>
+            <NerveCard variant="interactive" elevation={1} className="border-[var(--nerve-gold-500)]/20 hover:border-[var(--nerve-gold-500)]/40">
+              <NerveCardHeader className="flex flex-row items-center justify-between pb-2">
+                <NerveCardTitle className="text-sm font-medium">Design Systems</NerveCardTitle>
+                <Palette className="h-4 w-4 text-[var(--nerve-gold-400)]" />
+              </NerveCardHeader>
+              <NerveCardContent>
+                <div className="text-2xl font-bold text-zinc-100">{designSystemCount}</div>
+                <p className="text-xs text-zinc-500">Visual languages</p>
+              </NerveCardContent>
+            </NerveCard>
           </Link>
 
           <Link href="/library/blocks" data-ax-intent="navigate:library" data-ax-context="card-action">
-            <Card className="transition-colors hover:bg-muted/50">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Blocks</CardTitle>
-                <Blocks className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{blockCount}</div>
-                <p className="text-xs text-muted-foreground">Large implementations</p>
-              </CardContent>
-            </Card>
+            <NerveCard variant="interactive" elevation={1}>
+              <NerveCardHeader className="flex flex-row items-center justify-between pb-2">
+                <NerveCardTitle className="text-sm font-medium">Blocks</NerveCardTitle>
+                <Blocks className="h-4 w-4 text-zinc-500" />
+              </NerveCardHeader>
+              <NerveCardContent>
+                <div className="text-2xl font-bold text-zinc-100">{blockCount}</div>
+                <p className="text-xs text-zinc-500">Large implementations</p>
+              </NerveCardContent>
+            </NerveCard>
           </Link>
 
           <Link href="/library/patterns" data-ax-intent="navigate:library" data-ax-context="card-action">
-            <Card className="transition-colors hover:bg-muted/50">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Patterns</CardTitle>
-                <Puzzle className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{patternCount}</div>
-                <p className="text-xs text-muted-foreground">Hooks, utilities, snippets</p>
-              </CardContent>
-            </Card>
+            <NerveCard variant="interactive" elevation={1}>
+              <NerveCardHeader className="flex flex-row items-center justify-between pb-2">
+                <NerveCardTitle className="text-sm font-medium">Patterns</NerveCardTitle>
+                <Puzzle className="h-4 w-4 text-zinc-500" />
+              </NerveCardHeader>
+              <NerveCardContent>
+                <div className="text-2xl font-bold text-zinc-100">{patternCount}</div>
+                <p className="text-xs text-zinc-500">Hooks, utilities, snippets</p>
+              </NerveCardContent>
+            </NerveCard>
           </Link>
 
           <Link href="/library/queries" data-ax-intent="navigate:library" data-ax-context="card-action">
-            <Card className="transition-colors hover:bg-muted/50">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Queries</CardTitle>
-                <Database className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{queryCount}</div>
-                <p className="text-xs text-muted-foreground">Database patterns</p>
-              </CardContent>
-            </Card>
+            <NerveCard variant="interactive" elevation={1}>
+              <NerveCardHeader className="flex flex-row items-center justify-between pb-2">
+                <NerveCardTitle className="text-sm font-medium">Queries</NerveCardTitle>
+                <Database className="h-4 w-4 text-zinc-500" />
+              </NerveCardHeader>
+              <NerveCardContent>
+                <div className="text-2xl font-bold text-zinc-100">{queryCount}</div>
+                <p className="text-xs text-zinc-500">Database patterns</p>
+              </NerveCardContent>
+            </NerveCard>
           </Link>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Favorites</CardTitle>
-              <Star className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{favoriteCount}</div>
-              <p className="text-xs text-muted-foreground">Quick access items</p>
-            </CardContent>
-          </Card>
+          <NerveCard elevation={1}>
+            <NerveCardHeader className="flex flex-row items-center justify-between pb-2">
+              <NerveCardTitle className="text-sm font-medium">Favorites</NerveCardTitle>
+              <Star className="h-4 w-4 text-zinc-500" />
+            </NerveCardHeader>
+            <NerveCardContent>
+              <div className="text-2xl font-bold text-zinc-100">{favoriteCount}</div>
+              <p className="text-xs text-zinc-500">Quick access items</p>
+            </NerveCardContent>
+          </NerveCard>
         </div>
 
         {/* Recently Used & Favorites */}
         <div className="grid gap-6 md:grid-cols-2">
           {/* Recently Used */}
-          <Card>
-            <CardHeader>
+          <NerveCard elevation={1}>
+            <NerveCardHeader>
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                <CardTitle className="text-base">Recently Used</CardTitle>
+                <TrendingUp className="h-4 w-4 text-zinc-500" />
+                <NerveCardTitle className="text-base">Recently Used</NerveCardTitle>
               </div>
-              <CardDescription>Quick access to your most recent copies</CardDescription>
-            </CardHeader>
-            <CardContent>
+              <NerveCardDescription>Quick access to your most recent copies</NerveCardDescription>
+            </NerveCardHeader>
+            <NerveCardContent>
               {recentlyUsed.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">
+                <p className="text-sm text-zinc-500 py-4 text-center">
                   No items used yet. Copy some code to see it here.
                 </p>
               ) : (
@@ -166,21 +172,21 @@ export default async function LibraryPage() {
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </NerveCardContent>
+          </NerveCard>
 
           {/* Favorites */}
-          <Card>
-            <CardHeader>
+          <NerveCard elevation={1}>
+            <NerveCardHeader>
               <div className="flex items-center gap-2">
-                <Star className="h-4 w-4 text-muted-foreground" />
-                <CardTitle className="text-base">Favorites</CardTitle>
+                <Star className="h-4 w-4 text-zinc-500" />
+                <NerveCardTitle className="text-base">Favorites</NerveCardTitle>
               </div>
-              <CardDescription>Your starred items for quick access</CardDescription>
-            </CardHeader>
-            <CardContent>
+              <NerveCardDescription>Your starred items for quick access</NerveCardDescription>
+            </NerveCardHeader>
+            <NerveCardContent>
               {favorites.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">
+                <p className="text-sm text-zinc-500 py-4 text-center">
                   No favorites yet. Star items to add them here.
                 </p>
               ) : (
@@ -190,49 +196,49 @@ export default async function LibraryPage() {
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </NerveCardContent>
+          </NerveCard>
         </div>
 
         {/* All Tags */}
         {tags.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Tags</CardTitle>
-              <CardDescription>Browse by category</CardDescription>
-            </CardHeader>
-            <CardContent>
+          <NerveCard elevation={1}>
+            <NerveCardHeader>
+              <NerveCardTitle className="text-base">Tags</NerveCardTitle>
+              <NerveCardDescription>Browse by category</NerveCardDescription>
+            </NerveCardHeader>
+            <NerveCardContent>
               <div className="flex flex-wrap gap-2">
                 {tags.map((tag) => (
                   <Link key={tag.id} href={`/library?tag=${tag.name}`}>
-                    <Badge
+                    <NerveBadge
                       variant="outline"
-                      className="cursor-pointer hover:bg-muted"
+                      className="cursor-pointer hover:opacity-80 transition-opacity"
                       style={{ borderColor: tag.color, color: tag.color }}
                     >
                       {tag.name}
-                    </Badge>
+                    </NerveBadge>
                   </Link>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </NerveCardContent>
+          </NerveCard>
         )}
 
         {/* Empty State */}
         {items.length === 0 && (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-16">
-              <div className="rounded-full bg-muted p-4 mb-4">
-                <Code2 className="h-8 w-8 text-muted-foreground" />
+          <NerveCard elevation={1}>
+            <NerveCardContent className="flex flex-col items-center justify-center py-16">
+              <div className="rounded-full bg-zinc-800 p-4 mb-4">
+                <Code2 className="h-8 w-8 text-zinc-500" />
               </div>
-              <h3 className="font-semibold mb-2">Your library is empty</h3>
-              <p className="text-muted-foreground text-sm mb-4 text-center max-w-sm">
+              <h3 className="font-semibold mb-2 text-zinc-100">Your library is empty</h3>
+              <p className="text-zinc-400 text-sm mb-4 text-center max-w-sm">
                 Start building your reusable code library. Add blocks, patterns, and queries to ship faster.
               </p>
               <AddLibraryItemDialog tags={tags} projects={projects} />
-            </CardContent>
-          </Card>
+            </NerveCardContent>
+          </NerveCard>
         )}
       </div>
     </>

@@ -1,7 +1,6 @@
 export const dynamic = "force-dynamic"
 
 import Link from "next/link"
-import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import {
   Breadcrumb,
@@ -9,21 +8,29 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { H2, Muted } from "@/components/ui/typography"
-import { Badge } from "@/components/ui/badge"
+import {
+  NerveCard,
+  NerveCardContent,
+  NerveCardDescription,
+  NerveCardHeader,
+  NerveCardTitle,
+  NerveButton,
+  NerveBadge,
+  NerveSeparator,
+} from "@/components/nerve"
+import { H2 } from "@/components/ui/typography"
 import { Plus, FolderKanban, Upload } from "lucide-react"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
 import { axEntityAttrs, computeStaleness } from "@/lib/ax"
 
-const statusColors: Record<string, string> = {
-  PLANNING: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-  ACTIVE: "bg-green-500/10 text-green-500 border-green-500/20",
-  ON_HOLD: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
-  COMPLETED: "bg-gray-500/10 text-gray-400 border-gray-500/20",
-  CANCELLED: "bg-red-500/10 text-red-500 border-red-500/20",
+// Map project status to NerveBadge variants
+const statusVariants: Record<string, "info" | "success" | "warning" | "default" | "error"> = {
+  PLANNING: "info",
+  ACTIVE: "success",
+  ON_HOLD: "warning",
+  COMPLETED: "default",
+  CANCELLED: "error",
 }
 
 const phaseLabels: Record<string, string> = {
@@ -53,7 +60,7 @@ export default async function ProjectsPage() {
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border/40 px-4">
         <SidebarTrigger className="-ml-1" />
-        <Separator orientation="vertical" className="mr-2 h-4" />
+        <NerveSeparator orientation="vertical" className="mr-2 h-4" />
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -62,53 +69,53 @@ export default async function ProjectsPage() {
           </BreadcrumbList>
         </Breadcrumb>
         <div className="ml-auto flex gap-2">
-          <Button asChild size="sm" variant="outline">
+          <NerveButton asChild size="sm" variant="outline">
             <Link href="/projects/import" data-ax-intent="import:codebase" data-ax-context="header-action">
               <Upload className="mr-2 h-4 w-4" />
               Import
             </Link>
-          </Button>
-          <Button asChild size="sm">
+          </NerveButton>
+          <NerveButton asChild size="sm">
             <Link href="/projects/new" data-ax-intent="create:project" data-ax-context="header-action">
               <Plus className="mr-2 h-4 w-4" />
               New Project
             </Link>
-          </Button>
+          </NerveButton>
         </div>
       </header>
 
       <div className="flex flex-1 flex-col gap-6 p-6">
         <div>
           <H2>Projects</H2>
-          <Muted>Manage your active and upcoming projects.</Muted>
+          <p className="text-zinc-400">Manage your active and upcoming projects.</p>
         </div>
 
         {projects.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-16">
-              <div className="rounded-full bg-muted p-4 mb-4">
-                <FolderKanban className="h-8 w-8 text-muted-foreground" />
+          <NerveCard elevation={1}>
+            <NerveCardContent className="flex flex-col items-center justify-center py-16">
+              <div className="rounded-full bg-zinc-800 p-4 mb-4">
+                <FolderKanban className="h-8 w-8 text-zinc-500" />
               </div>
-              <h3 className="font-semibold mb-2">No projects yet</h3>
-              <p className="text-muted-foreground text-sm mb-4 text-center max-w-sm">
+              <h3 className="font-semibold mb-2 text-zinc-100">No projects yet</h3>
+              <p className="text-zinc-400 text-sm mb-4 text-center max-w-sm">
                 Create your first project to start tracking time, managing sprints, and organizing your work.
               </p>
               <div className="flex gap-2">
-                <Button asChild variant="outline">
+                <NerveButton asChild variant="outline">
                   <Link href="/projects/import" data-ax-intent="import:codebase" data-ax-context="empty-state">
                     <Upload className="mr-2 h-4 w-4" />
                     Import Codebase
                   </Link>
-                </Button>
-                <Button asChild>
+                </NerveButton>
+                <NerveButton asChild>
                   <Link href="/projects/new" data-ax-intent="create:project" data-ax-context="empty-state">
                     <Plus className="mr-2 h-4 w-4" />
                     Create Project
                   </Link>
-                </Button>
+                </NerveButton>
               </div>
-            </CardContent>
-          </Card>
+            </NerveCardContent>
+          </NerveCard>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {projects.map((project) => {
@@ -126,35 +133,35 @@ export default async function ProjectsPage() {
                 data-ax-context="list-item"
                 {...axEntityAttrs("project", project.id, staleness, relationships)}
               >
-                <Card className="h-full transition-colors hover:bg-muted/50">
-                  <CardHeader className="pb-3">
+                <NerveCard variant="interactive" elevation={1} className="h-full">
+                  <NerveCardHeader className="pb-3">
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
-                        <CardTitle className="text-base">{project.name}</CardTitle>
-                        <CardDescription>{project.clientName}</CardDescription>
+                        <NerveCardTitle className="text-base">{project.name}</NerveCardTitle>
+                        <NerveCardDescription>{project.clientName}</NerveCardDescription>
                       </div>
-                      <Badge variant="outline" className={statusColors[project.status]}>
+                      <NerveBadge variant={statusVariants[project.status]} dot>
                         {project.status.toLowerCase().replace("_", " ")}
-                      </Badge>
+                      </NerveBadge>
                     </div>
-                  </CardHeader>
-                  <CardContent>
+                  </NerveCardHeader>
+                  <NerveCardContent>
                     {project.description && (
-                      <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                      <p className="text-sm text-zinc-400 line-clamp-2 mb-4">
                         {project.description}
                       </p>
                     )}
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-4 text-sm text-zinc-500">
                       <span>Phase: {phaseLabels[project.phase]}</span>
                       <span>{project._count.sprints} sprints</span>
                       {project._count.blockers > 0 && (
-                        <span className="text-yellow-500">
+                        <NerveBadge variant="warning" size="sm">
                           {project._count.blockers} blocker{project._count.blockers !== 1 ? "s" : ""}
-                        </span>
+                        </NerveBadge>
                       )}
                     </div>
-                  </CardContent>
-                </Card>
+                  </NerveCardContent>
+                </NerveCard>
               </Link>
             )})}
           </div>

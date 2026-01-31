@@ -1,7 +1,6 @@
 export const dynamic = "force-dynamic"
 
 import Link from "next/link"
-import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import {
   Breadcrumb,
@@ -9,10 +8,17 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { H2, Muted } from "@/components/ui/typography"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import {
+  NerveCard,
+  NerveCardContent,
+  NerveCardDescription,
+  NerveCardHeader,
+  NerveCardTitle,
+  NerveButton,
+  NerveBadge,
+  NerveSeparator,
+} from "@/components/nerve"
+import { H2 } from "@/components/ui/typography"
 import {
   Phone,
   Plus,
@@ -36,22 +42,22 @@ interface CallsPageProps {
 function getSentimentIcon(sentiment: CallSentiment | null) {
   switch (sentiment) {
     case "POSITIVE":
-      return <TrendingUp className="h-4 w-4 text-green-500" />
+      return <TrendingUp className="h-4 w-4 text-[var(--nerve-success)]" />
     case "CONCERNED":
-      return <TrendingDown className="h-4 w-4 text-orange-500" />
+      return <TrendingDown className="h-4 w-4 text-[var(--nerve-warning)]" />
     default:
-      return <Minus className="h-4 w-4 text-muted-foreground" />
+      return <Minus className="h-4 w-4 text-zinc-500" />
   }
 }
 
-function getSentimentLabel(sentiment: CallSentiment | null) {
+function getSentimentVariant(sentiment: CallSentiment | null): "success" | "warning" | "default" {
   switch (sentiment) {
     case "POSITIVE":
-      return "Positive"
+      return "success"
     case "CONCERNED":
-      return "Concerned"
+      return "warning"
     default:
-      return "Neutral"
+      return "default"
   }
 }
 
@@ -96,7 +102,7 @@ export default async function CallsPage({ searchParams }: CallsPageProps) {
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border/40 px-4">
         <SidebarTrigger className="-ml-1" />
-        <Separator orientation="vertical" className="mr-2 h-4" />
+        <NerveSeparator orientation="vertical" className="mr-2 h-4" />
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -105,12 +111,12 @@ export default async function CallsPage({ searchParams }: CallsPageProps) {
           </BreadcrumbList>
         </Breadcrumb>
         <div className="ml-auto">
-          <Link href="/calls/new">
-            <Button>
+          <NerveButton asChild>
+            <Link href="/calls/new">
               <Plus className="mr-2 h-4 w-4" />
               Add Call
-            </Button>
-          </Link>
+            </Link>
+          </NerveButton>
         </div>
       </header>
 
@@ -118,41 +124,41 @@ export default async function CallsPage({ searchParams }: CallsPageProps) {
         <div className="flex items-start justify-between">
           <div>
             <H2>Call Intelligence</H2>
-            <Muted>Transform call transcripts into actionable briefs</Muted>
+            <p className="text-zinc-400">Transform call transcripts into actionable briefs</p>
           </div>
         </div>
 
         {/* Stats */}
         <div className="grid gap-4 md:grid-cols-3">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Calls</CardTitle>
-              <Phone className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalCalls}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Shared Briefs</CardTitle>
-              <Share2 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{sharedBriefs}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Positive Sentiment</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
+          <NerveCard elevation={1}>
+            <NerveCardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <NerveCardTitle className="text-sm font-medium">Total Calls</NerveCardTitle>
+              <Phone className="h-4 w-4 text-zinc-500" />
+            </NerveCardHeader>
+            <NerveCardContent>
+              <div className="text-2xl font-bold text-zinc-100">{totalCalls}</div>
+            </NerveCardContent>
+          </NerveCard>
+          <NerveCard elevation={1}>
+            <NerveCardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <NerveCardTitle className="text-sm font-medium">Shared Briefs</NerveCardTitle>
+              <Share2 className="h-4 w-4 text-zinc-500" />
+            </NerveCardHeader>
+            <NerveCardContent>
+              <div className="text-2xl font-bold text-zinc-100">{sharedBriefs}</div>
+            </NerveCardContent>
+          </NerveCard>
+          <NerveCard elevation={1}>
+            <NerveCardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <NerveCardTitle className="text-sm font-medium">Positive Sentiment</NerveCardTitle>
+              <TrendingUp className="h-4 w-4 text-zinc-500" />
+            </NerveCardHeader>
+            <NerveCardContent>
+              <div className="text-2xl font-bold text-zinc-100">
                 {totalCalls > 0 ? Math.round((positiveCalls / totalCalls) * 100) : 0}%
               </div>
-            </CardContent>
-          </Card>
+            </NerveCardContent>
+          </NerveCard>
         </div>
 
         {/* Search */}
@@ -162,50 +168,50 @@ export default async function CallsPage({ searchParams }: CallsPageProps) {
         {projects.length > 0 && (
           <div className="flex flex-wrap gap-2">
             <Link href="/calls">
-              <Badge
-                variant={!params.project ? "default" : "outline"}
-                className="cursor-pointer"
+              <NerveBadge
+                variant={!params.project ? "primary" : "outline"}
+                className="cursor-pointer hover:opacity-80 transition-opacity"
               >
                 All
-              </Badge>
+              </NerveBadge>
             </Link>
             {projects.map((project) => (
               <Link key={project.id} href={`/calls?project=${project.id}`}>
-                <Badge
-                  variant={params.project === project.id ? "default" : "outline"}
-                  className="cursor-pointer"
+                <NerveBadge
+                  variant={params.project === project.id ? "primary" : "outline"}
+                  className="cursor-pointer hover:opacity-80 transition-opacity"
                 >
                   {project.name}
-                </Badge>
+                </NerveBadge>
               </Link>
             ))}
           </div>
         )}
 
         {filteredCalls.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-16">
-              <div className="rounded-full bg-muted p-4 mb-4">
-                <Phone className="h-8 w-8 text-muted-foreground" />
+          <NerveCard elevation={1}>
+            <NerveCardContent className="flex flex-col items-center justify-center py-16">
+              <div className="rounded-full bg-zinc-800 p-4 mb-4">
+                <Phone className="h-8 w-8 text-zinc-500" />
               </div>
-              <h3 className="font-semibold mb-2">
+              <h3 className="font-semibold mb-2 text-zinc-100">
                 {params.q ? "No calls found" : "No calls yet"}
               </h3>
-              <p className="text-muted-foreground text-sm mb-4 text-center max-w-sm">
+              <p className="text-zinc-400 text-sm mb-4 text-center max-w-sm">
                 {params.q
                   ? "Try a different search term or add a new call."
                   : "Add your first call transcript to extract insights, action items, and generate shareable briefs."}
               </p>
               {!params.q && (
-                <Link href="/calls/new">
-                  <Button>
+                <NerveButton asChild>
+                  <Link href="/calls/new">
                     <Plus className="mr-2 h-4 w-4" />
                     Add Call
-                  </Button>
-                </Link>
+                  </Link>
+                </NerveButton>
               )}
-            </CardContent>
-          </Card>
+            </NerveCardContent>
+          </NerveCard>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {filteredCalls.map((call) => {
@@ -220,46 +226,48 @@ export default async function CallsPage({ searchParams }: CallsPageProps) {
 
               return (
                 <Link key={call.id} href={`/calls/${call.id}`} {...axEntityAttrs("call", call.id, staleness, relationships)}>
-                  <Card className="h-full transition-colors hover:bg-muted/50">
-                    <CardHeader className="pb-2">
+                  <NerveCard variant="interactive" elevation={1} className="h-full">
+                    <NerveCardHeader className="pb-2">
                       <div className="flex items-start justify-between gap-2">
-                        <CardTitle className="text-base line-clamp-1">
+                        <NerveCardTitle className="text-base line-clamp-1">
                           {call.title}
-                        </CardTitle>
-                        <div className="flex items-center gap-1">
+                        </NerveCardTitle>
+                        <div className="flex items-center gap-2">
                           {call.briefShared && (
-                            <Share2 className="h-4 w-4 text-muted-foreground" />
+                            <Share2 className="h-4 w-4 text-zinc-500" />
                           )}
-                          {getSentimentIcon(call.sentiment)}
+                          <NerveBadge variant={getSentimentVariant(call.sentiment)} size="sm" dot>
+                            {call.sentiment?.toLowerCase() || "neutral"}
+                          </NerveBadge>
                         </div>
                       </div>
-                      <CardDescription className="flex items-center gap-1">
+                      <NerveCardDescription className="flex items-center gap-1">
                         <FolderKanban className="h-3 w-3" />
                         {call.project.name}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
+                      </NerveCardDescription>
+                    </NerveCardHeader>
+                    <NerveCardContent>
                       {call.summary ? (
-                        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                        <p className="text-sm text-zinc-400 line-clamp-2 mb-3">
                           {call.summary}
                         </p>
                       ) : (
-                        <p className="text-sm text-muted-foreground italic mb-3">
+                        <p className="text-sm text-zinc-500 italic mb-3">
                           Processing...
                         </p>
                       )}
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground mb-2">
+                      <div className="flex items-center gap-4 text-xs text-zinc-500 mb-2">
                         <span>{actionItems.length} action items</span>
                         <span>{decisions.length} decisions</span>
                       </div>
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <div className="flex items-center justify-between text-xs text-zinc-500">
                         <span>{format(call.callDate, "MMM d, yyyy")}</span>
                         <span>
                           Added {formatDistanceToNow(call.createdAt, { addSuffix: true })}
                         </span>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </NerveCardContent>
+                  </NerveCard>
                 </Link>
               )
             })}
