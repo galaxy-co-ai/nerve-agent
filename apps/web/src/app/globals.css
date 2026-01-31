@@ -212,39 +212,51 @@ code, pre, .font-mono {
 }
 
 /* ============================================
-   SIDEBAR POLISH
-   Less suffocating when collapsed
+   NERVE SIDEBAR - Premium Dark Metal Housing
+   Hardware-inspired neumorphic design system
+   Matches agent-drawer.tsx aesthetic
    ============================================ */
 
-/* Wider collapsed state */
+/* Collapsed state width */
 [data-collapsible=icon] {
   --sidebar-width-icon: 3.5rem;
 }
 
-/* Glass sidebar background */
-[data-sidebar=sidebar] {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.03) 0%,
-    rgba(255, 255, 255, 0.01) 100%
-  ) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
-}
-
-/* Collapsed sidebar - breathe */
+/* Collapsed sidebar button centering */
 .group-data-[collapsible=icon] [data-sidebar=menu-button] {
   justify-content: center;
 }
 
-/* Active state with orange accent */
-[data-sidebar=menu-button][data-active=true] {
-  background: rgba(255, 122, 69, 0.1) !important;
-  border-left: 2px solid rgba(255, 122, 69, 0.6);
+/* Sidebar content scrollbar - gold accent */
+[data-sidebar=content]::-webkit-scrollbar {
+  width: 4px;
 }
 
-/* Hover glow on sidebar items */
-[data-sidebar=menu-button]:hover {
-  background: rgba(255, 255, 255, 0.04) !important;
+[data-sidebar=content]::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+[data-sidebar=content]::-webkit-scrollbar-thumb {
+  background: rgba(201, 168, 76, 0.2);
+  border-radius: 2px;
+}
+
+[data-sidebar=content]::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 168, 76, 0.35);
+}
+
+/* Hardware separator - machined groove */
+.nerve-separator {
+  height: 1px;
+  margin: 0.75rem 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.4) 10%,
+    rgba(0, 0, 0, 0.4) 90%,
+    transparent 100%
+  );
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 /* Main content area with pattern */

@@ -358,13 +358,18 @@ export function AgentDrawer() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", ...SPRING_CONFIG }}
-            className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md flex flex-col"
+            className="fixed right-0 top-2 bottom-2 z-50 w-full max-w-md flex flex-col overflow-hidden"
             style={{
               background: AGENT_COLORS.housing,
-              borderLeft: `1px solid ${AGENT_COLORS.edgeLight}`,
+              borderRadius: "12px 0 0 12px",
+              border: `1px solid ${AGENT_COLORS.edgeLight}`,
+              borderRight: "none",
               boxShadow: `
-                -4px 0 24px rgba(0,0,0,0.5),
-                inset 1px 0 0 ${AGENT_COLORS.edgeLight}
+                -4px 0 24px rgba(0,0,0,0.4),
+                -8px 4px 32px rgba(0,0,0,0.3),
+                inset 1px 0 0 ${AGENT_COLORS.edgeLight},
+                inset 0 1px 0 ${AGENT_COLORS.edgeLight},
+                inset 0 -1px 0 ${AGENT_COLORS.edgeDark}
               `,
             }}
           >
@@ -376,6 +381,7 @@ export function AgentDrawer() {
               style={{
                 borderBottom: `1px solid ${AGENT_COLORS.edgeLight}`,
                 background: `linear-gradient(180deg, ${AGENT_COLORS.elevated} 0%, ${AGENT_COLORS.housing} 100%)`,
+                borderTopLeftRadius: "12px",
               }}
             >
               <div className="flex items-center gap-3">
@@ -438,7 +444,7 @@ export function AgentDrawer() {
                 =============================================================== */}
             <div className="px-4 py-3">
               <div
-                className="relative flex rounded-xl p-1"
+                className="relative flex rounded-xl p-1 gap-0.5"
                 style={{
                   background: AGENT_COLORS.recessed,
                   boxShadow: `
@@ -449,15 +455,17 @@ export function AgentDrawer() {
               >
                 {/* Sliding indicator */}
                 <motion.div
-                  className="absolute top-1 bottom-1 rounded-lg"
+                  className="absolute rounded-lg pointer-events-none"
                   style={{
                     background: `linear-gradient(145deg, ${AGENT_COLORS.elevated} 0%, ${AGENT_COLORS.surface} 100%)`,
                     border: `1px solid ${AGENT_COLORS.edgeLight}`,
                     boxShadow: `0 2px 8px rgba(0,0,0,0.4)`,
-                    width: `calc(25% - 4px)`,
+                    top: "4px",
+                    bottom: "4px",
+                    width: "calc(25% - 5px)",
                   }}
                   animate={{
-                    x: `calc(${TABS.findIndex(t => t.id === activeTab) * 100}% + ${TABS.findIndex(t => t.id === activeTab) * 4}px)`,
+                    left: `calc(${TABS.findIndex(t => t.id === activeTab) * 25}% + 4px)`,
                   }}
                   transition={{ type: "spring", damping: 20, stiffness: 300 }}
                 />
@@ -550,6 +558,7 @@ export function AgentDrawer() {
               style={{
                 borderTop: `1px solid ${AGENT_COLORS.edgeLight}`,
                 background: AGENT_COLORS.housing,
+                borderBottomLeftRadius: "12px",
               }}
             >
               <form onSubmit={handleSubmit}>
@@ -1291,8 +1300,9 @@ function MemoryTab({
                   }}
                 >
                   <motion.div
-                    className="absolute top-0.5 w-5 h-5 rounded-full"
+                    className="absolute w-5 h-5 rounded-full"
                     style={{
+                      top: "1px",
                       background: isEnabled
                         ? `linear-gradient(145deg, ${AGENT_COLORS.gold} 0%, #B8943C 100%)`
                         : `linear-gradient(145deg, ${AGENT_COLORS.elevated} 0%, ${AGENT_COLORS.surface} 100%)`,
@@ -1301,7 +1311,7 @@ function MemoryTab({
                         : `0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 ${AGENT_COLORS.edgeLight}`,
                     }}
                     animate={{
-                      x: isEnabled ? 20 : 2,
+                      x: isEnabled ? 21 : 1,
                     }}
                     transition={{ type: "spring", damping: 20, stiffness: 300 }}
                   />
