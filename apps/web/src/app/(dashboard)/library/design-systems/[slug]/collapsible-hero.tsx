@@ -2,12 +2,14 @@
 
 import * as React from "react"
 import { useRef, useState, useEffect, useLayoutEffect } from "react"
+import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Sparkles } from "lucide-react"
+import { Sparkles, Eye } from "lucide-react"
 
 interface CollapsibleHeroProps {
   name: string
+  slug: string
   version: string
   /** @ai-context Philosophy statement for AI agents to understand design system intent */
   philosophy?: string | null
@@ -23,6 +25,7 @@ const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffec
 
 export function CollapsibleHero({
   name,
+  slug,
   version,
   philosophy,
   description,
@@ -117,10 +120,20 @@ export function CollapsibleHero({
               </div>
             </div>
 
-            <Button className="shrink-0" size="sm">
-              <Sparkles className="mr-2 h-4 w-4" />
-              Add to Project
-            </Button>
+            <div className="flex items-center gap-2 shrink-0">
+              {slug === "nerve" && (
+                <Button asChild variant="outline" size="sm">
+                  <Link href="/library/design-systems/nerve/showcase">
+                    <Eye className="mr-2 h-4 w-4" />
+                    Live Preview
+                  </Link>
+                </Button>
+              )}
+              <Button size="sm">
+                <Sparkles className="mr-2 h-4 w-4" />
+                Add to Project
+              </Button>
+            </div>
           </div>
         </div>
       </div>

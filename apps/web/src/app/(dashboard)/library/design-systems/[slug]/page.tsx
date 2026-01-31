@@ -89,6 +89,7 @@ export default async function DesignSystemPage({ params }: DesignSystemPageProps
         {/* Collapsible Hero */}
         <CollapsibleHero
           name={system.name}
+          slug={slug}
           version={system.version}
           philosophy={system.philosophy}
           description={system.description}

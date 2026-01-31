@@ -1,15 +1,21 @@
 export const dynamic = "force-dynamic"
 
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { H2, Muted, Small } from "@/components/ui/typography"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
-import { Separator } from "@/components/ui/separator"
-import { User, Bell, Palette, Key, Zap } from "lucide-react"
+import {
+  NerveCard,
+  NerveCardContent,
+  NerveCardDescription,
+  NerveCardHeader,
+  NerveCardTitle,
+  NerveButton,
+  NerveInput,
+  NerveSwitch,
+  NerveSeparator,
+  NerveLabel,
+} from "@/components/nerve"
+import { User, Bell, Palette, Key, Zap, Monitor } from "lucide-react"
 import { requireUser } from "@/lib/auth"
+import { SettingsDesktopSection } from "./settings-desktop-section"
 
 export default async function SettingsPage() {
   const user = await requireUser()
@@ -25,157 +31,165 @@ export default async function SettingsPage() {
       </header>
 
       <div className="flex flex-1 flex-col gap-6 p-6 max-w-3xl mx-auto w-full">
+        {/* Desktop App - Priority Section */}
+        <SettingsDesktopSection userId={user.id} />
+
         {/* Profile */}
-        <Card>
-          <CardHeader>
+        <NerveCard elevation={1}>
+          <NerveCardHeader>
             <div className="flex items-center gap-2">
-              <User className="h-5 w-5 text-muted-foreground" />
-              <CardTitle>Profile</CardTitle>
+              <User className="h-5 w-5 text-zinc-400" />
+              <NerveCardTitle>Profile</NerveCardTitle>
             </div>
-            <CardDescription>
+            <NerveCardDescription>
               Your personal information and account details
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            </NerveCardDescription>
+          </NerveCardHeader>
+          <NerveCardContent className="space-y-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" defaultValue={user.name || ""} placeholder="Your name" />
+              <NerveLabel htmlFor="name">Name</NerveLabel>
+              <NerveInput id="name" defaultValue={user.name || ""} placeholder="Your name" />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" defaultValue={user.email || ""} disabled className="bg-muted" />
-              <p className="text-xs text-muted-foreground">Managed by your authentication provider</p>
+              <NerveLabel htmlFor="email">Email</NerveLabel>
+              <NerveInput
+                id="email"
+                defaultValue={user.email || ""}
+                disabled
+                className="bg-zinc-900/50"
+              />
+              <p className="text-xs text-zinc-500">Managed by your authentication provider</p>
             </div>
-            <Button className="mt-2">Save Changes</Button>
-          </CardContent>
-        </Card>
+            <NerveButton className="mt-2">Save Changes</NerveButton>
+          </NerveCardContent>
+        </NerveCard>
 
         {/* Notifications */}
-        <Card>
-          <CardHeader>
+        <NerveCard elevation={1}>
+          <NerveCardHeader>
             <div className="flex items-center gap-2">
-              <Bell className="h-5 w-5 text-muted-foreground" />
-              <CardTitle>Notifications</CardTitle>
+              <Bell className="h-5 w-5 text-zinc-400" />
+              <NerveCardTitle>Notifications</NerveCardTitle>
             </div>
-            <CardDescription>
+            <NerveCardDescription>
               Configure how you receive updates and alerts
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            </NerveCardDescription>
+          </NerveCardHeader>
+          <NerveCardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Daily Summary</Label>
-                <p className="text-sm text-muted-foreground">Receive a morning email with your daily focus</p>
+                <NerveLabel>Daily Summary</NerveLabel>
+                <p className="text-sm text-zinc-500">Receive a morning email with your daily focus</p>
               </div>
-              <Switch />
+              <NerveSwitch />
             </div>
-            <Separator />
+            <NerveSeparator />
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Blocker Alerts</Label>
-                <p className="text-sm text-muted-foreground">Get notified when blockers need attention</p>
+                <NerveLabel>Blocker Alerts</NerveLabel>
+                <p className="text-sm text-zinc-500">Get notified when blockers need attention</p>
               </div>
-              <Switch defaultChecked />
+              <NerveSwitch defaultChecked />
             </div>
-            <Separator />
+            <NerveSeparator />
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Client Updates</Label>
-                <p className="text-sm text-muted-foreground">Notifications when clients respond in portals</p>
+                <NerveLabel>Client Updates</NerveLabel>
+                <p className="text-sm text-zinc-500">Notifications when clients respond in portals</p>
               </div>
-              <Switch defaultChecked />
+              <NerveSwitch defaultChecked />
             </div>
-          </CardContent>
-        </Card>
+          </NerveCardContent>
+        </NerveCard>
 
         {/* Appearance */}
-        <Card>
-          <CardHeader>
+        <NerveCard elevation={1}>
+          <NerveCardHeader>
             <div className="flex items-center gap-2">
-              <Palette className="h-5 w-5 text-muted-foreground" />
-              <CardTitle>Appearance</CardTitle>
+              <Palette className="h-5 w-5 text-zinc-400" />
+              <NerveCardTitle>Appearance</NerveCardTitle>
             </div>
-            <CardDescription>
+            <NerveCardDescription>
               Customize how Nerve Agent looks
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            </NerveCardDescription>
+          </NerveCardHeader>
+          <NerveCardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Dark Mode</Label>
-                <p className="text-sm text-muted-foreground">Always use dark theme</p>
+                <NerveLabel>Dark Mode</NerveLabel>
+                <p className="text-sm text-zinc-500">Always use dark theme</p>
               </div>
-              <Switch defaultChecked disabled />
+              <NerveSwitch defaultChecked disabled />
             </div>
-            <p className="text-xs text-muted-foreground">Light mode coming soon. We&apos;re creatures of the night.</p>
-          </CardContent>
-        </Card>
+            <p className="text-xs text-zinc-500">Light mode coming soon. We&apos;re creatures of the night.</p>
+          </NerveCardContent>
+        </NerveCard>
 
         {/* Integrations */}
-        <Card>
-          <CardHeader>
+        <NerveCard elevation={1}>
+          <NerveCardHeader>
             <div className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-muted-foreground" />
-              <CardTitle>Integrations</CardTitle>
+              <Zap className="h-5 w-5 text-zinc-400" />
+              <NerveCardTitle>Integrations</NerveCardTitle>
             </div>
-            <CardDescription>
+            <NerveCardDescription>
               Connect your tools and services
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            </NerveCardDescription>
+          </NerveCardHeader>
+          <NerveCardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>GitHub</Label>
-                <p className="text-sm text-muted-foreground">Sync commits and PRs with your projects</p>
+                <NerveLabel>GitHub</NerveLabel>
+                <p className="text-sm text-zinc-500">Sync commits and PRs with your projects</p>
               </div>
-              <Button variant="outline" size="sm">Connect</Button>
+              <NerveButton variant="outline" size="sm">Connect</NerveButton>
             </div>
-            <Separator />
+            <NerveSeparator />
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Stripe</Label>
-                <p className="text-sm text-muted-foreground">Link payments and invoicing</p>
+                <NerveLabel>Stripe</NerveLabel>
+                <p className="text-sm text-zinc-500">Link payments and invoicing</p>
               </div>
-              <Button variant="outline" size="sm">Connect</Button>
+              <NerveButton variant="outline" size="sm">Connect</NerveButton>
             </div>
-            <Separator />
+            <NerveSeparator />
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Calendar</Label>
-                <p className="text-sm text-muted-foreground">Sync meetings and deadlines</p>
+                <NerveLabel>Calendar</NerveLabel>
+                <p className="text-sm text-zinc-500">Sync meetings and deadlines</p>
               </div>
-              <Button variant="outline" size="sm">Connect</Button>
+              <NerveButton variant="outline" size="sm">Connect</NerveButton>
             </div>
-          </CardContent>
-        </Card>
+          </NerveCardContent>
+        </NerveCard>
 
         {/* API Keys */}
-        <Card>
-          <CardHeader>
+        <NerveCard elevation={1}>
+          <NerveCardHeader>
             <div className="flex items-center gap-2">
-              <Key className="h-5 w-5 text-muted-foreground" />
-              <CardTitle>API Keys</CardTitle>
+              <Key className="h-5 w-5 text-zinc-400" />
+              <NerveCardTitle>API Keys</NerveCardTitle>
             </div>
-            <CardDescription>
+            <NerveCardDescription>
               Manage your API credentials for AI features
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            </NerveCardDescription>
+          </NerveCardHeader>
+          <NerveCardContent className="space-y-4">
             <div className="grid gap-2">
-              <Label htmlFor="anthropic-key">Anthropic API Key</Label>
+              <NerveLabel htmlFor="anthropic-key">Anthropic API Key</NerveLabel>
               <div className="flex gap-2">
-                <Input
+                <NerveInput
                   id="anthropic-key"
                   type="password"
                   placeholder="sk-ant-..."
                   className="font-mono"
                 />
-                <Button variant="outline">Save</Button>
+                <NerveButton variant="outline">Save</NerveButton>
               </div>
-              <p className="text-xs text-muted-foreground">Used for AI writing assistance and project analysis</p>
+              <p className="text-xs text-zinc-500">Used for AI writing assistance and project analysis</p>
             </div>
-          </CardContent>
-        </Card>
+          </NerveCardContent>
+        </NerveCard>
       </div>
     </>
   )
