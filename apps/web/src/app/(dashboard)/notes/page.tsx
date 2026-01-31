@@ -213,7 +213,7 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
                     const tags = note.tags as string[]
                     const primaryTag = tags?.[0]
                     return (
-                    <Link key={note.id} href={`/notes/${note.slug}`}>
+                    <Link key={note.id} href={`/notes/${note.slug}`} data-ax-intent="navigate:note-detail" data-ax-context="list-item">
                       <NerveCard variant="interactive" elevation={2} className="h-full relative">
                         {primaryTag && (
                           <NerveBadge
@@ -267,7 +267,7 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
                     const tags = note.tags as string[]
                     const primaryTag = tags?.[0]
                     return (
-                    <Link key={note.id} href={`/notes/${note.slug}`}>
+                    <Link key={note.id} href={`/notes/${note.slug}`} data-ax-intent="navigate:note-detail" data-ax-context="list-item">
                       <NerveCard variant="interactive" elevation={2} className="h-full relative">
                         {primaryTag && (
                           <NerveBadge

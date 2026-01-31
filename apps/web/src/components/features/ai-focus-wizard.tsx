@@ -5,12 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Zap, Calendar, AlertTriangle, Users, Clock, Loader2, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
+import type { AXIntent } from "@/lib/ax"
 
 interface SmartChip {
   id: string
   label: string
   icon: React.ReactNode
   prompt: string
+  intent: AXIntent
 }
 
 const smartChips: SmartChip[] = [
@@ -19,24 +21,28 @@ const smartChips: SmartChip[] = [
     label: "By deadlines",
     icon: <Calendar className="h-3.5 w-3.5" />,
     prompt: "Plan my focus based on upcoming deadlines and due dates",
+    intent: "select:project-suggestion",
   },
   {
     id: "blocked",
     label: "Unblock first",
     icon: <AlertTriangle className="h-3.5 w-3.5" />,
     prompt: "Focus on resolving blockers and unblocking progress",
+    intent: "select:project-suggestion",
   },
   {
     id: "client",
     label: "Client priorities",
     icon: <Users className="h-3.5 w-3.5" />,
     prompt: "Prioritize tasks that clients are waiting on",
+    intent: "select:project-suggestion",
   },
   {
     id: "quick-wins",
     label: "Quick wins",
     icon: <Clock className="h-3.5 w-3.5" />,
     prompt: "Start with small tasks I can complete quickly for momentum",
+    intent: "select:project-suggestion",
   },
 ]
 
@@ -113,6 +119,8 @@ export function AiFocusWizard() {
                   size="sm"
                   onClick={() => handleChipClick(chip)}
                   disabled={isGenerating}
+                  data-ax-intent={chip.intent}
+                  data-ax-context="dashboard-widget"
                   className={cn(
                     "gap-1.5 transition-all",
                     selectedChip === chip.id && "border-primary bg-primary/10"

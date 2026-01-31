@@ -8,6 +8,7 @@ import { AgentDrawer } from "@/components/agent/agent-drawer"
 import { TimerWrapper } from "@/components/timer/timer-wrapper"
 import { SidebarInset } from "@/components/ui/sidebar"
 import { SidebarWrapper } from "@/components/navigation/sidebar-wrapper"
+import { AXStateProvider, fetchAXWorkspaceData, buildAXUser } from "@/lib/ax"
 import { syncUser, requireUser } from "@/lib/auth"
 import { db } from "@/lib/db"
 
@@ -20,8 +21,9 @@ export default async function DashboardLayout({
   await syncUser()
   const user = await requireUser()
 
-  // Fetch data for command palette search
-  const [projects, notes, inProgressTasks] = await Promise.all([
+  // Fetch AX workspace data and command palette data in parallel
+  const [axWorkspace, projects, notes, inProgressTasks] = await Promise.all([
+    fetchAXWorkspaceData(user.id),
     db.project.findMany({
       where: { userId: user.id },
       orderBy: { updatedAt: "desc" },
@@ -54,18 +56,23 @@ export default async function DashboardLayout({
     }),
   ])
 
+  // Build AX user from user data
+  const axUser = buildAXUser(user)
+
   return (
     <TimerWrapper>
-      <SidebarWrapper>
-        <AppSidebar />
-        <SidebarInset>
-          {children}
-        </SidebarInset>
-        <CommandPalette projects={projects} notes={notes} inProgressTasks={inProgressTasks} />
-        <QuickNoteDialog />
-        <QuickTimeDialog />
-        <AgentDrawer />
-      </SidebarWrapper>
+      <AXStateProvider initialUser={axUser} initialWorkspace={axWorkspace}>
+        <SidebarWrapper>
+          <AppSidebar />
+          <SidebarInset>
+            {children}
+          </SidebarInset>
+          <CommandPalette projects={projects} notes={notes} inProgressTasks={inProgressTasks} />
+          <QuickNoteDialog />
+          <QuickTimeDialog />
+          <AgentDrawer />
+        </SidebarWrapper>
+      </AXStateProvider>
     </TimerWrapper>
   )
 }

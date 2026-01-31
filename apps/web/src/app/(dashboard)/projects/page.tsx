@@ -62,13 +62,13 @@ export default async function ProjectsPage() {
         </Breadcrumb>
         <div className="ml-auto flex gap-2">
           <Button asChild size="sm" variant="outline">
-            <Link href="/projects/import">
+            <Link href="/projects/import" data-ax-intent="import:codebase" data-ax-context="header-action">
               <Upload className="mr-2 h-4 w-4" />
               Import
             </Link>
           </Button>
           <Button asChild size="sm">
-            <Link href="/projects/new">
+            <Link href="/projects/new" data-ax-intent="create:project" data-ax-context="header-action">
               <Plus className="mr-2 h-4 w-4" />
               New Project
             </Link>
@@ -94,13 +94,13 @@ export default async function ProjectsPage() {
               </p>
               <div className="flex gap-2">
                 <Button asChild variant="outline">
-                  <Link href="/projects/import">
+                  <Link href="/projects/import" data-ax-intent="import:codebase" data-ax-context="empty-state">
                     <Upload className="mr-2 h-4 w-4" />
                     Import Codebase
                   </Link>
                 </Button>
                 <Button asChild>
-                  <Link href="/projects/new">
+                  <Link href="/projects/new" data-ax-intent="create:project" data-ax-context="empty-state">
                     <Plus className="mr-2 h-4 w-4" />
                     Create Project
                   </Link>
@@ -111,7 +111,12 @@ export default async function ProjectsPage() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {projects.map((project) => (
-              <Link key={project.id} href={`/projects/${project.slug}`}>
+              <Link
+                key={project.id}
+                href={`/projects/${project.slug}`}
+                data-ax-intent="navigate:project-detail"
+                data-ax-context="list-item"
+              >
                 <Card className="h-full transition-colors hover:bg-muted/50">
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">

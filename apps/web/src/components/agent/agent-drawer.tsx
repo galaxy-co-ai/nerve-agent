@@ -37,6 +37,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useAXStateOptional, type AXIntent } from "@/lib/ax"
 
 // =============================================================================
 // DESIGN TOKENS - Nerve Agent Premium Dark Metal Aesthetic
@@ -115,6 +116,7 @@ export function AgentDrawer() {
   const [activeTab, setActiveTab] = useState<AgentTab>("inbox")
   const [inputValue, setInputValue] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
+  const axState = useAXStateOptional()
 
   // Data state
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
@@ -123,6 +125,11 @@ export function AgentDrawer() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSending, setIsSending] = useState(false)
   const [, setActionResult] = useState<{ type: string; content: unknown } | null>(null)
+
+  // Report drawer state to AX
+  useEffect(() => {
+    axState?.setActiveDrawer(isOpen ? activeTab : null)
+  }, [isOpen, activeTab, axState])
 
   // Fetch suggestions when drawer opens
   const fetchSuggestions = useCallback(async () => {
@@ -295,6 +302,8 @@ export function AgentDrawer() {
           ===================================================================== */}
       <motion.button
         onClick={() => setIsOpen(true)}
+        data-ax-intent="open:drawer"
+        data-ax-context="inline-action"
         className={cn(
           "fixed right-4 bottom-6 z-40",
           "flex items-center justify-center",
@@ -434,6 +443,8 @@ export function AgentDrawer() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsOpen(false)}
+                data-ax-intent="close:drawer"
+                data-ax-context="drawer-action"
                 className="h-9 w-9 rounded-lg transition-colors"
                 style={{
                   background: AGENT_COLORS.surface,
@@ -481,6 +492,8 @@ export function AgentDrawer() {
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id)}
+                    data-ax-intent="switch:drawer-tab"
+                    data-ax-context="drawer-tab"
                     className={cn(
                       "relative flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg",
                       "text-[11px] font-semibold tracking-wider uppercase",
@@ -598,6 +611,8 @@ export function AgentDrawer() {
                     type="submit"
                     size="icon"
                     disabled={!inputValue.trim()}
+                    data-ax-intent="send:chat-message"
+                    data-ax-context="drawer-action"
                     className="absolute right-1.5 top-1.5 h-8 w-8 rounded-lg transition-all disabled:opacity-40"
                     style={{
                       background: inputValue.trim() ? AGENT_COLORS.gold : AGENT_COLORS.surface,
@@ -811,6 +826,8 @@ function InboxTab({
                   color: AGENT_COLORS.recessed,
                 }}
                 onClick={() => onAction(suggestion.id, "approve")}
+                data-ax-intent="approve:suggestion"
+                data-ax-context="drawer-inbox"
               >
                 <CheckCircle2 className="h-3 w-3 mr-1" />
                 Approve
@@ -825,6 +842,8 @@ function InboxTab({
                   color: AGENT_COLORS.textSecondary,
                 }}
                 onClick={() => onEdit(suggestion)}
+                data-ax-intent="edit:suggestion"
+                data-ax-context="drawer-inbox"
               >
                 <Edit3 className="h-3 w-3 mr-1" />
                 Edit
@@ -835,6 +854,8 @@ function InboxTab({
                 className="h-7 w-7 p-0"
                 style={{ color: AGENT_COLORS.textMuted }}
                 onClick={() => onAction(suggestion.id, "dismiss")}
+                data-ax-intent="dismiss:suggestion"
+                data-ax-context="drawer-inbox"
               >
                 <XCircle className="h-3.5 w-3.5" />
               </Button>
@@ -1034,7 +1055,17 @@ function ActionsTab({
     }
   }
 
-  const actionGroups = [
+  const actionGroups: {
+    label: string
+    actions: {
+      id: string
+      label: string
+      description: string
+      icon: React.ReactNode
+      shortcut: string
+      intent: AXIntent
+    }[]
+  }[] = [
     {
       label: "GENERATE",
       actions: [
@@ -1044,6 +1075,7 @@ function ActionsTab({
           description: "Summary of recent progress for stakeholders",
           icon: <Mail className="h-4 w-4" />,
           shortcut: "⌘U",
+          intent: "generate:client-update",
         },
         {
           id: "weekly-summary",
@@ -1051,6 +1083,7 @@ function ActionsTab({
           description: "What got done this week across all projects",
           icon: <TrendingUp className="h-4 w-4" />,
           shortcut: "⌘W",
+          intent: "generate:weekly-summary",
         },
         {
           id: "standup-notes",
@@ -1058,6 +1091,7 @@ function ActionsTab({
           description: "Yesterday, today, blockers - ready to paste",
           icon: <Coffee className="h-4 w-4" />,
           shortcut: "⌘S",
+          intent: "generate:standup-notes",
         },
       ],
     },
@@ -1070,6 +1104,7 @@ function ActionsTab({
           description: "Why is this taking so long? Root cause breakdown",
           icon: <AlertTriangle className="h-4 w-4" />,
           shortcut: "⌘B",
+          intent: "analyze:blockers",
         },
         {
           id: "scope-check",
@@ -1077,6 +1112,7 @@ function ActionsTab({
           description: "Are we building what we planned? Drift detection",
           icon: <Eye className="h-4 w-4" />,
           shortcut: "⌘D",
+          intent: "analyze:scope",
         },
       ],
     },
@@ -1089,6 +1125,7 @@ function ActionsTab({
           description: "Emails for all stale blockers and waiting items",
           icon: <Mail className="h-4 w-4" />,
           shortcut: "⌘F",
+          intent: "automate:follow-ups",
         },
       ],
     },
@@ -1115,6 +1152,8 @@ function ActionsTab({
                   type="button"
                   onClick={() => executeAction(action.id)}
                   disabled={isDisabled}
+                  data-ax-intent={action.intent}
+                  data-ax-context="drawer-action"
                   className={cn(
                     "w-full p-3 rounded-xl text-left group transition-all",
                     "disabled:opacity-50 disabled:cursor-not-allowed"
@@ -1233,6 +1272,8 @@ function MemoryTab({
             size="sm"
             className="h-6 text-[10px] px-2"
             style={{ color: AGENT_COLORS.textMuted }}
+            data-ax-intent="save:profile"
+            data-ax-context="drawer-action"
           >
             <Edit3 className="h-3 w-3 mr-1" />
             Edit
@@ -1315,6 +1356,8 @@ function MemoryTab({
                 key={setting.id}
                 type="button"
                 onClick={() => onToggle(setting.id, !isEnabled)}
+                data-ax-intent="toggle:memory-setting"
+                data-ax-context="drawer-action"
                 className="w-full flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-all"
                 style={{
                   background: AGENT_COLORS.surface,

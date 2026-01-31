@@ -16,6 +16,7 @@ import {
   SidebarMenuButton,
   useSidebar,
 } from "@/components/ui/sidebar"
+import type { AXIntent } from "@/lib/ax"
 
 // =============================================================================
 // DESIGN TOKENS - Matches agent-drawer.tsx exactly
@@ -41,6 +42,7 @@ interface QuickAction {
   label: string
   icon: React.ReactNode
   shortcut?: string
+  intent: AXIntent
   onClick: () => void
 }
 
@@ -57,6 +59,7 @@ export function NavQuickActions() {
       label: "New Note",
       icon: <FileText className="h-4 w-4" />,
       shortcut: "N",
+      intent: "quick:new-note",
       onClick: () => {
         window.dispatchEvent(
           new KeyboardEvent("keydown", { key: "n", shiftKey: true, metaKey: true })
@@ -67,6 +70,7 @@ export function NavQuickActions() {
       id: "quick-idea",
       label: "Quick Idea",
       icon: <Lightbulb className="h-4 w-4" />,
+      intent: "quick:new-idea",
       onClick: () => {
         window.dispatchEvent(
           new KeyboardEvent("keydown", { key: "n", shiftKey: true, metaKey: true })
@@ -77,6 +81,7 @@ export function NavQuickActions() {
       id: "save-url",
       label: "Save URL",
       icon: <Link2 className="h-4 w-4" />,
+      intent: "quick:save-url",
       onClick: () => {
         router.push("/library")
       },
@@ -86,6 +91,7 @@ export function NavQuickActions() {
       label: "Search",
       icon: <Search className="h-4 w-4" />,
       shortcut: "K",
+      intent: "quick:search",
       onClick: () => {
         window.dispatchEvent(
           new KeyboardEvent("keydown", { key: "k", metaKey: true })
@@ -163,6 +169,7 @@ export function NavQuickActions() {
                 {actions.map((action, index) => (
                   <motion.button
                     key={action.id}
+                    type="button"
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.03 }}
@@ -170,6 +177,8 @@ export function NavQuickActions() {
                     className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all group"
                     title={action.label}
                     style={{ color: NERVE.textMuted }}
+                    data-ax-intent={action.intent}
+                    data-ax-context="quick-actions"
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = NERVE.surface
                       e.currentTarget.style.color = NERVE.textPrimary

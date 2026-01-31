@@ -79,7 +79,7 @@ export default async function LibraryPage() {
 
         {/* Stats Grid */}
         <div className="grid gap-4 md:grid-cols-5">
-          <Link href="/library/design-systems">
+          <Link href="/library/design-systems" data-ax-intent="navigate:library" data-ax-context="card-action">
             <Card className="transition-colors hover:bg-muted/50 border-amber-500/20 hover:border-amber-500/40">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">Design Systems</CardTitle>
@@ -92,7 +92,7 @@ export default async function LibraryPage() {
             </Card>
           </Link>
 
-          <Link href="/library/blocks">
+          <Link href="/library/blocks" data-ax-intent="navigate:library" data-ax-context="card-action">
             <Card className="transition-colors hover:bg-muted/50">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">Blocks</CardTitle>
@@ -105,7 +105,7 @@ export default async function LibraryPage() {
             </Card>
           </Link>
 
-          <Link href="/library/patterns">
+          <Link href="/library/patterns" data-ax-intent="navigate:library" data-ax-context="card-action">
             <Card className="transition-colors hover:bg-muted/50">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">Patterns</CardTitle>
@@ -118,7 +118,7 @@ export default async function LibraryPage() {
             </Card>
           </Link>
 
-          <Link href="/library/queries">
+          <Link href="/library/queries" data-ax-intent="navigate:library" data-ax-context="card-action">
             <Card className="transition-colors hover:bg-muted/50">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">Queries</CardTitle>

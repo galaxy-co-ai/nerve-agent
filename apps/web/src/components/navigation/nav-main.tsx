@@ -18,6 +18,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar"
+import type { AXIntent } from "@/lib/ax"
 
 // =============================================================================
 // DESIGN TOKENS - Matches agent-drawer.tsx exactly
@@ -40,15 +41,16 @@ interface NavItem {
   title: string
   url: string
   icon: LucideIcon
+  intent: AXIntent
 }
 
 const navItems: NavItem[] = [
-  { title: "Daily Driver", url: "/dashboard", icon: Home },
-  { title: "Projects", url: "/projects", icon: FolderKanban },
-  { title: "Library", url: "/library", icon: Code2 },
-  { title: "Notes", url: "/notes", icon: FileText },
-  { title: "Calls", url: "/calls", icon: Phone },
-  { title: "Settings", url: "/settings", icon: Settings },
+  { title: "Daily Driver", url: "/dashboard", icon: Home, intent: "navigate:dashboard" },
+  { title: "Projects", url: "/projects", icon: FolderKanban, intent: "navigate:projects" },
+  { title: "Library", url: "/library", icon: Code2, intent: "navigate:library" },
+  { title: "Notes", url: "/notes", icon: FileText, intent: "navigate:notes" },
+  { title: "Calls", url: "/calls", icon: Phone, intent: "navigate:calls" },
+  { title: "Settings", url: "/settings", icon: Settings, intent: "navigate:settings" },
 ]
 
 export function NavMain() {
@@ -77,7 +79,11 @@ export function NavMain() {
                     background: "transparent",
                   }}
                 >
-                  <Link href={item.url}>
+                  <Link
+                    href={item.url}
+                    data-ax-intent={item.intent}
+                    data-ax-context="sidebar"
+                  >
                     <Icon
                       className="size-4"
                       style={{ color: isActive ? NERVE.gold : NERVE.textMuted }}
