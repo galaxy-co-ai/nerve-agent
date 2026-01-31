@@ -4,7 +4,7 @@
 
 import Pusher from "pusher"
 
-// Singleton pattern for Pusher server instance
+// Singleton pattern for Pusher server instance (lazy initialization)
 const globalForPusher = globalThis as unknown as {
   pusher: Pusher | undefined
 }
@@ -30,11 +30,20 @@ function createPusherClient(): Pusher {
   })
 }
 
-export const pusher =
-  globalForPusher.pusher ?? createPusherClient()
+/**
+ * Get the Pusher server client (lazy initialization to avoid build-time errors)
+ */
+export function getPusher(): Pusher {
+  if (!globalForPusher.pusher) {
+    globalForPusher.pusher = createPusherClient()
+  }
+  return globalForPusher.pusher
+}
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPusher.pusher = pusher
+// Legacy export for backwards compatibility - lazy getter
+export const pusher = {
+  trigger: (...args: Parameters<Pusher["trigger"]>) => getPusher().trigger(...args),
+  authorizeChannel: (...args: Parameters<Pusher["authorizeChannel"]>) => getPusher().authorizeChannel(...args),
 }
 
 // =============================================================================
@@ -57,7 +66,7 @@ export async function sendToDesktop(
   data: unknown
 ): Promise<void> {
   const channelName = getDesktopChannelName(userId)
-  await pusher.trigger(channelName, event, data)
+  await getPusher().trigger(channelName, event, data)
 }
 
 /**
@@ -69,9 +78,9 @@ export function authenticateChannel(
   presenceData?: { user_id: string; user_info?: Record<string, unknown> }
 ): { auth: string; channel_data?: string } {
   if (presenceData) {
-    return pusher.authorizeChannel(socketId, channelName, presenceData)
+    return getPusher().authorizeChannel(socketId, channelName, presenceData)
   }
-  return pusher.authorizeChannel(socketId, channelName)
+  return getPusher().authorizeChannel(socketId, channelName)
 }
 
 // =============================================================================

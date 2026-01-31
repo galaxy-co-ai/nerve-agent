@@ -369,7 +369,7 @@ const SidebarInset = React.forwardRef<
     <main
       ref={ref}
       className={cn(
-        "relative flex min-w-0 min-h-0 flex-1 flex-col bg-background bg-pattern-mesh overflow-hidden",
+        "relative flex min-w-0 min-h-0 flex-1 flex-col bg-background bg-pattern-mesh overflow-auto",
         "transition-[margin] duration-200 ease-linear",
         // Default sidebar variant - use margin-left to account for fixed sidebar
         "md:peer-data-[variant=sidebar]:ml-[var(--sidebar-width)]",
