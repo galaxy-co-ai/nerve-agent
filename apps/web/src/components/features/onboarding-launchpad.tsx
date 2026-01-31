@@ -267,11 +267,11 @@ export function OnboardingLaunchpad() {
   }
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center p-6 min-h-screen">
-      <div className="w-full max-w-xl space-y-6">
+    <div className="flex flex-1 flex-col items-center justify-center p-4 sm:p-6 min-h-screen">
+      <div className="w-full max-w-2xl space-y-8">
         {/* Hardware Unit Container */}
         <div
-          className="relative p-3 sm:p-4 rounded-[20px] sm:rounded-[24px]"
+          className="relative p-3 rounded-[20px] sm:rounded-[24px]"
           style={{
             backgroundColor: "#1c1c1f",
             borderTop: "1px solid rgba(255,255,255,0.08)",
@@ -338,7 +338,7 @@ export function OnboardingLaunchpad() {
             />
             {/* Inner screen */}
             <div
-              className="relative overflow-hidden rounded-[10px] p-6"
+              className="relative overflow-hidden rounded-[10px] p-6 sm:p-8"
               style={{
                 backgroundColor: "#08080a",
                 boxShadow: `
@@ -346,7 +346,7 @@ export function OnboardingLaunchpad() {
                   inset 0 1px 3px rgba(0,0,0,0.6),
                   inset 0 0 0 1px rgba(0,0,0,0.5)
                 `,
-                minHeight: "340px",
+                minHeight: "440px",
                 opacity: isOn ? 1 : 0.3,
                 transition: "opacity 500ms ease-out",
               }}
@@ -361,51 +361,87 @@ export function OnboardingLaunchpad() {
                 }}
               />
 
-              {/* Content based on mode */}
-              {!isFlipped ? (
-                <div className="relative z-10">
-                  {mode === "suggest" && (
-                    <SuggestMode
-                      ideas={ideas}
-                      isShuffling={isShuffling}
-                      isOn={isOn}
-                      onIdeaClick={handleIdeaClick}
-                      onShuffle={handleShuffle}
-                    />
-                  )}
-                  {mode === "ask" && (
-                    <AskMode
-                      customIdea={customIdea}
-                      setCustomIdea={setCustomIdea}
-                      typedPlaceholder={typedPlaceholder}
-                      inputRef={inputRef}
-                      isOn={isOn}
-                      onSubmit={handleCustomSubmit}
-                    />
-                  )}
-                  {mode === "brainstorm" && (
-                    <BrainstormMode
-                      isOn={isOn}
-                      onBrainstorm={handleBrainstorm}
-                    />
-                  )}
+              {/* Content based on mode - with smooth transitions */}
+              <div className="relative z-10 h-full">
+                {/* Mode panels with cross-fade */}
+                <div
+                  className="absolute inset-0 transition-all duration-500 ease-out"
+                  style={{
+                    opacity: !isFlipped && mode === "suggest" ? 1 : 0,
+                    transform: !isFlipped && mode === "suggest" ? "translateY(0)" : "translateY(8px)",
+                    pointerEvents: !isFlipped && mode === "suggest" ? "auto" : "none",
+                    willChange: "opacity, transform",
+                  }}
+                >
+                  <SuggestMode
+                    ideas={ideas}
+                    isShuffling={isShuffling}
+                    isOn={isOn}
+                    onIdeaClick={handleIdeaClick}
+                    onShuffle={handleShuffle}
+                  />
                 </div>
-              ) : (
-                <ChatMode
-                  selectedIdea={selectedIdea}
-                  messages={messages}
-                  input={input}
-                  setInput={setInput}
-                  isLoading={isLoading}
-                  projectSlug={projectSlug}
-                  inputRef={inputRef}
-                  messagesEndRef={messagesEndRef}
-                  onBack={flipBack}
-                  onSubmit={handleChatSubmit}
-                  onKeyDown={handleKeyDown}
-                  onGoToWorkspace={handleGoToWorkspace}
-                />
-              )}
+
+                <div
+                  className="absolute inset-0 transition-all duration-500 ease-out"
+                  style={{
+                    opacity: !isFlipped && mode === "ask" ? 1 : 0,
+                    transform: !isFlipped && mode === "ask" ? "translateY(0)" : "translateY(8px)",
+                    pointerEvents: !isFlipped && mode === "ask" ? "auto" : "none",
+                    willChange: "opacity, transform",
+                  }}
+                >
+                  <AskMode
+                    customIdea={customIdea}
+                    setCustomIdea={setCustomIdea}
+                    typedPlaceholder={typedPlaceholder}
+                    inputRef={inputRef}
+                    isOn={isOn}
+                    onSubmit={handleCustomSubmit}
+                  />
+                </div>
+
+                <div
+                  className="absolute inset-0 transition-all duration-500 ease-out"
+                  style={{
+                    opacity: !isFlipped && mode === "brainstorm" ? 1 : 0,
+                    transform: !isFlipped && mode === "brainstorm" ? "translateY(0)" : "translateY(8px)",
+                    pointerEvents: !isFlipped && mode === "brainstorm" ? "auto" : "none",
+                    willChange: "opacity, transform",
+                  }}
+                >
+                  <BrainstormMode
+                    isOn={isOn}
+                    onBrainstorm={handleBrainstorm}
+                  />
+                </div>
+
+                {/* Chat mode overlay */}
+                <div
+                  className="absolute inset-0 transition-all duration-500 ease-out"
+                  style={{
+                    opacity: isFlipped ? 1 : 0,
+                    transform: isFlipped ? "translateY(0)" : "translateY(8px)",
+                    pointerEvents: isFlipped ? "auto" : "none",
+                    willChange: "opacity, transform",
+                  }}
+                >
+                  <ChatMode
+                    selectedIdea={selectedIdea}
+                    messages={messages}
+                    input={input}
+                    setInput={setInput}
+                    isLoading={isLoading}
+                    projectSlug={projectSlug}
+                    inputRef={inputRef}
+                    messagesEndRef={messagesEndRef}
+                    onBack={flipBack}
+                    onSubmit={handleChatSubmit}
+                    onKeyDown={handleKeyDown}
+                    onGoToWorkspace={handleGoToWorkspace}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -631,22 +667,26 @@ function SuggestMode({
             key={idea.id}
             onClick={() => onIdeaClick(idea)}
             disabled={isShuffling || !isOn}
-            style={{ animationDelay: isShuffling ? '0ms' : `${index * 100}ms` }}
             className={cn(
               "group relative w-full px-4 py-3 rounded-xl",
               "bg-white/[0.03] border border-white/[0.08]",
               "flex items-center gap-3",
-              "transition-all duration-300 ease-out",
               "hover:bg-white/[0.06] hover:border-white/[0.15]",
               "hover:shadow-[0_0_20px_rgba(201,168,76,0.1)]",
               "active:scale-[0.99]",
-              isShuffling
-                ? "opacity-0 -translate-y-2"
-                : "animate-[fadeSlideIn_0.5s_ease-out_forwards] opacity-0",
               "disabled:cursor-not-allowed disabled:opacity-40"
             )}
+            style={{
+              opacity: isShuffling ? 0 : 1,
+              transform: isShuffling ? "translateY(-8px)" : "translateY(0)",
+              transition: `opacity 400ms cubic-bezier(0.4, 0, 0.2, 1) ${index * 80}ms, transform 400ms cubic-bezier(0.4, 0, 0.2, 1) ${index * 80}ms, background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease`,
+              willChange: "opacity, transform",
+            }}
           >
-            <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#C9A84C]/10 text-[#C9A84C] group-hover:bg-[#C9A84C]/20 transition-all duration-300">
+            <span
+              className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#C9A84C]/10 text-[#C9A84C] group-hover:bg-[#C9A84C]/20"
+              style={{ transition: "background-color 200ms ease" }}
+            >
               {categoryIcons[idea.category]}
             </span>
             <div className="flex flex-col items-start text-left">
@@ -665,10 +705,10 @@ function SuggestMode({
             "flex items-center gap-2 px-4 py-2 rounded-lg",
             "text-xs text-white/40",
             "bg-white/[0.02] border border-white/[0.06]",
-            "transition-all duration-200",
             "hover:text-white/60 hover:bg-white/[0.04]",
             "disabled:opacity-30"
           )}
+          style={{ transition: "all 200ms ease" }}
         >
           {isShuffling ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -701,8 +741,8 @@ function AskMode({
   onSubmit: (e: React.FormEvent) => void
 }) {
   return (
-    <div className="flex flex-col items-center justify-center h-full min-h-[280px]">
-      <div className="w-full max-w-sm space-y-6">
+    <div className="flex flex-col items-center justify-center h-full min-h-[340px]">
+      <div className="w-full max-w-md space-y-6">
         <div className="text-center">
           <p className="text-white/40 text-sm mb-2">Describe your project idea</p>
           <p className="text-white/25 text-xs">Be specific about what you want to build</p>
@@ -717,15 +757,15 @@ function AskMode({
               placeholder={typedPlaceholder || "Describe your project idea..."}
               disabled={!isOn}
               className={cn(
-                "w-full px-4 py-4 rounded-xl",
+                "w-full px-5 py-4 rounded-xl",
                 "bg-white/[0.03]",
                 "border border-[#C9A84C]/20",
                 "text-sm text-white placeholder:text-white/30",
-                "transition-all duration-200",
                 "focus:outline-none focus:border-[#C9A84C]/40",
                 "focus:shadow-[0_0_20px_rgba(201,168,76,0.15)]",
                 "disabled:opacity-40"
               )}
+              style={{ transition: "border-color 300ms ease, box-shadow 300ms ease" }}
             />
           </div>
           <button
@@ -735,11 +775,11 @@ function AskMode({
               "w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl",
               "bg-[#C9A84C]/10 border border-[#C9A84C]/30",
               "text-[#C9A84C] text-sm font-medium",
-              "transition-all duration-200",
               "hover:bg-[#C9A84C]/20 hover:border-[#C9A84C]/50",
               "active:scale-[0.99]",
               "disabled:opacity-30 disabled:cursor-not-allowed"
             )}
+            style={{ transition: "all 300ms cubic-bezier(0.4, 0, 0.2, 1)" }}
           >
             <Send className="h-4 w-4" />
             Start Building
@@ -761,12 +801,12 @@ function BrainstormMode({
   onBrainstorm: () => void
 }) {
   return (
-    <div className="flex flex-col items-center justify-center h-full min-h-[280px]">
-      <div className="text-center space-y-6">
+    <div className="flex flex-col items-center justify-center h-full min-h-[340px]">
+      <div className="text-center space-y-8">
         <div>
-          <Zap className="h-12 w-12 text-[#C9A84C]/60 mx-auto mb-4" />
-          <p className="text-white/50 text-sm mb-2">No idea yet?</p>
-          <p className="text-white/30 text-xs max-w-xs mx-auto">
+          <Zap className="h-14 w-14 text-[#C9A84C]/60 mx-auto mb-4" />
+          <p className="text-white/50 text-base mb-2">No idea yet?</p>
+          <p className="text-white/30 text-sm max-w-sm mx-auto leading-relaxed">
             Let's brainstorm together. We'll explore a sample project to show you how NERVE works.
           </p>
         </div>
@@ -775,15 +815,15 @@ function BrainstormMode({
           onClick={onBrainstorm}
           disabled={!isOn}
           className={cn(
-            "inline-flex items-center gap-2 px-6 py-3 rounded-xl",
+            "inline-flex items-center gap-2 px-8 py-4 rounded-xl",
             "bg-[#C9A84C]/10 border border-[#C9A84C]/30",
             "text-[#C9A84C] text-sm font-medium",
-            "transition-all duration-300",
             "hover:bg-[#C9A84C]/20 hover:border-[#C9A84C]/50",
             "hover:shadow-[0_0_30px_rgba(201,168,76,0.2)]",
             "active:scale-[0.98]",
             "disabled:opacity-30"
           )}
+          style={{ transition: "all 300ms cubic-bezier(0.4, 0, 0.2, 1)" }}
         >
           <Sparkles className="h-4 w-4" />
           Start Brainstorming
@@ -824,30 +864,33 @@ function ChatMode({
   onGoToWorkspace: () => void
 }) {
   return (
-    <div className="flex flex-col h-full min-h-[280px]">
+    <div className="flex flex-col h-full min-h-[340px]">
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-4">
         <button
           onClick={onBack}
           disabled={isLoading}
           className={cn(
-            "flex items-center gap-1.5 px-2 py-1 rounded-lg",
+            "flex items-center gap-1.5 px-3 py-1.5 rounded-lg",
             "text-xs text-white/40",
-            "transition-all duration-200",
             "hover:text-white/60 hover:bg-white/[0.03]"
           )}
+          style={{ transition: "all 200ms ease" }}
         >
-          <ArrowLeft className="h-3 w-3" />
+          <ArrowLeft className="h-3.5 w-3.5" />
           Back
         </button>
         <div className="flex items-center gap-2 text-xs text-white/30">
-          <Sparkles className="h-3 w-3 text-[#C9A84C]" />
-          <span className="truncate max-w-[150px]">{selectedIdea}</span>
+          <Sparkles className="h-3.5 w-3.5 text-[#C9A84C]" />
+          <span className="truncate max-w-[180px]">{selectedIdea}</span>
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto space-y-3 mb-3 min-h-0">
+      {/* Messages - with smooth scroll */}
+      <div
+        className="flex-1 overflow-y-auto space-y-3 mb-4 min-h-0 pr-1"
+        style={{ scrollBehavior: "smooth" }}
+      >
         {messages.map((message, i) => (
           <div
             key={i}
@@ -855,16 +898,21 @@ function ChatMode({
               "flex",
               message.role === "user" ? "justify-end" : "justify-start"
             )}
+            style={{
+              opacity: 1,
+              transform: "translateY(0)",
+              animation: "messageSlideIn 400ms cubic-bezier(0.4, 0, 0.2, 1)",
+            }}
           >
             <div
               className={cn(
-                "max-w-[85%] rounded-xl px-3 py-2",
+                "max-w-[85%] rounded-xl px-4 py-3",
                 message.role === "user"
                   ? "bg-[#C9A84C]/20 border border-[#C9A84C]/30 text-white"
                   : "bg-white/[0.03] border border-white/[0.06] text-white/80"
               )}
             >
-              <div className="whitespace-pre-wrap text-xs leading-relaxed">
+              <div className="whitespace-pre-wrap text-sm leading-relaxed">
                 {message.content}
               </div>
             </div>
@@ -872,12 +920,15 @@ function ChatMode({
         ))}
 
         {isLoading && (
-          <div className="flex justify-start">
-            <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-2">
-              <div className="flex items-center gap-1.5">
-                <div className="h-1.5 w-1.5 rounded-full bg-[#C9A84C] animate-pulse" />
-                <div className="h-1.5 w-1.5 rounded-full bg-[#C9A84C] animate-pulse [animation-delay:150ms]" />
-                <div className="h-1.5 w-1.5 rounded-full bg-[#C9A84C] animate-pulse [animation-delay:300ms]" />
+          <div
+            className="flex justify-start"
+            style={{ animation: "messageSlideIn 300ms cubic-bezier(0.4, 0, 0.2, 1)" }}
+          >
+            <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-[#C9A84C] animate-[pulse_1.5s_ease-in-out_infinite]" />
+                <div className="h-2 w-2 rounded-full bg-[#C9A84C] animate-[pulse_1.5s_ease-in-out_infinite_200ms]" />
+                <div className="h-2 w-2 rounded-full bg-[#C9A84C] animate-[pulse_1.5s_ease-in-out_infinite_400ms]" />
               </div>
             </div>
           </div>
@@ -891,19 +942,19 @@ function ChatMode({
         <button
           onClick={onGoToWorkspace}
           className={cn(
-            "w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl",
+            "w-full flex items-center justify-center gap-2 px-4 py-4 rounded-xl",
             "bg-[#C9A84C]/20 border border-[#C9A84C]/40",
             "text-[#C9A84C] text-sm font-medium",
-            "transition-all duration-200",
             "hover:bg-[#C9A84C]/30",
             "active:scale-[0.99]"
           )}
+          style={{ transition: "all 300ms cubic-bezier(0.4, 0, 0.2, 1)" }}
         >
           Open Workspace
           <ArrowRight className="h-4 w-4" />
         </button>
       ) : (
-        <form onSubmit={onSubmit} className="flex gap-2">
+        <form onSubmit={onSubmit} className="flex gap-3">
           <input
             ref={inputRef as React.RefObject<HTMLInputElement>}
             value={input}
@@ -912,26 +963,26 @@ function ChatMode({
             placeholder="Type your response..."
             disabled={isLoading}
             className={cn(
-              "flex-1 px-3 py-2.5 rounded-xl",
+              "flex-1 px-4 py-3 rounded-xl",
               "bg-white/[0.03] border border-white/[0.06]",
               "text-sm text-white placeholder:text-white/30",
-              "transition-all duration-200",
               "focus:outline-none focus:border-[#C9A84C]/30",
               "disabled:opacity-50"
             )}
+            style={{ transition: "border-color 300ms ease, box-shadow 300ms ease" }}
           />
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
             className={cn(
-              "px-4 py-2.5 rounded-xl",
+              "px-4 py-3 rounded-xl",
               "bg-[#C9A84C]/20 border border-[#C9A84C]/30",
               "text-[#C9A84C]",
-              "transition-all duration-200",
               "hover:bg-[#C9A84C]/30",
               "active:scale-[0.98]",
               "disabled:opacity-30 disabled:cursor-not-allowed"
             )}
+            style={{ transition: "all 300ms cubic-bezier(0.4, 0, 0.2, 1)" }}
           >
             <Send className="h-4 w-4" />
           </button>

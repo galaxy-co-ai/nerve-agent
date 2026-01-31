@@ -14,7 +14,6 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
-  ChevronRight,
   Calendar,
   Edit3,
   AlertTriangle,
@@ -25,12 +24,19 @@ import {
   Moon,
   Eye,
   Loader2,
+  Info,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { H4, Muted } from "@/components/ui/typography"
 import { Badge } from "@/components/ui/badge"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 // =============================================================================
 // DESIGN TOKENS - Nerve Agent Premium Dark Metal Aesthetic
@@ -553,14 +559,15 @@ export function AgentDrawer() {
             </ScrollArea>
 
             {/* ===============================================================
-                INPUT FIELD - Gold accented
+                INPUT FIELD - Gold accented with subtle divider
                 =============================================================== */}
             <div
               className="p-4"
               style={{
                 borderTop: `1px solid ${AGENT_COLORS.edgeLight}`,
-                background: AGENT_COLORS.housing,
+                background: `linear-gradient(180deg, ${AGENT_COLORS.surface} 0%, ${AGENT_COLORS.housing} 30%)`,
                 borderBottomLeftRadius: "12px",
+                boxShadow: `inset 0 1px 0 ${AGENT_COLORS.edgeLight}`,
               }}
             >
               <form onSubmit={handleSubmit}>
@@ -702,7 +709,7 @@ function InboxTab({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05, ease: OVERSHOOT_EASE }}
-            className="p-4 rounded-xl space-y-3"
+            className="p-3 rounded-xl space-y-2.5"
             style={{
               background: AGENT_COLORS.surface,
               border: `1px solid ${AGENT_COLORS.edgeLight}`,
@@ -713,10 +720,10 @@ function InboxTab({
                 : `0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 ${AGENT_COLORS.edgeLight}`,
             }}
           >
-            {/* Header */}
+            {/* Header with info icon */}
             <div className="flex items-start gap-3">
               <div
-                className="p-2 rounded-lg"
+                className="p-2 rounded-lg flex-shrink-0"
                 style={{
                   background: `${color}15`,
                   color: color,
@@ -755,40 +762,63 @@ function InboxTab({
                   </span>
                 </div>
               </div>
+              {/* Info icon with tooltip for description */}
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className="p-1 rounded-md transition-colors flex-shrink-0"
+                      style={{ color: AGENT_COLORS.textMuted }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = AGENT_COLORS.elevated
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "transparent"
+                      }}
+                    >
+                      <Info className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="left"
+                    className="max-w-[240px] text-xs"
+                    style={{
+                      background: AGENT_COLORS.elevated,
+                      border: `1px solid ${AGENT_COLORS.edgeLight}`,
+                      color: AGENT_COLORS.textSecondary,
+                    }}
+                  >
+                    {suggestion.description}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
-
-            {/* Description */}
-            <p
-              className="text-sm"
-              style={{ color: AGENT_COLORS.textSecondary }}
-            >
-              {suggestion.description}
-            </p>
 
             {/* Agent suggestion */}
             <div className="flex items-center gap-2 text-sm">
-              <Sparkles className="h-3.5 w-3.5" style={{ color: AGENT_COLORS.gold }} />
+              <Sparkles className="h-3.5 w-3.5 flex-shrink-0" style={{ color: AGENT_COLORS.gold }} />
               <span style={{ color: AGENT_COLORS.textPrimary }}>{suggestion.proposedAction}</span>
             </div>
 
             {/* Actions */}
-            <div className="flex gap-2 pt-1">
+            <div className="flex gap-2">
               <Button
                 size="sm"
-                className="flex-1 h-8 text-xs font-semibold transition-all"
+                className="flex-1 h-7 text-xs font-semibold transition-all"
                 style={{
                   background: AGENT_COLORS.gold,
                   color: AGENT_COLORS.recessed,
                 }}
                 onClick={() => onAction(suggestion.id, "approve")}
               >
-                <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
+                <CheckCircle2 className="h-3 w-3 mr-1" />
                 Approve
               </Button>
               <Button
                 size="sm"
                 variant="outline"
-                className="h-8 text-xs"
+                className="h-7 text-xs"
                 style={{
                   background: "transparent",
                   border: `1px solid ${AGENT_COLORS.edgeLight}`,
@@ -796,17 +826,17 @@ function InboxTab({
                 }}
                 onClick={() => onEdit(suggestion)}
               >
-                <Edit3 className="h-3.5 w-3.5 mr-1.5" />
+                <Edit3 className="h-3 w-3 mr-1" />
                 Edit
               </Button>
               <Button
                 size="sm"
                 variant="ghost"
-                className="h-8 w-8 p-0"
+                className="h-7 w-7 p-0"
                 style={{ color: AGENT_COLORS.textMuted }}
                 onClick={() => onAction(suggestion.id, "dismiss")}
               >
-                <XCircle className="h-4 w-4" />
+                <XCircle className="h-3.5 w-3.5" />
               </Button>
             </div>
           </motion.div>
@@ -844,22 +874,22 @@ function ChatTab({
   return (
     <div className="space-y-4">
       {messages.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
+        <div className="flex flex-col items-center justify-center py-12 text-center">
           <div
-            className="p-4 rounded-2xl mb-4"
+            className="p-3 rounded-xl mb-3"
             style={{
               background: `linear-gradient(145deg, ${AGENT_COLORS.surface} 0%, ${AGENT_COLORS.recessed} 100%)`,
               border: `1px solid ${AGENT_COLORS.goldSubtle}`,
-              boxShadow: `0 0 20px ${AGENT_COLORS.goldGlow}`,
+              boxShadow: `0 0 16px ${AGENT_COLORS.goldGlow}`,
             }}
           >
-            <MessageSquare className="h-8 w-8" style={{ color: AGENT_COLORS.gold }} />
+            <MessageSquare className="h-5 w-5" style={{ color: AGENT_COLORS.gold }} />
           </div>
-          <p className="font-medium mb-1" style={{ color: AGENT_COLORS.textPrimary }}>
+          <p className="font-medium text-sm mb-0.5" style={{ color: AGENT_COLORS.textPrimary }}>
             Start a conversation
           </p>
           <Muted
-            className="text-sm max-w-[240px]"
+            className="text-xs max-w-[200px]"
             style={{ color: AGENT_COLORS.textMuted }}
           >
             Ask about your projects, blockers, or anything else.
@@ -1013,18 +1043,21 @@ function ActionsTab({
           label: "Client Update",
           description: "Summary of recent progress for stakeholders",
           icon: <Mail className="h-4 w-4" />,
+          shortcut: "⌘U",
         },
         {
           id: "weekly-summary",
           label: "Weekly Summary",
           description: "What got done this week across all projects",
           icon: <TrendingUp className="h-4 w-4" />,
+          shortcut: "⌘W",
         },
         {
           id: "standup-notes",
           label: "Standup Notes",
           description: "Yesterday, today, blockers - ready to paste",
           icon: <Coffee className="h-4 w-4" />,
+          shortcut: "⌘S",
         },
       ],
     },
@@ -1036,12 +1069,14 @@ function ActionsTab({
           label: "Blocker Analysis",
           description: "Why is this taking so long? Root cause breakdown",
           icon: <AlertTriangle className="h-4 w-4" />,
+          shortcut: "⌘B",
         },
         {
           id: "scope-check",
           label: "Scope Check",
           description: "Are we building what we planned? Drift detection",
           icon: <Eye className="h-4 w-4" />,
+          shortcut: "⌘D",
         },
       ],
     },
@@ -1053,6 +1088,7 @@ function ActionsTab({
           label: "Draft Follow-ups",
           description: "Emails for all stale blockers and waiting items",
           icon: <Mail className="h-4 w-4" />,
+          shortcut: "⌘F",
         },
       ],
     },
@@ -1076,6 +1112,7 @@ function ActionsTab({
               return (
                 <button
                   key={action.id}
+                  type="button"
                   onClick={() => executeAction(action.id)}
                   disabled={isDisabled}
                   className={cn(
@@ -1126,10 +1163,17 @@ function ActionsTab({
                         {action.description}
                       </p>
                     </div>
-                    <ChevronRight
-                      className="h-4 w-4 transition-colors"
-                      style={{ color: AGENT_COLORS.textMuted }}
-                    />
+                    {/* Keyboard shortcut */}
+                    <span
+                      className="text-[10px] font-mono px-1.5 py-0.5 rounded"
+                      style={{
+                        background: AGENT_COLORS.recessed,
+                        color: AGENT_COLORS.textMuted,
+                        border: `1px solid ${AGENT_COLORS.edgeLight}`,
+                      }}
+                    >
+                      {action.shortcut}
+                    </span>
                   </div>
                 </button>
               )
@@ -1174,9 +1218,9 @@ function MemoryTab({
   }
 
   return (
-    <div className="space-y-6">
-      {/* User Profile */}
-      <div className="space-y-3">
+    <div className="space-y-5">
+      {/* User Profile - with top margin for separation from tabs */}
+      <div className="space-y-2 pt-1">
         <div className="flex items-center justify-between">
           <span
             className="text-[10px] uppercase tracking-widest font-semibold"
@@ -1187,7 +1231,7 @@ function MemoryTab({
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 text-xs"
+            className="h-6 text-[10px] px-2"
             style={{ color: AGENT_COLORS.textMuted }}
           >
             <Edit3 className="h-3 w-3 mr-1" />
@@ -1195,19 +1239,19 @@ function MemoryTab({
           </Button>
         </div>
         <div
-          className="p-4 rounded-xl space-y-3"
+          className="p-3 rounded-xl"
           style={{
             background: AGENT_COLORS.surface,
             border: `1px solid ${AGENT_COLORS.edgeLight}`,
           }}
         >
-          <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="flex flex-col gap-2 text-xs">
             <div className="flex items-center gap-2">
-              <Calendar className="h-3.5 w-3.5" style={{ color: AGENT_COLORS.textMuted }} />
+              <Calendar className="h-3 w-3" style={{ color: AGENT_COLORS.textMuted }} />
               <span style={{ color: AGENT_COLORS.textSecondary }}>{preferences.timezone}</span>
             </div>
-            <div className="flex items-center gap-2 col-span-2">
-              <MessageSquare className="h-3.5 w-3.5" style={{ color: AGENT_COLORS.textMuted }} />
+            <div className="flex items-center gap-2">
+              <MessageSquare className="h-3 w-3" style={{ color: AGENT_COLORS.textMuted }} />
               <span style={{ color: AGENT_COLORS.textSecondary }}>
                 Prefers {preferences.preferredStyle} responses
               </span>
@@ -1217,7 +1261,7 @@ function MemoryTab({
       </div>
 
       {/* Learned Patterns */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <span
           className="text-[10px] uppercase tracking-widest font-semibold"
           style={{ color: AGENT_COLORS.textMuted }}
@@ -1225,65 +1269,63 @@ function MemoryTab({
           What I&apos;ve Learned
         </span>
         {learnedPatterns.length > 0 ? (
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {learnedPatterns.map((pattern, index) => (
               <div
                 key={index}
-                className="flex items-start gap-2 p-2.5 rounded-lg text-sm"
+                className="flex items-start gap-2 p-2 rounded-lg text-xs"
                 style={{
                   background: AGENT_COLORS.recessed,
                   border: `1px solid ${AGENT_COLORS.edgeLight}`,
                 }}
               >
-                <Brain className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" style={{ color: AGENT_COLORS.gold }} />
+                <Brain className="h-3 w-3 mt-0.5 flex-shrink-0" style={{ color: AGENT_COLORS.gold }} />
                 <span style={{ color: AGENT_COLORS.textSecondary }}>{pattern}</span>
               </div>
             ))}
           </div>
         ) : (
           <div
-            className="p-4 rounded-lg text-sm text-center"
+            className="flex items-center gap-2 p-2.5 rounded-lg text-xs"
             style={{
               background: AGENT_COLORS.recessed,
               color: AGENT_COLORS.textMuted,
               border: `1px solid ${AGENT_COLORS.edgeLight}`,
             }}
           >
-            <Sparkles className="h-5 w-5 mx-auto mb-2" style={{ color: AGENT_COLORS.goldMuted }} />
-            No patterns learned yet. Keep using the agent!
+            <Sparkles className="h-3.5 w-3.5 flex-shrink-0" style={{ color: AGENT_COLORS.goldMuted }} />
+            <span>No patterns learned yet. Keep using the agent!</span>
           </div>
         )}
-        <p className="text-[11px] px-1" style={{ color: AGENT_COLORS.textMuted }}>
-          Patterns are learned from your activity. Nothing is shared externally.
-        </p>
       </div>
 
       {/* Agent Behavior Settings with custom toggle */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <span
           className="text-[10px] uppercase tracking-widest font-semibold"
           style={{ color: AGENT_COLORS.textMuted }}
         >
           Agent Behavior
         </span>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {agentSettings.map((setting) => {
             const isEnabled = preferences[setting.id] as boolean
             return (
               <button
                 key={setting.id}
+                type="button"
                 onClick={() => onToggle(setting.id, !isEnabled)}
-                className="w-full flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all"
+                className="w-full flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-all"
                 style={{
                   background: AGENT_COLORS.surface,
                   border: `1px solid ${AGENT_COLORS.edgeLight}`,
                 }}
               >
                 <div className="flex-1 min-w-0 pr-3 text-left">
-                  <p className="text-sm font-medium" style={{ color: AGENT_COLORS.textPrimary }}>
+                  <p className="text-sm font-semibold" style={{ color: AGENT_COLORS.textPrimary }}>
                     {setting.label}
                   </p>
-                  <p className="text-xs" style={{ color: AGENT_COLORS.textMuted }}>
+                  <p className="text-[11px]" style={{ color: AGENT_COLORS.textMuted }}>
                     {setting.description}
                   </p>
                 </div>
@@ -1321,17 +1363,6 @@ function MemoryTab({
               </button>
             )
           })}
-        </div>
-      </div>
-
-      {/* Soul signature */}
-      <div
-        className="pt-4"
-        style={{ borderTop: `1px solid ${AGENT_COLORS.edgeLight}` }}
-      >
-        <div className="flex items-center gap-2 text-xs" style={{ color: AGENT_COLORS.textMuted }}>
-          <Sparkles className="h-3.5 w-3.5" style={{ color: AGENT_COLORS.gold }} />
-          <span>Nerve Agent v0.2 · Direct. Opinionated. Useful.</span>
         </div>
       </div>
     </div>
