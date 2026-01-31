@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useState, useRef, useCallback } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Power } from "lucide-react"
 
 interface ColorShowcaseProps {
@@ -14,35 +14,13 @@ interface ColorShowcaseProps {
  */
 export function ColorShowcase({ palette }: ColorShowcaseProps) {
   const [activeCategory, setActiveCategory] = useState<string>("tags")
-  const [isOn, setIsOn] = useState(true)
+  const [isOn, setIsOn] = useState(true) // Master power - controls switch + NERVE UI glow
   const [outputValue] = useState(0.75)
-  const [intensity, setIntensity] = useState(0.65) // Orb slider intensity
   const [mode, setMode] = useState<"colors" | "typography" | "primitives" | "components" | "backgrounds" | "css">("colors")
 
-  // Extract palette categories
-  const tags = palette["tags"] || {}
-  const text = palette["text"] || {}
-  const borders = palette["borders"] || {}
-  const semantic = palette["semantic"] || {}
+  // Gold accent color for neon glow
   const gold = palette["gold-accent"] || {}
-  const backgrounds = palette["background-layers"] || {}
-
-  // Fallback values
   const goldPrimary = gold["nerve-gold-400"] || "#C9A84C"
-  const goldLight = gold["nerve-gold-300"] || "#D4B878"
-  const goldDark = gold["nerve-gold-500"] || "#B8943C"
-
-  // Calculate orb position based on selected category
-  const categoryPositions: Record<string, { x: number; y: number }> = {
-    tags: { x: 0.67, y: 0.29 },
-    text: { x: 0.35, y: 0.45 },
-    borders: { x: 0.78, y: 0.55 },
-    semantic: { x: 0.25, y: 0.72 },
-    "gold-accent": { x: 0.55, y: 0.38 },
-    "background-layers": { x: 0.45, y: 0.68 },
-  }
-
-  const orbPos = categoryPositions[activeCategory] || { x: 0.5, y: 0.5 }
 
   return (
     <div className="space-y-4">
@@ -73,30 +51,11 @@ export function ColorShowcase({ palette }: ColorShowcaseProps) {
 
         {/* Header */}
         <div className="relative flex items-center justify-between px-1 sm:px-2 py-2 sm:py-3 mb-1.5">
-          {/* Left: Intensity Slider with Orb */}
-          <IntensitySlider
-            value={intensity}
-            onChange={setIntensity}
-            color={goldPrimary}
-            lightColor={goldLight}
-          />
+          {/* Left: Glow Toggle Switch - linked to master power */}
+          <GlowSwitch isOn={isOn} onToggle={() => setIsOn(!isOn)} />
 
-          {/* Center: Logo/Title - Engraved with gold glow based on intensity */}
-          <span
-            className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-[0.25em] sm:tracking-[0.3em]"
-            style={{
-              color: "#151517",
-              textShadow: `
-                0 -1px 1px rgba(0,0,0,0.6),
-                0 1px 1px rgba(255,255,255,0.1),
-                0 2px 3px rgba(0,0,0,0.4),
-                0 0 ${20 + intensity * 30}px rgba(201, 168, 76, ${intensity * 0.4}),
-                0 0 ${10 + intensity * 20}px rgba(201, 168, 76, ${intensity * 0.3})
-              `,
-            }}
-          >
-            NERVE UI
-          </span>
+          {/* Center: Logo/Title - Neon sign effect with warm-up and flicker */}
+          <NeonText isOn={isOn} color={goldPrimary} />
 
           {/* Right: Output + Power */}
           <div className="flex items-center gap-2 sm:gap-3">
@@ -173,59 +132,6 @@ export function ColorShowcase({ palette }: ColorShowcaseProps) {
             <span className="text-[9px] sm:text-[10px] font-medium tracking-[0.15em] text-white/35 uppercase">
               {activeCategory.replace("-", " ").replace("nerve ", "")} — {Object.keys(palette[activeCategory] || {}).length}
             </span>
-          </div>
-
-          {/* Left Label - Instrument style */}
-          <div className="absolute left-3 sm:left-4 md:left-5 top-1/2 -translate-y-1/2 z-10 hidden sm:block">
-            <span
-              className="text-[9px] sm:text-[10px] font-medium tracking-[0.15em] text-white/35 uppercase block"
-              style={{ writingMode: "vertical-lr", transform: "rotate(180deg)" }}
-            >
-              Intensity — {Math.round(orbPos.y * 100)}%
-            </span>
-          </div>
-
-          {/* Crosshairs */}
-          <div
-            className="absolute top-0 bottom-0 w-px bg-white/10 pointer-events-none transition-all duration-300"
-            style={{ left: `${orbPos.x * 100}%` }}
-          />
-          <div
-            className="absolute left-0 right-0 h-px bg-white/10 pointer-events-none transition-all duration-300"
-            style={{ top: `${orbPos.y * 100}%` }}
-          />
-
-          {/* Center crosshair dot */}
-          <div
-            className="absolute w-2 h-2 rounded-full border border-white/20 pointer-events-none transition-all duration-300"
-            style={{
-              left: `${orbPos.x * 100}%`,
-              top: `${orbPos.y * 100}%`,
-              transform: "translate(-50%, -50%)",
-            }}
-          />
-
-          {/* Glowing Orb - responsive size */}
-          <div
-            className="absolute transition-all duration-300 ease-out"
-            style={{
-              left: `${orbPos.x * 100}%`,
-              top: `${orbPos.y * 100}%`,
-              transform: "translate(-50%, -50%)",
-            }}
-          >
-            {/* Small screens */}
-            <div className="block sm:hidden">
-              <GlowingOrb color={goldPrimary} lightColor={goldLight} size={32} />
-            </div>
-            {/* Medium screens */}
-            <div className="hidden sm:block md:hidden">
-              <GlowingOrb color={goldPrimary} lightColor={goldLight} size={40} />
-            </div>
-            {/* Large screens */}
-            <div className="hidden md:block">
-              <GlowingOrb color={goldPrimary} lightColor={goldLight} size={48} />
-            </div>
           </div>
 
           {/* Category Hotspots (clickable regions) */}
@@ -413,156 +319,21 @@ function CornerBracket({ position }: { position: "top-left" | "top-right" | "bot
 }
 
 /**
- * Orb element - Physical ball bearing / polished metal sphere
+ * Glow Toggle Switch - Controls NERVE UI text glow
+ * Styled to match the pill indicator at the bottom
  */
-function GlowingOrb({ color, lightColor, size = 48 }: { color: string; lightColor: string; size?: number }) {
-  const satelliteSize = Math.max(10, size * 0.25)
+function GlowSwitch({ isOn, onToggle }: { isOn: boolean; onToggle: () => void }) {
+  const padding = 3
+
+  // Handle sizes to fit perfectly in track (track height - padding*2)
+  // Track: 36px (h-9) mobile, 40px (h-10) sm+
+  const handleSizeMobile = 30
+  const handleSizeSm = 34
 
   return (
-    <div className="relative" style={{ width: size * 2, height: size * 2 }}>
-      {/* Subtle ambient shadow on surface */}
-      <div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
-        style={{
-          width: size * 1.4,
-          height: size * 0.4,
-          marginTop: size * 0.6,
-          background: `radial-gradient(ellipse, rgba(0,0,0,0.4) 0%, transparent 70%)`,
-          filter: "blur(8px)",
-        }}
-      />
-
-      {/* Main orb - polished metal/glass sphere */}
-      <div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
-        style={{
-          width: size,
-          height: size,
-          background: `
-            radial-gradient(ellipse 40% 25% at 30% 20%, rgba(255,255,255,0.7) 0%, transparent 50%),
-            radial-gradient(ellipse 100% 100% at 50% 50%, ${lightColor} 0%, ${color} 35%, #1a1500 100%)
-          `,
-          boxShadow: `
-            inset -8px -8px 20px rgba(0,0,0,0.6),
-            inset 4px 4px 10px rgba(255,255,255,0.15),
-            0 4px 12px rgba(0,0,0,0.5),
-            0 2px 4px rgba(0,0,0,0.3)
-          `,
-        }}
-      >
-        {/* Primary specular highlight - sharp */}
-        <div
-          className="absolute rounded-full"
-          style={{
-            width: size * 0.22,
-            height: size * 0.12,
-            top: size * 0.12,
-            left: size * 0.2,
-            background: "rgba(255,255,255,0.9)",
-            filter: "blur(1px)",
-            transform: "rotate(-25deg)",
-          }}
-        />
-        {/* Secondary highlight - softer */}
-        <div
-          className="absolute rounded-full"
-          style={{
-            width: size * 0.35,
-            height: size * 0.2,
-            top: size * 0.08,
-            left: size * 0.15,
-            background: "rgba(255,255,255,0.25)",
-            filter: "blur(4px)",
-            transform: "rotate(-25deg)",
-          }}
-        />
-        {/* Rim light - bottom edge catch */}
-        <div
-          className="absolute rounded-full"
-          style={{
-            width: size * 0.5,
-            height: size * 0.15,
-            bottom: size * 0.08,
-            right: size * 0.1,
-            background: "rgba(255,255,255,0.08)",
-            filter: "blur(3px)",
-          }}
-        />
-      </div>
-
-      {/* Satellite ring - metal ring */}
-      <div
-        className="absolute rounded-full"
-        style={{
-          width: satelliteSize,
-          height: satelliteSize,
-          border: `2px solid ${color}`,
-          backgroundColor: "rgba(0,0,0,0.3)",
-          top: size * 0.3,
-          right: size * 0.25,
-          boxShadow: `
-            inset 1px 1px 2px rgba(255,255,255,0.2),
-            0 2px 4px rgba(0,0,0,0.4)
-          `,
-        }}
-      />
-    </div>
-  )
-}
-
-/**
- * Intensity Slider with draggable orb
- */
-function IntensitySlider({
-  value,
-  onChange,
-  color,
-  lightColor,
-}: {
-  value: number
-  onChange: (v: number) => void
-  color: string
-  lightColor: string
-}) {
-  const trackRef = useRef<HTMLDivElement>(null)
-  const [isDragging, setIsDragging] = useState(false)
-
-  const handleMove = useCallback(
-    (clientX: number) => {
-      if (!trackRef.current) return
-      const rect = trackRef.current.getBoundingClientRect()
-      const orbSize = 28
-      const padding = 4
-      const trackWidth = rect.width - orbSize - padding * 2
-      const x = clientX - rect.left - orbSize / 2 - padding
-      const newValue = Math.max(0, Math.min(1, x / trackWidth))
-      onChange(newValue)
-    },
-    [onChange]
-  )
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true)
-    handleMove(e.clientX)
-
-    const handleMouseMove = (e: MouseEvent) => handleMove(e.clientX)
-    const handleMouseUp = () => {
-      setIsDragging(false)
-      window.removeEventListener("mousemove", handleMouseMove)
-      window.removeEventListener("mouseup", handleMouseUp)
-    }
-
-    window.addEventListener("mousemove", handleMouseMove)
-    window.addEventListener("mouseup", handleMouseUp)
-  }
-
-  const orbSize = 28
-  const padding = 4
-
-  return (
-    <div
-      ref={trackRef}
-      className="relative h-9 sm:h-10 w-24 sm:w-32 rounded-full cursor-pointer"
+    <button
+      onClick={onToggle}
+      className="relative h-9 sm:h-10 w-16 sm:w-20 rounded-full cursor-pointer transition-colors duration-300 hover:scale-[1.02] active:scale-[0.98]"
       style={{
         backgroundColor: "#0a0a0c",
         boxShadow: `
@@ -572,47 +343,136 @@ function IntensitySlider({
         `,
         border: "1px solid rgba(0,0,0,0.3)",
       }}
-      onMouseDown={handleMouseDown}
     >
-      {/* Orb */}
+      {/* Toggle Handle - Dark matte metal circle (matches pill indicator) */}
+      {/* Mobile size */}
       <div
-        className="absolute top-1/2 -translate-y-1/2 transition-transform duration-75"
+        className="absolute top-1/2 rounded-full sm:hidden"
         style={{
-          left: `calc(${padding}px + ${value} * (100% - ${orbSize + padding * 2}px))`,
-          width: orbSize,
-          height: orbSize,
-          transform: `translateY(-50%) scale(${isDragging ? 1.05 : 1})`,
+          width: handleSizeMobile,
+          height: handleSizeMobile,
+          left: isOn
+            ? `calc(100% - ${handleSizeMobile + padding}px)`
+            : `${padding}px`,
+          transform: "translateY(-50%)",
+          backgroundColor: "#2a2a2e",
+          boxShadow: `
+            0 2px 6px rgba(0,0,0,0.4),
+            inset 0 1px 0 rgba(255,255,255,0.08),
+            inset 0 -1px 0 rgba(0,0,0,0.2)
+          `,
+          transition: "left 300ms cubic-bezier(0.25, 1.15, 0.5, 1)",
         }}
-      >
-        <div
-          className="w-full h-full rounded-full"
-          style={{
-            background: `
-              radial-gradient(ellipse 40% 25% at 30% 20%, rgba(255,255,255,0.7) 0%, transparent 50%),
-              radial-gradient(ellipse 100% 100% at 50% 50%, ${lightColor} 0%, ${color} 35%, #1a1500 100%)
-            `,
-            boxShadow: `
-              inset -4px -4px 10px rgba(0,0,0,0.6),
-              inset 2px 2px 6px rgba(255,255,255,0.15),
-              0 2px 8px rgba(0,0,0,0.5)
-            `,
-          }}
-        >
-          <div
-            className="absolute rounded-full"
-            style={{
-              width: "30%",
-              height: "18%",
-              top: "15%",
-              left: "20%",
-              background: "rgba(255,255,255,0.8)",
-              filter: "blur(1px)",
-              transform: "rotate(-25deg)",
-            }}
-          />
-        </div>
-      </div>
-    </div>
+      />
+      {/* SM+ size */}
+      <div
+        className="absolute top-1/2 rounded-full hidden sm:block"
+        style={{
+          width: handleSizeSm,
+          height: handleSizeSm,
+          left: isOn
+            ? `calc(100% - ${handleSizeSm + padding}px)`
+            : `${padding}px`,
+          transform: "translateY(-50%)",
+          backgroundColor: "#2a2a2e",
+          boxShadow: `
+            0 2px 6px rgba(0,0,0,0.4),
+            inset 0 1px 0 rgba(255,255,255,0.08),
+            inset 0 -1px 0 rgba(0,0,0,0.2)
+          `,
+          transition: "left 300ms cubic-bezier(0.25, 1.15, 0.5, 1)",
+        }}
+      />
+    </button>
+  )
+}
+
+/**
+ * NeonText - Premium neon sign effect with warm-up animation and flicker
+ * Simulates a real neon tube warming up and stabilizing
+ */
+function NeonText({ isOn, color }: { isOn: boolean; color: string }) {
+  const [glowIntensity, setGlowIntensity] = useState(0)
+  const [isAnimating, setIsAnimating] = useState(false)
+  const prevIsOn = useRef(isOn)
+
+  useEffect(() => {
+    // Only animate on turn-on transition (was off, now on)
+    if (isOn && !prevIsOn.current) {
+      setIsAnimating(true)
+
+      // Warm-up sequence: gradually increase intensity with flickers
+      const sequence = [
+        { intensity: 0.15, delay: 0 },      // Initial dim glow
+        { intensity: 0.25, delay: 150 },    // Warming...
+        { intensity: 0.4, delay: 300 },     // Getting brighter
+        { intensity: 0.6, delay: 500 },     // Almost there
+        { intensity: 0.2, delay: 700 },     // First flicker OFF
+        { intensity: 0.85, delay: 780 },    // Flicker back ON
+        { intensity: 0.3, delay: 920 },     // Second flicker OFF
+        { intensity: 1, delay: 1000 },      // Full power ON
+        { intensity: 0.92, delay: 1100 },   // Tiny settle flicker
+        { intensity: 1, delay: 1150 },      // Stable
+      ]
+
+      sequence.forEach(({ intensity, delay }) => {
+        setTimeout(() => setGlowIntensity(intensity), delay)
+      })
+
+      setTimeout(() => setIsAnimating(false), 1200)
+    } else if (!isOn && prevIsOn.current) {
+      // Turn off - quick fade
+      setGlowIntensity(0)
+    } else if (isOn && !isAnimating) {
+      // Already on and not animating - ensure full intensity
+      setGlowIntensity(1)
+    }
+
+    prevIsOn.current = isOn
+  }, [isOn, isAnimating])
+
+  // Initialize on mount
+  useEffect(() => {
+    if (isOn) setGlowIntensity(1)
+  }, [])
+
+  // Neon glow - premium tight edge glow, minimal spread
+  const neonGlow = glowIntensity > 0
+    ? `
+        /* Engraved base - always visible */
+        0 -1px 1px rgba(0,0,0,0.6),
+        0 1px 1px rgba(255,255,255,0.06),
+        0 2px 3px rgba(0,0,0,0.4),
+        /* Ultra-tight tube edge */
+        0 0 ${1 * glowIntensity}px ${color},
+        0 0 ${2 * glowIntensity}px ${color},
+        /* Crisp inner halo */
+        0 0 ${4 * glowIntensity}px rgba(201, 168, 76, ${0.9 * glowIntensity}),
+        /* Minimal outer glow */
+        0 0 ${6 * glowIntensity}px rgba(201, 168, 76, ${0.4 * glowIntensity})
+      `
+    : `
+        0 -1px 1px rgba(0,0,0,0.6),
+        0 1px 1px rgba(255,255,255,0.06),
+        0 2px 3px rgba(0,0,0,0.4)
+      `
+
+  // Text color shifts from dark engraved to lit neon
+  const textColor = glowIntensity > 0
+    ? `rgba(212, 184, 120, ${0.3 + glowIntensity * 0.7})`  // Gold-lit
+    : "#151517"  // Dark engraved
+
+  return (
+    <span
+      className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-[0.35em] sm:tracking-[0.4em]"
+      style={{
+        color: textColor,
+        textShadow: neonGlow,
+        transition: isAnimating ? "none" : "all 300ms ease-out",
+      }}
+    >
+      NERVE UI
+    </span>
   )
 }
 

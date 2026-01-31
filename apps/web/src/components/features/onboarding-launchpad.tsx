@@ -20,6 +20,7 @@ import {
   Palette,
   DollarSign,
   Smartphone,
+  Power,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getRandomIdeas, type ProjectIdea, type ProjectCategory } from "@/lib/project-ideas"
@@ -58,19 +59,9 @@ const PLACEHOLDER_IDEAS = [
   "Fitness app for busy parents...",
   "Client portal for freelancers...",
   "Personal CRM for networking...",
-  "Meditation app with progress tracking...",
-  "Code snippet library for developers...",
-  "Expense tracker for small teams...",
-  "Appointment scheduler with payments...",
-  "Language learning through conversations...",
-  "Portfolio builder for designers...",
-  "Meal prep planner with macros...",
-  "Reading list app with notes...",
-  "Time tracker that bills automatically...",
-  "Social media scheduler for creators...",
-  "Workout planner with AI coaching...",
-  "Plant care app with reminders...",
 ]
+
+type Mode = "suggest" | "ask" | "brainstorm"
 
 export function OnboardingLaunchpad() {
   const router = useRouter()
@@ -79,13 +70,16 @@ export function OnboardingLaunchpad() {
   const [customIdea, setCustomIdea] = useState("")
   const [isShuffling, setIsShuffling] = useState(false)
 
+  // Hardware unit state
+  const [isOn, setIsOn] = useState(true)
+  const [mode, setMode] = useState<Mode>("suggest")
+
   // Typing effect state
   const [typedPlaceholder, setTypedPlaceholder] = useState("")
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
 
-  // Conversation state - flip card instead of mode switch
+  // Conversation state
   const [isFlipped, setIsFlipped] = useState(false)
-  const [isFlipping, setIsFlipping] = useState(false)
   const [selectedIdea, setSelectedIdea] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
@@ -104,7 +98,7 @@ export function OnboardingLaunchpad() {
 
   // Typing effect for placeholder
   useEffect(() => {
-    if (isFlipped || customIdea) return
+    if (isFlipped || customIdea || mode !== "ask") return
 
     const currentIdea = PLACEHOLDER_IDEAS[placeholderIndex]
     let charIndex = 0
@@ -128,7 +122,7 @@ export function OnboardingLaunchpad() {
           timeout = setTimeout(() => {
             isDeleting = true
             type()
-          }, 2000) // Pause before deleting
+          }, 2000)
           return
         }
         timeout = setTimeout(type, 60)
@@ -137,24 +131,25 @@ export function OnboardingLaunchpad() {
 
     timeout = setTimeout(type, 500)
     return () => clearTimeout(timeout)
-  }, [placeholderIndex, isFlipped, customIdea])
+  }, [placeholderIndex, isFlipped, customIdea, mode])
 
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  // Focus input when card flips to chat
+  // Focus input when entering ask mode or chat
   useEffect(() => {
-    if (isFlipped) {
-      // Wait for flip animation (900ms) to complete before focusing
-      setTimeout(() => inputRef.current?.focus(), 950)
+    if (mode === "ask" && !isFlipped) {
+      setTimeout(() => inputRef.current?.focus(), 100)
     }
-  }, [isFlipped])
+    if (isFlipped) {
+      setTimeout(() => inputRef.current?.focus(), 100)
+    }
+  }, [mode, isFlipped])
 
   const handleShuffle = () => {
     setIsShuffling(true)
-    // Slow fade out, then swap, then cascade in
     setTimeout(() => {
       const newIdeas = getRandomIdeas(seenIds)
       setIdeas(newIdeas)
@@ -165,17 +160,7 @@ export function OnboardingLaunchpad() {
 
   const flipToChat = (ideaText: string, ideaName?: string) => {
     setSelectedIdea(ideaName || ideaText)
-    setIsFlipping(true)
-
-    // Trigger flip
-    setTimeout(() => {
-      setIsFlipped(true)
-    }, 50)
-
-    // Clear flipping state after animation (900ms)
-    setTimeout(() => {
-      setIsFlipping(false)
-    }, 950)
+    setIsFlipped(true)
 
     const initialMessage: Message = {
       role: "assistant",
@@ -186,14 +171,10 @@ export function OnboardingLaunchpad() {
   }
 
   const flipBack = () => {
-    setIsFlipping(true)
     setIsFlipped(false)
-    setTimeout(() => {
-      setIsFlipping(false)
-      setMessages([])
-      setSelectedIdea(null)
-      setProjectSlug(null)
-    }, 950)
+    setMessages([])
+    setSelectedIdea(null)
+    setProjectSlug(null)
   }
 
   const handleIdeaClick = (idea: ProjectIdea) => {
@@ -209,15 +190,7 @@ export function OnboardingLaunchpad() {
 
   const handleBrainstorm = () => {
     setSelectedIdea(SAMPLE_PROJECT.name)
-    setIsFlipping(true)
-
-    setTimeout(() => {
-      setIsFlipped(true)
-    }, 50)
-
-    setTimeout(() => {
-      setIsFlipping(false)
-    }, 950)
+    setIsFlipped(true)
 
     const initialMessage: Message = {
       role: "assistant",
@@ -293,293 +266,677 @@ export function OnboardingLaunchpad() {
     }
   }
 
-  // Card dimensions for flip
-  const CARD_HEIGHT = 520
-
   return (
     <div className="flex flex-1 flex-col items-center justify-center p-6 min-h-screen">
-      <div className="w-full max-w-xl space-y-4">
-        {/* Brand title - large, confident, tight to card */}
-        <div className="text-center">
-          <h1 className="relative text-5xl font-bold tracking-[0.3em] uppercase">
-            <span className="relative z-10 bg-gradient-to-t from-orange-500 via-white/90 to-white bg-clip-text text-transparent">
-              NERVE AGENT
-            </span>
-            {/* Subtle glow underneath */}
-            <span className="absolute inset-0 bg-gradient-to-t from-orange-500/40 via-transparent to-transparent blur-sm -z-10 translate-y-1" aria-hidden="true">
-              NERVE AGENT
-            </span>
-          </h1>
-        </div>
+      <div className="w-full max-w-xl space-y-6">
+        {/* Hardware Unit Container */}
+        <div
+          className="relative p-3 sm:p-4 rounded-[20px] sm:rounded-[24px]"
+          style={{
+            backgroundColor: "#1c1c1f",
+            borderTop: "1px solid rgba(255,255,255,0.08)",
+            borderBottom: "1px solid rgba(0,0,0,0.4)",
+            borderLeft: "1px solid rgba(255,255,255,0.05)",
+            borderRight: "1px solid rgba(0,0,0,0.3)",
+            boxShadow: `
+              0 25px 50px -12px rgba(0,0,0,0.5),
+              0 12px 24px -8px rgba(0,0,0,0.4),
+              0 4px 8px -2px rgba(0,0,0,0.3),
+              inset 0 1px 0 rgba(255,255,255,0.05)
+            `,
+          }}
+        >
+          {/* Subtle brushed metal highlight */}
+          <div
+            className="absolute inset-0 rounded-[inherit] pointer-events-none"
+            style={{
+              background: "linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0) 30%, rgba(0,0,0,0.1) 100%)",
+            }}
+          />
 
-        {/* Flip Card Container */}
-        <div className="flip-card" style={{ height: CARD_HEIGHT }}>
-          <div className={cn("flip-card-inner", isFlipped && "flipped", isFlipping && "flipping")}>
+          {/* Header */}
+          <div className="relative flex items-center justify-between px-2 py-3 mb-2">
+            {/* Left: Power Toggle Switch */}
+            <GlowSwitch isOn={isOn} onToggle={() => setIsOn(!isOn)} />
 
-            {/* FRONT: Selection Mode */}
-            <div className="flip-card-front">
-              <div className="glass-elevated rounded-2xl p-8 space-y-6 h-full flex flex-col">
-                {/* Idea chips - cascade animation */}
-                <div className="space-y-3 flex-1">
-                  <div className="flex flex-col gap-2 items-center">
-                    {ideas.map((idea, index) => (
-                      <button
-                        key={idea.id}
-                        onClick={() => handleIdeaClick(idea)}
-                        disabled={isShuffling || isFlipping}
-                        style={{
-                          animationDelay: isShuffling ? '0ms' : `${index * 150}ms`,
-                        }}
-                        className={cn(
-                          "group relative w-full max-w-md px-4 py-2.5 rounded-xl",
-                          "bg-white/[0.02] border border-white/[0.06]",
-                          "backdrop-blur-sm",
-                          "flex items-center justify-center",
-                          "transition-all duration-500 ease-out",
-                          "hover:bg-white/[0.05] hover:border-white/[0.12]",
-                          "hover:shadow-[0_0_30px_rgba(255,107,53,0.08)]",
-                          "active:scale-[0.99]",
-                          isShuffling
-                            ? "opacity-0 -translate-y-2"
-                            : "animate-[fadeSlideIn_0.6s_ease-out_forwards] opacity-0",
-                          "disabled:cursor-not-allowed"
-                        )}
-                      >
-                        {/* Centered group: icon + text left-aligned within */}
-                        <div className="flex items-center gap-3">
-                          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-orange-500/10 text-orange-400 group-hover:bg-orange-500/20 group-hover:shadow-[0_0_12px_rgba(255,107,53,0.3)] transition-all duration-300">
-                            {categoryIcons[idea.category]}
-                          </span>
-                          <div className="flex flex-col items-start text-left">
-                            <span className="font-medium text-sm text-foreground/90">{idea.name}</span>
-                            <span className="text-[11px] text-muted-foreground/50">{idea.tagline}</span>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex justify-center pt-1">
-                    <button
-                      onClick={handleShuffle}
-                      disabled={isShuffling || isFlipping}
-                      className={cn(
-                        "flex items-center gap-2 px-3 py-1.5 rounded-md",
-                        "text-xs text-muted-foreground/60",
-                        "transition-all duration-200",
-                        "hover:text-foreground/70 hover:bg-white/[0.03]",
-                        "disabled:opacity-40"
-                      )}
-                    >
-                      {isShuffling ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                      ) : (
-                        <Shuffle className="h-3 w-3" />
-                      )}
-                      Shuffle
-                    </button>
-                  </div>
-                </div>
+            {/* Center: NERVE AGENT neon title */}
+            <NeonText isOn={isOn} />
 
-                {/* Subtle divider */}
-                <div className="flex items-center gap-4">
-                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                  <span className="text-[10px] uppercase tracking-widest text-muted-foreground/50">or</span>
-                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                </div>
+            {/* Right: Power button */}
+            <button
+              onClick={() => setIsOn(!isOn)}
+              className="relative flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200 hover:scale-105 active:scale-95"
+              style={{
+                border: `2px solid ${isOn ? "#C9A84C" : "rgba(255,255,255,0.2)"}`,
+                backgroundColor: "#0f0f11",
+                boxShadow: isOn
+                  ? "0 0 16px rgba(201, 168, 76, 0.25), inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 4px rgba(0,0,0,0.3)"
+                  : "inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 4px rgba(0,0,0,0.3)",
+              }}
+            >
+              <Power
+                size={16}
+                strokeWidth={2.5}
+                style={{ color: isOn ? "#C9A84C" : "rgba(255,255,255,0.4)" }}
+              />
+            </button>
+          </div>
 
-                {/* Custom idea input */}
-                <form onSubmit={handleCustomSubmit}>
-                  <div className="flex gap-2">
-                    <input
-                      value={customIdea}
-                      onChange={(e) => setCustomIdea(e.target.value)}
-                      placeholder={typedPlaceholder || "Describe your project idea..."}
-                      disabled={isFlipping}
-                      className={cn(
-                        "flex-1 px-4 py-3 rounded-xl",
-                        "bg-white/[0.03]",
-                        "border border-orange-500/20",
-                        "shadow-[0_0_10px_rgba(255,107,53,0.08)]",
-                        "text-sm text-white font-medium placeholder:text-muted-foreground/40",
-                        "transition-all duration-150",
-                        "focus:outline-none focus:border-orange-500/40",
-                        "focus:shadow-[0_0_15px_rgba(255,107,53,0.15)]"
-                      )}
+          {/* Canvas Area - Recessed into dark metal housing */}
+          <div className="relative rounded-xl" style={{ padding: "2px" }}>
+            {/* Outer bezel - dark metal recess */}
+            <div
+              className="absolute inset-0 rounded-xl"
+              style={{
+                background: `linear-gradient(180deg,
+                  rgba(0,0,0,0.5) 0%,
+                  rgba(0,0,0,0.2) 30%,
+                  rgba(255,255,255,0.02) 70%,
+                  rgba(255,255,255,0.04) 100%
+                )`,
+              }}
+            />
+            {/* Inner screen */}
+            <div
+              className="relative overflow-hidden rounded-[10px] p-6"
+              style={{
+                backgroundColor: "#08080a",
+                boxShadow: `
+                  inset 0 3px 12px rgba(0,0,0,0.9),
+                  inset 0 1px 3px rgba(0,0,0,0.6),
+                  inset 0 0 0 1px rgba(0,0,0,0.5)
+                `,
+                minHeight: "340px",
+                opacity: isOn ? 1 : 0.3,
+                transition: "opacity 500ms ease-out",
+              }}
+            >
+              {/* Dot Grid */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 1px)",
+                  backgroundSize: "20px 20px",
+                  opacity: isOn ? 1 : 0.3,
+                }}
+              />
+
+              {/* Content based on mode */}
+              {!isFlipped ? (
+                <div className="relative z-10">
+                  {mode === "suggest" && (
+                    <SuggestMode
+                      ideas={ideas}
+                      isShuffling={isShuffling}
+                      isOn={isOn}
+                      onIdeaClick={handleIdeaClick}
+                      onShuffle={handleShuffle}
                     />
-                    <button
-                      type="submit"
-                      disabled={!customIdea.trim() || isFlipping}
-                      className={cn(
-                        "px-4 py-3 rounded-xl",
-                        "accent-smolder text-white font-medium",
-                        "transition-all duration-150",
-                        "hover:accent-smolder-glow",
-                        "active:scale-[0.98]",
-                        "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none"
-                      )}
-                    >
-                      <Send className="h-4 w-4" />
-                    </button>
-                  </div>
-                </form>
-
-                {/* Subtle divider */}
-                <div className="flex items-center gap-4">
-                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                  <span className="text-[10px] uppercase tracking-widest text-muted-foreground/50">or</span>
-                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                </div>
-
-                {/* Brainstorm CTA */}
-                <div className="text-center">
-                  <button
-                    onClick={handleBrainstorm}
-                    disabled={isFlipping}
-                    className={cn(
-                      "inline-flex items-center gap-2 px-6 py-3 rounded-2xl",
-                      "bg-white/[0.04] backdrop-blur-xl",
-                      "border border-white/[0.08]",
-                      "text-sm font-medium text-foreground/70",
-                      "shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]",
-                      "transition-all duration-300",
-                      "hover:bg-white/[0.07] hover:text-foreground/90",
-                      "hover:border-white/[0.12]",
-                      "hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_0_20px_rgba(255,255,255,0.03)]",
-                      "active:scale-[0.98]"
-                    )}
-                  >
-                    <Zap className="h-4 w-4 text-orange-400/80" />
-                    Click to Brainstorm
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* BACK: Chat Mode */}
-            <div className="flip-card-back">
-              <div className="glass-elevated rounded-2xl p-6 h-full flex flex-col">
-                {/* Header with back button */}
-                <div className="flex items-center justify-between mb-4">
-                  <button
-                    onClick={flipBack}
-                    disabled={isFlipping || isLoading}
-                    className={cn(
-                      "flex items-center gap-1.5 px-2 py-1 rounded-lg",
-                      "text-xs text-muted-foreground/60",
-                      "transition-all duration-200",
-                      "hover:text-foreground/70 hover:bg-white/[0.03]"
-                    )}
-                  >
-                    <ArrowLeft className="h-3 w-3" />
-                    Back
-                  </button>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Sparkles className="h-3 w-3 text-orange-400" />
-                    <span className="truncate max-w-[180px]">{selectedIdea}</span>
-                  </div>
-                </div>
-
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto space-y-3 mb-3 min-h-0">
-                  {messages.map((message, i) => (
-                    <div
-                      key={i}
-                      className={cn(
-                        "flex",
-                        message.role === "user" ? "justify-end" : "justify-start"
-                      )}
-                    >
-                      <div
-                        className={cn(
-                          "max-w-[90%] rounded-xl px-3 py-2 transition-all duration-150",
-                          message.role === "user"
-                            ? "accent-smolder text-white"
-                            : "bg-white/[0.03] border border-white/[0.06]"
-                        )}
-                      >
-                        <div className="whitespace-pre-wrap text-xs leading-relaxed">
-                          {message.content}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-
-                  {isLoading && (
-                    <div className="flex justify-start">
-                      <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-2">
-                        <div className="flex items-center gap-1.5">
-                          <div className="h-1.5 w-1.5 rounded-full bg-orange-400 animate-pulse" />
-                          <div className="h-1.5 w-1.5 rounded-full bg-orange-400 animate-pulse [animation-delay:150ms]" />
-                          <div className="h-1.5 w-1.5 rounded-full bg-orange-400 animate-pulse [animation-delay:300ms]" />
-                        </div>
-                      </div>
-                    </div>
                   )}
-
-                  <div ref={messagesEndRef} />
-                </div>
-
-                {/* Input or CTA */}
-                {projectSlug ? (
-                  <button
-                    onClick={handleGoToWorkspace}
-                    className={cn(
-                      "w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl",
-                      "accent-smolder text-white text-sm font-medium",
-                      "transition-all duration-150",
-                      "hover:accent-smolder-glow",
-                      "active:scale-[0.99]"
-                    )}
-                  >
-                    Open Workspace
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                ) : (
-                  <form onSubmit={handleChatSubmit} className="flex gap-2">
-                    <input
-                      ref={inputRef}
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder="Type your response..."
-                      disabled={isLoading}
-                      className={cn(
-                        "flex-1 px-3 py-2.5 rounded-xl",
-                        "bg-white/[0.03] border border-white/[0.06]",
-                        "text-sm text-foreground placeholder:text-muted-foreground/50",
-                        "transition-all duration-150",
-                        "focus:outline-none focus:border-orange-500/30",
-                        "focus:shadow-[0_0_15px_rgba(255,107,53,0.1)]",
-                        "disabled:opacity-50"
-                      )}
+                  {mode === "ask" && (
+                    <AskMode
+                      customIdea={customIdea}
+                      setCustomIdea={setCustomIdea}
+                      typedPlaceholder={typedPlaceholder}
+                      inputRef={inputRef}
+                      isOn={isOn}
+                      onSubmit={handleCustomSubmit}
                     />
-                    <button
-                      type="submit"
-                      disabled={!input.trim() || isLoading}
-                      className={cn(
-                        "px-3 py-2.5 rounded-xl",
-                        "accent-smolder text-white font-medium",
-                        "transition-all duration-150",
-                        "hover:accent-smolder-glow",
-                        "active:scale-[0.98]",
-                        "disabled:opacity-30 disabled:cursor-not-allowed"
-                      )}
-                    >
-                      <Send className="h-4 w-4" />
-                    </button>
-                  </form>
-                )}
-              </div>
+                  )}
+                  {mode === "brainstorm" && (
+                    <BrainstormMode
+                      isOn={isOn}
+                      onBrainstorm={handleBrainstorm}
+                    />
+                  )}
+                </div>
+              ) : (
+                <ChatMode
+                  selectedIdea={selectedIdea}
+                  messages={messages}
+                  input={input}
+                  setInput={setInput}
+                  isLoading={isLoading}
+                  projectSlug={projectSlug}
+                  inputRef={inputRef}
+                  messagesEndRef={messagesEndRef}
+                  onBack={flipBack}
+                  onSubmit={handleChatSubmit}
+                  onKeyDown={handleKeyDown}
+                  onGoToWorkspace={handleGoToWorkspace}
+                />
+              )}
             </div>
+          </div>
 
+          {/* Pill Toggle Footer - 3 modes */}
+          <div
+            className="mt-3 rounded-full"
+            style={{
+              padding: "2px",
+              background: `linear-gradient(180deg,
+                rgba(0,0,0,0.4) 0%,
+                rgba(0,0,0,0.2) 40%,
+                rgba(255,255,255,0.02) 100%
+              )`,
+            }}
+          >
+            <div
+              className="relative flex items-center h-11 p-1.5 rounded-full"
+              style={{
+                backgroundColor: "#0f0f11",
+                boxShadow: `
+                  inset 0 2px 6px rgba(0,0,0,0.6),
+                  inset 0 -1px 0 rgba(255,255,255,0.03)
+                `,
+                border: "1px solid rgba(0,0,0,0.3)",
+              }}
+            >
+              {/* Sliding indicator */}
+              <div
+                className="absolute"
+                style={{
+                  width: "calc(33.333% - 6px)",
+                  height: "calc(100% - 8px)",
+                  borderRadius: "9999px",
+                  backgroundColor: "#2a2a2e",
+                  left: mode === "suggest"
+                    ? "4px"
+                    : mode === "ask"
+                    ? "calc(33.333% + 0px)"
+                    : "calc(66.666% - 4px)",
+                  top: "4px",
+                  boxShadow: `
+                    0 2px 6px rgba(0,0,0,0.4),
+                    inset 0 1px 0 rgba(255,255,255,0.08),
+                    inset 0 -1px 0 rgba(0,0,0,0.2)
+                  `,
+                  transition: "left 350ms cubic-bezier(0.25, 1.15, 0.5, 1)",
+                }}
+              />
+
+              {/* Options */}
+              {[
+                { value: "suggest" as Mode, label: "SUGGEST" },
+                { value: "ask" as Mode, label: "ASK" },
+                { value: "brainstorm" as Mode, label: "STORM" },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => {
+                    setMode(option.value)
+                    if (isFlipped) flipBack()
+                  }}
+                  disabled={!isOn}
+                  className="relative z-10 flex-1 text-center font-semibold text-[11px] tracking-[0.08em] transition-colors duration-200 disabled:opacity-30"
+                  style={{
+                    color: option.value === mode ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.35)",
+                  }}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Tagline - signature at the bottom */}
-        <p className="text-center text-sm tracking-widest text-muted-foreground/50 font-mono pt-2">
+        {/* Tagline */}
+        <p className="text-center text-sm tracking-widest text-white/30 font-mono">
           /build → /ship → /repeat
         </p>
       </div>
+    </div>
+  )
+}
+
+/**
+ * Glow Toggle Switch
+ */
+function GlowSwitch({ isOn, onToggle }: { isOn: boolean; onToggle: () => void }) {
+  const padding = 3
+  const handleSize = 34
+
+  return (
+    <button
+      onClick={onToggle}
+      className="relative h-10 w-20 rounded-full cursor-pointer transition-colors duration-300 hover:scale-[1.02] active:scale-[0.98]"
+      style={{
+        backgroundColor: "#0a0a0c",
+        boxShadow: `
+          inset 0 2px 6px rgba(0,0,0,0.8),
+          inset 0 1px 2px rgba(0,0,0,0.5),
+          0 1px 0 rgba(255,255,255,0.05)
+        `,
+        border: "1px solid rgba(0,0,0,0.3)",
+      }}
+    >
+      <div
+        className="absolute top-1/2 rounded-full"
+        style={{
+          width: handleSize,
+          height: handleSize,
+          left: isOn ? `calc(100% - ${handleSize + padding}px)` : `${padding}px`,
+          transform: "translateY(-50%)",
+          backgroundColor: "#2a2a2e",
+          boxShadow: `
+            0 2px 6px rgba(0,0,0,0.4),
+            inset 0 1px 0 rgba(255,255,255,0.08),
+            inset 0 -1px 0 rgba(0,0,0,0.2)
+          `,
+          transition: "left 300ms cubic-bezier(0.25, 1.15, 0.5, 1)",
+        }}
+      />
+    </button>
+  )
+}
+
+/**
+ * NeonText - NERVE AGENT with neon effect
+ */
+function NeonText({ isOn }: { isOn: boolean }) {
+  const [glowIntensity, setGlowIntensity] = useState(0)
+  const [isAnimating, setIsAnimating] = useState(false)
+  const prevIsOn = useRef(isOn)
+
+  useEffect(() => {
+    if (isOn && !prevIsOn.current) {
+      setIsAnimating(true)
+      const sequence = [
+        { intensity: 0.15, delay: 0 },
+        { intensity: 0.25, delay: 150 },
+        { intensity: 0.4, delay: 300 },
+        { intensity: 0.6, delay: 500 },
+        { intensity: 0.2, delay: 700 },
+        { intensity: 0.85, delay: 780 },
+        { intensity: 0.3, delay: 920 },
+        { intensity: 1, delay: 1000 },
+        { intensity: 0.92, delay: 1100 },
+        { intensity: 1, delay: 1150 },
+      ]
+      sequence.forEach(({ intensity, delay }) => {
+        setTimeout(() => setGlowIntensity(intensity), delay)
+      })
+      setTimeout(() => setIsAnimating(false), 1200)
+    } else if (!isOn && prevIsOn.current) {
+      setGlowIntensity(0)
+    } else if (isOn && !isAnimating) {
+      setGlowIntensity(1)
+    }
+    prevIsOn.current = isOn
+  }, [isOn, isAnimating])
+
+  useEffect(() => {
+    if (isOn) setGlowIntensity(1)
+  }, [])
+
+  const neonGlow = glowIntensity > 0
+    ? `
+        0 -1px 1px rgba(0,0,0,0.6),
+        0 1px 1px rgba(255,255,255,0.06),
+        0 2px 3px rgba(0,0,0,0.4),
+        0 0 ${1 * glowIntensity}px #C9A84C,
+        0 0 ${2 * glowIntensity}px #C9A84C,
+        0 0 ${4 * glowIntensity}px rgba(201, 168, 76, ${0.9 * glowIntensity}),
+        0 0 ${6 * glowIntensity}px rgba(201, 168, 76, ${0.4 * glowIntensity})
+      `
+    : `
+        0 -1px 1px rgba(0,0,0,0.6),
+        0 1px 1px rgba(255,255,255,0.06),
+        0 2px 3px rgba(0,0,0,0.4)
+      `
+
+  const textColor = glowIntensity > 0
+    ? `rgba(212, 184, 120, ${0.3 + glowIntensity * 0.7})`
+    : "#151517"
+
+  return (
+    <span
+      className="text-2xl sm:text-3xl font-bold tracking-[0.35em]"
+      style={{
+        color: textColor,
+        textShadow: neonGlow,
+        transition: isAnimating ? "none" : "all 300ms ease-out",
+      }}
+    >
+      NERVE
+    </span>
+  )
+}
+
+/**
+ * Suggest Mode - Project idea chips
+ */
+function SuggestMode({
+  ideas,
+  isShuffling,
+  isOn,
+  onIdeaClick,
+  onShuffle,
+}: {
+  ideas: ProjectIdea[]
+  isShuffling: boolean
+  isOn: boolean
+  onIdeaClick: (idea: ProjectIdea) => void
+  onShuffle: () => void
+}) {
+  return (
+    <div className="space-y-4">
+      <div className="text-center mb-6">
+        <p className="text-white/40 text-sm">Pick a project to build</p>
+      </div>
+
+      <div className="flex flex-col gap-2.5">
+        {ideas.map((idea, index) => (
+          <button
+            key={idea.id}
+            onClick={() => onIdeaClick(idea)}
+            disabled={isShuffling || !isOn}
+            style={{ animationDelay: isShuffling ? '0ms' : `${index * 100}ms` }}
+            className={cn(
+              "group relative w-full px-4 py-3 rounded-xl",
+              "bg-white/[0.03] border border-white/[0.08]",
+              "flex items-center gap-3",
+              "transition-all duration-300 ease-out",
+              "hover:bg-white/[0.06] hover:border-white/[0.15]",
+              "hover:shadow-[0_0_20px_rgba(201,168,76,0.1)]",
+              "active:scale-[0.99]",
+              isShuffling
+                ? "opacity-0 -translate-y-2"
+                : "animate-[fadeSlideIn_0.5s_ease-out_forwards] opacity-0",
+              "disabled:cursor-not-allowed disabled:opacity-40"
+            )}
+          >
+            <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#C9A84C]/10 text-[#C9A84C] group-hover:bg-[#C9A84C]/20 transition-all duration-300">
+              {categoryIcons[idea.category]}
+            </span>
+            <div className="flex flex-col items-start text-left">
+              <span className="font-medium text-sm text-white/90">{idea.name}</span>
+              <span className="text-xs text-white/40">{idea.tagline}</span>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <div className="flex justify-center pt-2">
+        <button
+          onClick={onShuffle}
+          disabled={isShuffling || !isOn}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2 rounded-lg",
+            "text-xs text-white/40",
+            "bg-white/[0.02] border border-white/[0.06]",
+            "transition-all duration-200",
+            "hover:text-white/60 hover:bg-white/[0.04]",
+            "disabled:opacity-30"
+          )}
+        >
+          {isShuffling ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Shuffle className="h-3.5 w-3.5" />
+          )}
+          Shuffle
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Ask Mode - Custom idea input
+ */
+function AskMode({
+  customIdea,
+  setCustomIdea,
+  typedPlaceholder,
+  inputRef,
+  isOn,
+  onSubmit,
+}: {
+  customIdea: string
+  setCustomIdea: (v: string) => void
+  typedPlaceholder: string
+  inputRef: React.RefObject<HTMLInputElement | null>
+  isOn: boolean
+  onSubmit: (e: React.FormEvent) => void
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center h-full min-h-[280px]">
+      <div className="w-full max-w-sm space-y-6">
+        <div className="text-center">
+          <p className="text-white/40 text-sm mb-2">Describe your project idea</p>
+          <p className="text-white/25 text-xs">Be specific about what you want to build</p>
+        </div>
+
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div className="relative">
+            <input
+              ref={inputRef as React.RefObject<HTMLInputElement>}
+              value={customIdea}
+              onChange={(e) => setCustomIdea(e.target.value)}
+              placeholder={typedPlaceholder || "Describe your project idea..."}
+              disabled={!isOn}
+              className={cn(
+                "w-full px-4 py-4 rounded-xl",
+                "bg-white/[0.03]",
+                "border border-[#C9A84C]/20",
+                "text-sm text-white placeholder:text-white/30",
+                "transition-all duration-200",
+                "focus:outline-none focus:border-[#C9A84C]/40",
+                "focus:shadow-[0_0_20px_rgba(201,168,76,0.15)]",
+                "disabled:opacity-40"
+              )}
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={!customIdea.trim() || !isOn}
+            className={cn(
+              "w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl",
+              "bg-[#C9A84C]/10 border border-[#C9A84C]/30",
+              "text-[#C9A84C] text-sm font-medium",
+              "transition-all duration-200",
+              "hover:bg-[#C9A84C]/20 hover:border-[#C9A84C]/50",
+              "active:scale-[0.99]",
+              "disabled:opacity-30 disabled:cursor-not-allowed"
+            )}
+          >
+            <Send className="h-4 w-4" />
+            Start Building
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Brainstorm Mode
+ */
+function BrainstormMode({
+  isOn,
+  onBrainstorm,
+}: {
+  isOn: boolean
+  onBrainstorm: () => void
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center h-full min-h-[280px]">
+      <div className="text-center space-y-6">
+        <div>
+          <Zap className="h-12 w-12 text-[#C9A84C]/60 mx-auto mb-4" />
+          <p className="text-white/50 text-sm mb-2">No idea yet?</p>
+          <p className="text-white/30 text-xs max-w-xs mx-auto">
+            Let's brainstorm together. We'll explore a sample project to show you how NERVE works.
+          </p>
+        </div>
+
+        <button
+          onClick={onBrainstorm}
+          disabled={!isOn}
+          className={cn(
+            "inline-flex items-center gap-2 px-6 py-3 rounded-xl",
+            "bg-[#C9A84C]/10 border border-[#C9A84C]/30",
+            "text-[#C9A84C] text-sm font-medium",
+            "transition-all duration-300",
+            "hover:bg-[#C9A84C]/20 hover:border-[#C9A84C]/50",
+            "hover:shadow-[0_0_30px_rgba(201,168,76,0.2)]",
+            "active:scale-[0.98]",
+            "disabled:opacity-30"
+          )}
+        >
+          <Sparkles className="h-4 w-4" />
+          Start Brainstorming
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Chat Mode - Conversation after selecting an idea
+ */
+function ChatMode({
+  selectedIdea,
+  messages,
+  input,
+  setInput,
+  isLoading,
+  projectSlug,
+  inputRef,
+  messagesEndRef,
+  onBack,
+  onSubmit,
+  onKeyDown,
+  onGoToWorkspace,
+}: {
+  selectedIdea: string | null
+  messages: Message[]
+  input: string
+  setInput: (v: string) => void
+  isLoading: boolean
+  projectSlug: string | null
+  inputRef: React.RefObject<HTMLInputElement | null>
+  messagesEndRef: React.RefObject<HTMLDivElement | null>
+  onBack: () => void
+  onSubmit: (e?: React.FormEvent) => void
+  onKeyDown: (e: React.KeyboardEvent) => void
+  onGoToWorkspace: () => void
+}) {
+  return (
+    <div className="flex flex-col h-full min-h-[280px]">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-3">
+        <button
+          onClick={onBack}
+          disabled={isLoading}
+          className={cn(
+            "flex items-center gap-1.5 px-2 py-1 rounded-lg",
+            "text-xs text-white/40",
+            "transition-all duration-200",
+            "hover:text-white/60 hover:bg-white/[0.03]"
+          )}
+        >
+          <ArrowLeft className="h-3 w-3" />
+          Back
+        </button>
+        <div className="flex items-center gap-2 text-xs text-white/30">
+          <Sparkles className="h-3 w-3 text-[#C9A84C]" />
+          <span className="truncate max-w-[150px]">{selectedIdea}</span>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto space-y-3 mb-3 min-h-0">
+        {messages.map((message, i) => (
+          <div
+            key={i}
+            className={cn(
+              "flex",
+              message.role === "user" ? "justify-end" : "justify-start"
+            )}
+          >
+            <div
+              className={cn(
+                "max-w-[85%] rounded-xl px-3 py-2",
+                message.role === "user"
+                  ? "bg-[#C9A84C]/20 border border-[#C9A84C]/30 text-white"
+                  : "bg-white/[0.03] border border-white/[0.06] text-white/80"
+              )}
+            >
+              <div className="whitespace-pre-wrap text-xs leading-relaxed">
+                {message.content}
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-2">
+              <div className="flex items-center gap-1.5">
+                <div className="h-1.5 w-1.5 rounded-full bg-[#C9A84C] animate-pulse" />
+                <div className="h-1.5 w-1.5 rounded-full bg-[#C9A84C] animate-pulse [animation-delay:150ms]" />
+                <div className="h-1.5 w-1.5 rounded-full bg-[#C9A84C] animate-pulse [animation-delay:300ms]" />
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input */}
+      {projectSlug ? (
+        <button
+          onClick={onGoToWorkspace}
+          className={cn(
+            "w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl",
+            "bg-[#C9A84C]/20 border border-[#C9A84C]/40",
+            "text-[#C9A84C] text-sm font-medium",
+            "transition-all duration-200",
+            "hover:bg-[#C9A84C]/30",
+            "active:scale-[0.99]"
+          )}
+        >
+          Open Workspace
+          <ArrowRight className="h-4 w-4" />
+        </button>
+      ) : (
+        <form onSubmit={onSubmit} className="flex gap-2">
+          <input
+            ref={inputRef as React.RefObject<HTMLInputElement>}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={onKeyDown}
+            placeholder="Type your response..."
+            disabled={isLoading}
+            className={cn(
+              "flex-1 px-3 py-2.5 rounded-xl",
+              "bg-white/[0.03] border border-white/[0.06]",
+              "text-sm text-white placeholder:text-white/30",
+              "transition-all duration-200",
+              "focus:outline-none focus:border-[#C9A84C]/30",
+              "disabled:opacity-50"
+            )}
+          />
+          <button
+            type="submit"
+            disabled={!input.trim() || isLoading}
+            className={cn(
+              "px-4 py-2.5 rounded-xl",
+              "bg-[#C9A84C]/20 border border-[#C9A84C]/30",
+              "text-[#C9A84C]",
+              "transition-all duration-200",
+              "hover:bg-[#C9A84C]/30",
+              "active:scale-[0.98]",
+              "disabled:opacity-30 disabled:cursor-not-allowed"
+            )}
+          >
+            <Send className="h-4 w-4" />
+          </button>
+        </form>
+      )}
     </div>
   )
 }
