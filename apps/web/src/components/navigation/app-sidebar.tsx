@@ -52,7 +52,7 @@ export function AppSidebar() {
 
       {/* Quick actions at bottom */}
       <SidebarFooter
-        className="p-3"
+        className="px-4 py-3"
         style={{
           background: NERVE.housing,
           borderTop: `1px solid ${NERVE.edgeLight}`,

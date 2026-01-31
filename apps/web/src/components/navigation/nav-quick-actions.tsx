@@ -118,7 +118,7 @@ export function NavQuickActions() {
       <SidebarMenuItem className="relative" ref={menuRef}>
         <SidebarMenuButton
           onClick={() => setIsOpen(!isOpen)}
-          tooltip="Quick Actions"
+          tooltip={isOpen ? undefined : "Quick Actions"}
           className="h-9"
           style={isOpen ? {
             background: `linear-gradient(180deg, ${NERVE.surface} 0%, ${NERVE.recessed} 100%)`,
