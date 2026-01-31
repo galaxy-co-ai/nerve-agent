@@ -42,6 +42,10 @@ model User {
   agentSuggestions    AgentSuggestion[]
   agentConversations  AgentConversation[]
 
+  // Desktop app relationships
+  desktopDevices      DesktopDevice[]
+  desktopPairingCodes DesktopPairingCode[]
+
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }
@@ -998,4 +1002,45 @@ model AgentEstimateCalibration {
   @@unique([userId, taskType])
   @@index([userId])
   @@index([lastUpdated])
+}
+
+// ============================================================================
+// Desktop App Integration - Pusher-based Real-time Communication
+// ============================================================================
+
+// Desktop Pairing Code - Short-lived codes for pairing desktop app
+model DesktopPairingCode {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  code        String    @unique // 6-digit code
+  expiresAt   DateTime
+  usedAt      DateTime?
+
+  createdAt   DateTime  @default(now())
+
+  @@index([userId])
+  @@index([code])
+  @@index([expiresAt])
+}
+
+// Desktop Device - Paired desktop app instances
+model DesktopDevice {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  deviceId    String    @unique // UUID from desktop app
+  name        String    // Hostname or user-provided name
+  platform    String    // "darwin", "win32", "linux"
+
+  authToken   String    @unique // Token for Pusher auth
+  lastSeenAt  DateTime  @default(now())
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([lastSeenAt])
 }

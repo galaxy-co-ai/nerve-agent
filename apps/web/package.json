@@ -20,11 +20,11 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@fontsource-variable/geist": "^5.1.1",
-    "@fontsource-variable/geist-mono": "^5.1.1",
     "@anthropic-ai/sdk": "^0.72.0",
     "@clerk/nextjs": "^6.37.0",
     "@clerk/themes": "^2.4.51",
+    "@fontsource-variable/geist": "^5.1.1",
+    "@fontsource-variable/geist-mono": "^5.1.1",
     "@mendable/firecrawl-js": "^1.19.0",
     "@mistralai/mistralai": "^1.5.0",
     "@neondatabase/serverless": "^1.0.2",
@@ -57,6 +57,8 @@
     "next": "^16.1.6",
     "openai": "^4.77.0",
     "prisma": "^7.3.0",
+    "pusher": "^5.3.2",
+    "pusher-js": "^8.4.0",
     "react": "^19.0.0",
     "react-day-picker": "^9.13.0",
     "react-dom": "^19.0.0",
