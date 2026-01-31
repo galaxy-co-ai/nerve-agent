@@ -19,6 +19,20 @@ export type { GlowIntensity, GlowColor } from "./primitives/glow"
 
 export { Well } from "./primitives/well"
 
+// Chrome/Hardware-inspired primitives
+export { ChromeShell } from "./primitives/chrome-shell"
+export { Canvas } from "./primitives/canvas"
+
+// =============================================================================
+// Controls - Hardware-inspired interactive elements
+// =============================================================================
+
+export { Orb } from "./controls/orb"
+export { PillToggle } from "./controls/pill-toggle"
+export { PowerButton } from "./controls/power-button"
+export { DialKnob } from "./controls/dial-knob"
+export { Readout } from "./controls/readout"
+
 // =============================================================================
 // Backgrounds - Premium background treatments
 // =============================================================================
