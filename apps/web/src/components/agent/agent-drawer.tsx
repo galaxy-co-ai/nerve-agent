@@ -31,7 +31,38 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { H4, Muted } from "@/components/ui/typography"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+
+// =============================================================================
+// DESIGN TOKENS - Nerve Agent Premium Dark Metal Aesthetic
+// =============================================================================
+
+const AGENT_COLORS = {
+  // Housing - Dark gunmetal base
+  housing: "#1c1c1f",
+  surface: "#141416",
+  recessed: "#08080a",
+  elevated: "#242428",
+
+  // Edge lighting
+  edgeLight: "rgba(255,255,255,0.08)",
+  edgeDark: "rgba(0,0,0,0.4)",
+
+  // Gold accent
+  gold: "#C9A84C",
+  goldMuted: "rgba(201,168,76,0.6)",
+  goldSubtle: "rgba(201,168,76,0.2)",
+  goldGlow: "rgba(201,168,76,0.25)",
+  goldGlowStrong: "rgba(201,168,76,0.4)",
+
+  // Text
+  textPrimary: "#F0F0F2",
+  textSecondary: "#A0A0A8",
+  textMuted: "#68687A",
+}
+
+// Animation config for premium feel
+const SPRING_CONFIG = { damping: 28, stiffness: 280 }
+const OVERSHOOT_EASE = [0.25, 1.15, 0.5, 1] as const
 
 type AgentTab = "inbox" | "chat" | "actions" | "memory"
 
@@ -85,7 +116,7 @@ export function AgentDrawer() {
   const [preferences, setPreferences] = useState<AgentPreferences | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isSending, setIsSending] = useState(false)
-  const [actionResult, setActionResult] = useState<{ type: string; content: unknown } | null>(null)
+  const [, setActionResult] = useState<{ type: string; content: unknown } | null>(null)
 
   // Fetch suggestions when drawer opens
   const fetchSuggestions = useCallback(async () => {
@@ -126,10 +157,10 @@ export function AgentDrawer() {
   const inboxCount = suggestions.length
 
   const TABS: TabConfig[] = [
-    { id: "inbox", label: "Inbox", icon: <Inbox className="h-4 w-4" />, badge: inboxCount },
-    { id: "chat", label: "Chat", icon: <MessageSquare className="h-4 w-4" /> },
-    { id: "actions", label: "Actions", icon: <Zap className="h-4 w-4" /> },
-    { id: "memory", label: "Memory", icon: <Brain className="h-4 w-4" /> },
+    { id: "inbox", label: "INBOX", icon: <Inbox className="h-3.5 w-3.5" />, badge: inboxCount },
+    { id: "chat", label: "CHAT", icon: <MessageSquare className="h-3.5 w-3.5" /> },
+    { id: "actions", label: "ACTIONS", icon: <Zap className="h-3.5 w-3.5" /> },
+    { id: "memory", label: "MEMORY", icon: <Brain className="h-3.5 w-3.5" /> },
   ]
 
   // Focus input when opening
@@ -199,7 +230,6 @@ export function AgentDrawer() {
 
   // Handle suggestion edit - opens in chat for modification
   const handleSuggestionEdit = (suggestion: Suggestion) => {
-    // Add the suggestion to chat for user to modify
     const agentMessage: ChatMessage = {
       id: `edit-${Date.now()}`,
       role: "agent",
@@ -227,7 +257,6 @@ export function AgentDrawer() {
       })
     } catch (error) {
       console.error("Failed to update preference:", error)
-      // Revert on error
       setPreferences(preferences)
     }
   }
@@ -236,7 +265,6 @@ export function AgentDrawer() {
   const handleActionResult = (result: { type: string; content: unknown }) => {
     setActionResult(result)
 
-    // Format result as a chat message
     let content: string
     if (typeof result.content === "string") {
       content = result.content
@@ -256,35 +284,58 @@ export function AgentDrawer() {
 
   return (
     <>
-      {/* Agent Tab - sticks out from right side */}
+      {/* =====================================================================
+          TRIGGER BUTTON - Hardware power button style
+          ===================================================================== */}
       <motion.button
         onClick={() => setIsOpen(true)}
         className={cn(
-          "fixed right-0 bottom-32 z-40",
-          "flex items-center gap-2 px-3 py-3",
-          "bg-gradient-to-r from-orange-600 to-orange-500",
-          "rounded-l-xl border border-r-0 border-orange-400/30",
-          "shadow-lg shadow-orange-500/20",
-          "hover:shadow-orange-500/30 hover:from-orange-500 hover:to-orange-400",
-          "transition-all duration-200",
+          "fixed right-4 bottom-6 z-40",
+          "flex items-center justify-center",
+          "w-14 h-14 rounded-full",
+          "transition-all duration-300",
           "group",
           isOpen && "opacity-0 pointer-events-none"
         )}
-        whileHover={{ x: -4 }}
-        whileTap={{ scale: 0.98 }}
+        style={{
+          background: `linear-gradient(145deg, ${AGENT_COLORS.elevated} 0%, ${AGENT_COLORS.recessed} 100%)`,
+          border: `2px solid ${AGENT_COLORS.goldMuted}`,
+          boxShadow: `
+            0 4px 20px rgba(0,0,0,0.5),
+            inset 0 1px 0 ${AGENT_COLORS.edgeLight},
+            inset 0 -1px 0 ${AGENT_COLORS.edgeDark}
+          `,
+        }}
+        whileHover={{
+          scale: 1.05,
+          boxShadow: `
+            0 4px 20px rgba(0,0,0,0.5),
+            0 0 24px ${AGENT_COLORS.goldGlow},
+            inset 0 1px 0 ${AGENT_COLORS.edgeLight},
+            inset 0 -1px 0 ${AGENT_COLORS.edgeDark}
+          `,
+        }}
+        whileTap={{ scale: 0.95 }}
       >
-        <Bot className="h-5 w-5 text-white" />
-        <span className="text-sm font-medium text-white opacity-0 group-hover:opacity-100 transition-opacity">
-          Agent
-        </span>
+        <Bot className="h-6 w-6" style={{ color: AGENT_COLORS.gold }} />
+
+        {/* Inbox count badge */}
         {inboxCount > 0 && (
-          <span className="absolute -top-1 -left-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-bold text-orange-600 shadow-sm">
+          <span
+            className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold shadow-lg"
+            style={{
+              background: AGENT_COLORS.gold,
+              color: AGENT_COLORS.recessed,
+            }}
+          >
             {inboxCount}
           </span>
         )}
       </motion.button>
 
-      {/* Backdrop */}
+      {/* =====================================================================
+          BACKDROP
+          ===================================================================== */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -292,90 +343,166 @@ export function AgentDrawer() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsOpen(false)}
-            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
           />
         )}
       </AnimatePresence>
 
-      {/* Drawer */}
+      {/* =====================================================================
+          DRAWER - Premium dark metal housing
+          ===================================================================== */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className={cn(
-              "fixed right-0 top-0 bottom-0 z-50",
-              "w-full max-w-md",
-              "bg-background/95 backdrop-blur-xl",
-              "border-l border-border/50",
-              "shadow-2xl shadow-black/20",
-              "flex flex-col"
-            )}
+            transition={{ type: "spring", ...SPRING_CONFIG }}
+            className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md flex flex-col"
+            style={{
+              background: AGENT_COLORS.housing,
+              borderLeft: `1px solid ${AGENT_COLORS.edgeLight}`,
+              boxShadow: `
+                -4px 0 24px rgba(0,0,0,0.5),
+                inset 1px 0 0 ${AGENT_COLORS.edgeLight}
+              `,
+            }}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-4 border-b border-border/50">
+            {/* ===============================================================
+                HEADER - Hardware unit aesthetic
+                =============================================================== */}
+            <div
+              className="flex items-center justify-between px-5 py-4"
+              style={{
+                borderBottom: `1px solid ${AGENT_COLORS.edgeLight}`,
+                background: `linear-gradient(180deg, ${AGENT_COLORS.elevated} 0%, ${AGENT_COLORS.housing} 100%)`,
+              }}
+            >
               <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="p-2 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg shadow-orange-500/20">
-                    <Bot className="h-5 w-5 text-white" />
-                  </div>
-                  {/* Status indicator */}
-                  <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-green-500 border-2 border-background" />
+                {/* Agent icon with gold gradient */}
+                <div
+                  className="relative p-2.5 rounded-xl"
+                  style={{
+                    background: `linear-gradient(145deg, ${AGENT_COLORS.surface} 0%, ${AGENT_COLORS.recessed} 100%)`,
+                    border: `1px solid ${AGENT_COLORS.goldSubtle}`,
+                    boxShadow: `
+                      inset 0 1px 0 ${AGENT_COLORS.edgeLight},
+                      0 2px 8px rgba(0,0,0,0.3)
+                    `,
+                  }}
+                >
+                  <Bot className="h-5 w-5" style={{ color: AGENT_COLORS.gold }} />
+
+                  {/* Status indicator - gold glow */}
+                  <div
+                    className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full"
+                    style={{
+                      background: AGENT_COLORS.gold,
+                      boxShadow: `0 0 8px ${AGENT_COLORS.goldGlowStrong}`,
+                      border: `2px solid ${AGENT_COLORS.housing}`,
+                    }}
+                  />
                 </div>
+
                 <div>
-                  <H4 className="text-base leading-none mb-0.5">Nerve Agent</H4>
-                  <Muted className="text-xs">Watching 3 projects</Muted>
+                  <H4
+                    className="text-base leading-none mb-0.5 font-semibold"
+                    style={{ color: AGENT_COLORS.textPrimary }}
+                  >
+                    Nerve <span style={{ color: AGENT_COLORS.gold }}>Agent</span>
+                  </H4>
+                  <Muted className="text-xs" style={{ color: AGENT_COLORS.textMuted }}>
+                    Watching 3 projects
+                  </Muted>
                 </div>
               </div>
+
+              {/* Close button - dark metal style */}
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsOpen(false)}
-                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                className="h-9 w-9 rounded-lg transition-colors"
+                style={{
+                  background: AGENT_COLORS.surface,
+                  border: `1px solid ${AGENT_COLORS.edgeLight}`,
+                  color: AGENT_COLORS.textMuted,
+                }}
               >
                 <X className="h-4 w-4" />
               </Button>
             </div>
 
-            {/* Tabs */}
-            <div className="flex border-b border-border/50 px-2">
-              {TABS.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={cn(
-                    "flex-1 flex items-center justify-center gap-1.5 px-2 py-3",
-                    "text-xs font-medium transition-colors relative",
-                    activeTab === tab.id
-                      ? "text-orange-500"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  {tab.icon}
-                  <span>{tab.label}</span>
-                  {tab.badge && tab.badge > 0 && (
-                    <span className="absolute top-2 right-2 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[9px] font-bold text-white">
-                      {tab.badge}
-                    </span>
-                  )}
-                  {activeTab === tab.id && (
-                    <motion.div
-                      layoutId="activeTab"
-                      className="absolute bottom-0 left-2 right-2 h-0.5 bg-orange-500 rounded-full"
-                    />
-                  )}
-                </button>
-              ))}
+            {/* ===============================================================
+                PILL TOGGLE TABS - Recessed track with sliding indicator
+                =============================================================== */}
+            <div className="px-4 py-3">
+              <div
+                className="relative flex rounded-xl p-1"
+                style={{
+                  background: AGENT_COLORS.recessed,
+                  boxShadow: `
+                    inset 0 2px 6px rgba(0,0,0,0.8),
+                    inset 0 0 0 1px rgba(0,0,0,0.3)
+                  `,
+                }}
+              >
+                {/* Sliding indicator */}
+                <motion.div
+                  className="absolute top-1 bottom-1 rounded-lg"
+                  style={{
+                    background: `linear-gradient(145deg, ${AGENT_COLORS.elevated} 0%, ${AGENT_COLORS.surface} 100%)`,
+                    border: `1px solid ${AGENT_COLORS.edgeLight}`,
+                    boxShadow: `0 2px 8px rgba(0,0,0,0.4)`,
+                    width: `calc(25% - 4px)`,
+                  }}
+                  animate={{
+                    x: `calc(${TABS.findIndex(t => t.id === activeTab) * 100}% + ${TABS.findIndex(t => t.id === activeTab) * 4}px)`,
+                  }}
+                  transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                />
+
+                {TABS.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={cn(
+                      "relative flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg",
+                      "text-[10px] font-semibold tracking-wider uppercase",
+                      "transition-colors duration-200 z-10"
+                    )}
+                    style={{
+                      color: activeTab === tab.id ? AGENT_COLORS.gold : AGENT_COLORS.textMuted,
+                    }}
+                  >
+                    {tab.icon}
+                    <span className="hidden sm:inline">{tab.label}</span>
+
+                    {/* Badge */}
+                    {tab.badge && tab.badge > 0 && (
+                      <span
+                        className="absolute -top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-bold"
+                        style={{
+                          background: AGENT_COLORS.gold,
+                          color: AGENT_COLORS.recessed,
+                        }}
+                      >
+                        {tab.badge}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Content */}
+            {/* ===============================================================
+                CONTENT AREA
+                =============================================================== */}
             <ScrollArea className="flex-1">
               <div className="p-4">
                 {isLoading ? (
                   <div className="flex items-center justify-center py-16">
-                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    <Loader2 className="h-6 w-6 animate-spin" style={{ color: AGENT_COLORS.gold }} />
                   </div>
                 ) : (
                   <AnimatePresence mode="wait">
@@ -384,7 +511,7 @@ export function AgentDrawer() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.15 }}
+                      transition={{ duration: 0.2, ease: OVERSHOOT_EASE }}
                     >
                       {activeTab === "inbox" && (
                         <InboxTab
@@ -415,8 +542,16 @@ export function AgentDrawer() {
               </div>
             </ScrollArea>
 
-            {/* Persistent Input */}
-            <div className="border-t border-border/50 p-4">
+            {/* ===============================================================
+                INPUT FIELD - Gold accented
+                =============================================================== */}
+            <div
+              className="p-4"
+              style={{
+                borderTop: `1px solid ${AGENT_COLORS.edgeLight}`,
+                background: AGENT_COLORS.housing,
+              }}
+            >
               <form onSubmit={handleSubmit}>
                 <div className="relative">
                   <input
@@ -425,23 +560,31 @@ export function AgentDrawer() {
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     placeholder="Ask anything..."
-                    className={cn(
-                      "w-full px-4 py-3 pr-12 rounded-xl",
-                      "bg-muted/50 border border-border/50",
-                      "text-sm placeholder:text-muted-foreground",
-                      "focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500/50",
-                      "transition-all"
-                    )}
+                    className="w-full px-4 py-3 pr-12 rounded-xl text-sm transition-all outline-none"
+                    style={{
+                      background: AGENT_COLORS.recessed,
+                      border: `1px solid ${AGENT_COLORS.goldSubtle}`,
+                      color: AGENT_COLORS.textPrimary,
+                      boxShadow: `inset 0 2px 4px rgba(0,0,0,0.4)`,
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = AGENT_COLORS.goldMuted
+                      e.target.style.boxShadow = `inset 0 2px 4px rgba(0,0,0,0.4), 0 0 20px ${AGENT_COLORS.goldGlow}`
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = AGENT_COLORS.goldSubtle
+                      e.target.style.boxShadow = `inset 0 2px 4px rgba(0,0,0,0.4)`
+                    }}
                   />
                   <Button
                     type="submit"
                     size="icon"
                     disabled={!inputValue.trim()}
-                    className={cn(
-                      "absolute right-1.5 top-1.5 h-8 w-8 rounded-lg",
-                      "bg-orange-500 hover:bg-orange-600 disabled:opacity-50",
-                      "transition-all"
-                    )}
+                    className="absolute right-1.5 top-1.5 h-8 w-8 rounded-lg transition-all disabled:opacity-40"
+                    style={{
+                      background: inputValue.trim() ? AGENT_COLORS.gold : AGENT_COLORS.surface,
+                      color: inputValue.trim() ? AGENT_COLORS.recessed : AGENT_COLORS.textMuted,
+                    }}
                   >
                     <Send className="h-4 w-4" />
                   </Button>
@@ -473,13 +616,13 @@ function InboxTab({
   const getIconForTrigger = (triggerType: string) => {
     switch (triggerType) {
       case "blocker_stale":
-        return { icon: <AlertTriangle className="h-4 w-4" />, bg: "bg-yellow-500/10 text-yellow-500" }
+        return { icon: <AlertTriangle className="h-4 w-4" />, color: "#f59e0b" }
       case "sprint_complete":
-        return { icon: <FileText className="h-4 w-4" />, bg: "bg-blue-500/10 text-blue-500" }
+        return { icon: <FileText className="h-4 w-4" />, color: "#3b82f6" }
       case "task_stuck":
-        return { icon: <Clock className="h-4 w-4" />, bg: "bg-red-500/10 text-red-500" }
+        return { icon: <Clock className="h-4 w-4" />, color: "#ef4444" }
       default:
-        return { icon: <Sparkles className="h-4 w-4" />, bg: "bg-orange-500/10 text-orange-500" }
+        return { icon: <Sparkles className="h-4 w-4" />, color: AGENT_COLORS.gold }
     }
   }
 
@@ -495,11 +638,21 @@ function InboxTab({
   if (suggestions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="p-4 rounded-full bg-muted/50 mb-4">
-          <Inbox className="h-8 w-8 text-muted-foreground" />
+        <div
+          className="p-4 rounded-2xl mb-4"
+          style={{
+            background: AGENT_COLORS.surface,
+            border: `1px solid ${AGENT_COLORS.edgeLight}`,
+          }}
+        >
+          <Inbox className="h-8 w-8" style={{ color: AGENT_COLORS.textMuted }} />
         </div>
-        <p className="font-medium mb-1">All clear</p>
-        <Muted className="text-sm">Nothing needs your attention right now.</Muted>
+        <p className="font-medium mb-1" style={{ color: AGENT_COLORS.textPrimary }}>
+          All clear
+        </p>
+        <Muted className="text-sm" style={{ color: AGENT_COLORS.textMuted }}>
+          Nothing needs your attention right now.
+        </Muted>
       </div>
     )
   }
@@ -508,41 +661,85 @@ function InboxTab({
     <div className="space-y-4">
       {/* Section header */}
       <div className="flex items-center justify-between">
-        <Muted className="text-xs uppercase tracking-wider font-medium">
+        <span
+          className="text-[10px] uppercase tracking-widest font-semibold"
+          style={{ color: AGENT_COLORS.textMuted }}
+        >
           Needs your input
-        </Muted>
-        <Badge variant="outline" className="text-xs">
+        </span>
+        <Badge
+          variant="outline"
+          className="text-[10px] px-2"
+          style={{
+            borderColor: AGENT_COLORS.goldSubtle,
+            color: AGENT_COLORS.gold,
+            background: "transparent",
+          }}
+        >
           {suggestions.length} items
         </Badge>
       </div>
 
       {/* Suggestion cards */}
       {suggestions.map((suggestion, index) => {
-        const { icon, bg } = getIconForTrigger(suggestion.triggerType)
+        const { icon, color } = getIconForTrigger(suggestion.triggerType)
+        const isUrgent = suggestion.urgency === "urgent"
+
         return (
           <motion.div
             key={suggestion.id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-            className="p-4 rounded-xl border border-border/50 bg-card/30 space-y-3"
+            transition={{ delay: index * 0.05, ease: OVERSHOOT_EASE }}
+            className="p-4 rounded-xl space-y-3"
+            style={{
+              background: AGENT_COLORS.surface,
+              border: `1px solid ${AGENT_COLORS.edgeLight}`,
+              borderTop: `1px solid rgba(255,255,255,0.1)`,
+              borderBottom: `1px solid rgba(0,0,0,0.3)`,
+              boxShadow: isUrgent
+                ? `0 0 16px ${AGENT_COLORS.goldGlow}, inset 0 1px 0 ${AGENT_COLORS.edgeLight}`
+                : `0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 ${AGENT_COLORS.edgeLight}`,
+            }}
           >
             {/* Header */}
             <div className="flex items-start gap-3">
-              <div className={cn("p-2 rounded-lg", bg)}>
+              <div
+                className="p-2 rounded-lg"
+                style={{
+                  background: `${color}15`,
+                  color: color,
+                }}
+              >
                 {icon}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="font-medium text-sm">{suggestion.title}</span>
+                  <span
+                    className="font-medium text-sm"
+                    style={{ color: AGENT_COLORS.textPrimary }}
+                  >
+                    {suggestion.title}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   {suggestion.projectName && (
-                    <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] px-1.5 py-0"
+                      style={{
+                        borderColor: AGENT_COLORS.edgeLight,
+                        color: AGENT_COLORS.textSecondary,
+                        background: "transparent",
+                      }}
+                    >
                       {suggestion.projectName}
                     </Badge>
                   )}
-                  <span className="text-[10px] text-muted-foreground">
+                  <span
+                    className="text-[10px]"
+                    style={{ color: AGENT_COLORS.textMuted }}
+                  >
                     {formatTimestamp(suggestion.createdAt)}
                   </span>
                 </div>
@@ -550,21 +747,28 @@ function InboxTab({
             </div>
 
             {/* Description */}
-            <p className="text-sm text-muted-foreground">
+            <p
+              className="text-sm"
+              style={{ color: AGENT_COLORS.textSecondary }}
+            >
               {suggestion.description}
             </p>
 
             {/* Agent suggestion */}
             <div className="flex items-center gap-2 text-sm">
-              <Sparkles className="h-3.5 w-3.5 text-orange-500" />
-              <span className="text-foreground">{suggestion.proposedAction}</span>
+              <Sparkles className="h-3.5 w-3.5" style={{ color: AGENT_COLORS.gold }} />
+              <span style={{ color: AGENT_COLORS.textPrimary }}>{suggestion.proposedAction}</span>
             </div>
 
             {/* Actions */}
             <div className="flex gap-2 pt-1">
               <Button
                 size="sm"
-                className="flex-1 h-8 text-xs bg-orange-500 hover:bg-orange-600"
+                className="flex-1 h-8 text-xs font-semibold transition-all"
+                style={{
+                  background: AGENT_COLORS.gold,
+                  color: AGENT_COLORS.recessed,
+                }}
                 onClick={() => onAction(suggestion.id, "approve")}
               >
                 <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
@@ -574,6 +778,11 @@ function InboxTab({
                 size="sm"
                 variant="outline"
                 className="h-8 text-xs"
+                style={{
+                  background: "transparent",
+                  border: `1px solid ${AGENT_COLORS.edgeLight}`,
+                  color: AGENT_COLORS.textSecondary,
+                }}
                 onClick={() => onEdit(suggestion)}
               >
                 <Edit3 className="h-3.5 w-3.5 mr-1.5" />
@@ -582,7 +791,8 @@ function InboxTab({
               <Button
                 size="sm"
                 variant="ghost"
-                className="h-8 w-8 p-0 text-muted-foreground"
+                className="h-8 w-8 p-0"
+                style={{ color: AGENT_COLORS.textMuted }}
                 onClick={() => onAction(suggestion.id, "dismiss")}
               >
                 <XCircle className="h-4 w-4" />
@@ -594,8 +804,14 @@ function InboxTab({
 
       {/* Quiet time notice */}
       {quietHours && (
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/30 text-xs text-muted-foreground">
-          <Moon className="h-3.5 w-3.5" />
+        <div
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs"
+          style={{
+            background: AGENT_COLORS.recessed,
+            color: AGENT_COLORS.textMuted,
+          }}
+        >
+          <Moon className="h-3.5 w-3.5" style={{ color: AGENT_COLORS.gold }} />
           <span>Quiet hours: {quietHours.start} - {quietHours.end}. Only urgent items will notify.</span>
         </div>
       )}
@@ -618,63 +834,127 @@ function ChatTab({
     <div className="space-y-4">
       {messages.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="p-4 rounded-full bg-gradient-to-br from-orange-500/10 to-orange-600/10 mb-4">
-            <MessageSquare className="h-8 w-8 text-orange-500" />
+          <div
+            className="p-4 rounded-2xl mb-4"
+            style={{
+              background: `linear-gradient(145deg, ${AGENT_COLORS.surface} 0%, ${AGENT_COLORS.recessed} 100%)`,
+              border: `1px solid ${AGENT_COLORS.goldSubtle}`,
+              boxShadow: `0 0 20px ${AGENT_COLORS.goldGlow}`,
+            }}
+          >
+            <MessageSquare className="h-8 w-8" style={{ color: AGENT_COLORS.gold }} />
           </div>
-          <p className="font-medium mb-1">Start a conversation</p>
-          <Muted className="text-sm max-w-[240px]">
+          <p className="font-medium mb-1" style={{ color: AGENT_COLORS.textPrimary }}>
+            Start a conversation
+          </p>
+          <Muted
+            className="text-sm max-w-[240px]"
+            style={{ color: AGENT_COLORS.textMuted }}
+          >
             Ask about your projects, blockers, or anything else.
           </Muted>
         </div>
       ) : (
         <div className="space-y-4">
           {messages.map((message) => (
-            <div
+            <motion.div
               key={message.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
               className={cn(
                 "flex gap-3",
                 message.role === "user" && "flex-row-reverse"
               )}
             >
               {message.role === "agent" && (
-                <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-sm">
-                  <Bot className="h-4 w-4 text-white" />
+                <div
+                  className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center"
+                  style={{
+                    background: `linear-gradient(145deg, ${AGENT_COLORS.surface} 0%, ${AGENT_COLORS.recessed} 100%)`,
+                    border: `1px solid ${AGENT_COLORS.goldSubtle}`,
+                  }}
+                >
+                  <Bot className="h-4 w-4" style={{ color: AGENT_COLORS.gold }} />
                 </div>
               )}
               <div
                 className={cn(
                   "flex-1 max-w-[85%] p-3 rounded-xl text-sm",
-                  message.role === "agent"
-                    ? "bg-muted/50"
-                    : "bg-orange-500 text-white ml-auto"
+                  message.role === "agent" ? "" : "ml-auto"
                 )}
+                style={
+                  message.role === "agent"
+                    ? {
+                        background: `rgba(255,255,255,0.03)`,
+                        border: `1px solid ${AGENT_COLORS.edgeLight}`,
+                        color: AGENT_COLORS.textPrimary,
+                      }
+                    : {
+                        background: `${AGENT_COLORS.gold}20`,
+                        border: `1px solid ${AGENT_COLORS.goldSubtle}`,
+                        color: AGENT_COLORS.textPrimary,
+                      }
+                }
               >
-                <p>{message.content}</p>
+                <p className="whitespace-pre-wrap">{message.content}</p>
                 <span
-                  className={cn(
-                    "text-[10px] mt-1 block",
-                    message.role === "agent"
-                      ? "text-muted-foreground"
-                      : "text-orange-100"
-                  )}
+                  className="text-[10px] mt-1 block"
+                  style={{
+                    color: message.role === "agent" ? AGENT_COLORS.textMuted : AGENT_COLORS.goldMuted,
+                  }}
                 >
                   {message.timestamp}
                 </span>
               </div>
-            </div>
+            </motion.div>
           ))}
+
+          {/* Thinking indicator */}
           {isSending && (
-            <div className="flex gap-3">
-              <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-sm">
-                <Bot className="h-4 w-4 text-white" />
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex gap-3"
+            >
+              <div
+                className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center"
+                style={{
+                  background: `linear-gradient(145deg, ${AGENT_COLORS.surface} 0%, ${AGENT_COLORS.recessed} 100%)`,
+                  border: `1px solid ${AGENT_COLORS.goldSubtle}`,
+                }}
+              >
+                <Bot className="h-4 w-4" style={{ color: AGENT_COLORS.gold }} />
               </div>
-              <div className="flex-1 max-w-[85%] p-3 rounded-xl text-sm bg-muted/50">
+              <div
+                className="flex-1 max-w-[85%] p-3 rounded-xl text-sm"
+                style={{
+                  background: `rgba(255,255,255,0.03)`,
+                  border: `1px solid ${AGENT_COLORS.edgeLight}`,
+                }}
+              >
                 <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                  <span className="text-muted-foreground">Thinking...</span>
+                  <div className="flex gap-1">
+                    {[0, 1, 2].map((i) => (
+                      <motion.div
+                        key={i}
+                        className="w-2 h-2 rounded-full"
+                        style={{ background: AGENT_COLORS.gold }}
+                        animate={{
+                          opacity: [0.3, 1, 0.3],
+                          scale: [0.8, 1, 0.8],
+                        }}
+                        transition={{
+                          duration: 1,
+                          repeat: Infinity,
+                          delay: i * 0.15,
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <span style={{ color: AGENT_COLORS.textMuted }}>Thinking...</span>
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
         </div>
       )}
@@ -715,14 +995,13 @@ function ActionsTab({
 
   const actionGroups = [
     {
-      label: "Generate",
+      label: "GENERATE",
       actions: [
         {
           id: "client-update",
           label: "Client Update",
           description: "Summary of recent progress for stakeholders",
           icon: <Mail className="h-4 w-4" />,
-          requiresProject: true,
         },
         {
           id: "weekly-summary",
@@ -739,26 +1018,24 @@ function ActionsTab({
       ],
     },
     {
-      label: "Analyze",
+      label: "ANALYZE",
       actions: [
         {
           id: "blocker-analysis",
           label: "Blocker Analysis",
           description: "Why is this taking so long? Root cause breakdown",
           icon: <AlertTriangle className="h-4 w-4" />,
-          requiresBlocker: true,
         },
         {
           id: "scope-check",
           label: "Scope Check",
           description: "Are we building what we planned? Drift detection",
           icon: <Eye className="h-4 w-4" />,
-          requiresProject: true,
         },
       ],
     },
     {
-      label: "Automate",
+      label: "AUTOMATE",
       actions: [
         {
           id: "followup-drafts",
@@ -774,28 +1051,50 @@ function ActionsTab({
     <div className="space-y-6">
       {actionGroups.map((group) => (
         <div key={group.label} className="space-y-2">
-          <Muted className="text-xs uppercase tracking-wider font-medium">
+          <span
+            className="text-[10px] uppercase tracking-widest font-semibold"
+            style={{ color: AGENT_COLORS.goldMuted }}
+          >
             {group.label}
-          </Muted>
+          </span>
           <div className="space-y-2">
             {group.actions.map((action) => {
               const isLoading = loadingAction === action.id
               const isDisabled = isLoading || loadingAction !== null
+
               return (
                 <button
                   key={action.id}
                   onClick={() => executeAction(action.id)}
                   disabled={isDisabled}
                   className={cn(
-                    "w-full p-3 rounded-xl",
-                    "border border-border/50 bg-card/30",
-                    "hover:bg-card/60 hover:border-border",
-                    "transition-colors text-left group",
+                    "w-full p-3 rounded-xl text-left group transition-all",
                     "disabled:opacity-50 disabled:cursor-not-allowed"
                   )}
+                  style={{
+                    background: AGENT_COLORS.surface,
+                    border: `1px solid ${AGENT_COLORS.edgeLight}`,
+                    boxShadow: `inset 0 1px 0 ${AGENT_COLORS.edgeLight}`,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isDisabled) {
+                      e.currentTarget.style.borderColor = AGENT_COLORS.goldSubtle
+                      e.currentTarget.style.boxShadow = `inset 0 1px 0 ${AGENT_COLORS.edgeLight}, 0 0 12px ${AGENT_COLORS.goldGlow}`
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = AGENT_COLORS.edgeLight
+                    e.currentTarget.style.boxShadow = `inset 0 1px 0 ${AGENT_COLORS.edgeLight}`
+                  }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                    <div
+                      className="p-2 rounded-lg transition-colors"
+                      style={{
+                        background: `${AGENT_COLORS.gold}15`,
+                        color: AGENT_COLORS.gold,
+                      }}
+                    >
                       {isLoading ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
@@ -803,12 +1102,23 @@ function ActionsTab({
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm">{action.label}</p>
-                      <p className="text-xs text-muted-foreground truncate">
+                      <p
+                        className="font-medium text-sm"
+                        style={{ color: AGENT_COLORS.textPrimary }}
+                      >
+                        {action.label}
+                      </p>
+                      <p
+                        className="text-xs truncate"
+                        style={{ color: AGENT_COLORS.textMuted }}
+                      >
                         {action.description}
                       </p>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <ChevronRight
+                      className="h-4 w-4 transition-colors"
+                      style={{ color: AGENT_COLORS.textMuted }}
+                    />
                   </div>
                 </button>
               )
@@ -847,7 +1157,7 @@ function MemoryTab({
   if (!preferences) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <Loader2 className="h-6 w-6 animate-spin" style={{ color: AGENT_COLORS.gold }} />
       </div>
     )
   }
@@ -857,23 +1167,39 @@ function MemoryTab({
       {/* User Profile */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <Muted className="text-xs uppercase tracking-wider font-medium">
+          <span
+            className="text-[10px] uppercase tracking-widest font-semibold"
+            style={{ color: AGENT_COLORS.textMuted }}
+          >
             About You
-          </Muted>
-          <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground">
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 text-xs"
+            style={{ color: AGENT_COLORS.textMuted }}
+          >
             <Edit3 className="h-3 w-3 mr-1" />
             Edit
           </Button>
         </div>
-        <div className="p-4 rounded-xl border border-border/50 bg-card/30 space-y-3">
+        <div
+          className="p-4 rounded-xl space-y-3"
+          style={{
+            background: AGENT_COLORS.surface,
+            border: `1px solid ${AGENT_COLORS.edgeLight}`,
+          }}
+        >
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div className="flex items-center gap-2">
-              <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>{preferences.timezone}</span>
+              <Calendar className="h-3.5 w-3.5" style={{ color: AGENT_COLORS.textMuted }} />
+              <span style={{ color: AGENT_COLORS.textSecondary }}>{preferences.timezone}</span>
             </div>
             <div className="flex items-center gap-2 col-span-2">
-              <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>Prefers {preferences.preferredStyle} responses</span>
+              <MessageSquare className="h-3.5 w-3.5" style={{ color: AGENT_COLORS.textMuted }} />
+              <span style={{ color: AGENT_COLORS.textSecondary }}>
+                Prefers {preferences.preferredStyle} responses
+              </span>
             </div>
           </div>
         </div>
@@ -881,36 +1207,54 @@ function MemoryTab({
 
       {/* Learned Patterns */}
       <div className="space-y-3">
-        <Muted className="text-xs uppercase tracking-wider font-medium">
-          What I've Learned
-        </Muted>
+        <span
+          className="text-[10px] uppercase tracking-widest font-semibold"
+          style={{ color: AGENT_COLORS.textMuted }}
+        >
+          What I&apos;ve Learned
+        </span>
         {learnedPatterns.length > 0 ? (
           <div className="space-y-2">
             {learnedPatterns.map((pattern, index) => (
               <div
                 key={index}
-                className="flex items-start gap-2 p-2.5 rounded-lg bg-muted/30 text-sm"
+                className="flex items-start gap-2 p-2.5 rounded-lg text-sm"
+                style={{
+                  background: AGENT_COLORS.recessed,
+                  border: `1px solid ${AGENT_COLORS.edgeLight}`,
+                }}
               >
-                <Brain className="h-3.5 w-3.5 text-orange-500 mt-0.5 flex-shrink-0" />
-                <span className="text-muted-foreground">{pattern}</span>
+                <Brain className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" style={{ color: AGENT_COLORS.gold }} />
+                <span style={{ color: AGENT_COLORS.textSecondary }}>{pattern}</span>
               </div>
             ))}
           </div>
         ) : (
-          <div className="p-4 rounded-lg bg-muted/30 text-sm text-muted-foreground text-center">
+          <div
+            className="p-4 rounded-lg text-sm text-center"
+            style={{
+              background: AGENT_COLORS.recessed,
+              color: AGENT_COLORS.textMuted,
+              border: `1px solid ${AGENT_COLORS.edgeLight}`,
+            }}
+          >
+            <Sparkles className="h-5 w-5 mx-auto mb-2" style={{ color: AGENT_COLORS.goldMuted }} />
             No patterns learned yet. Keep using the agent!
           </div>
         )}
-        <p className="text-[11px] text-muted-foreground px-1">
+        <p className="text-[11px] px-1" style={{ color: AGENT_COLORS.textMuted }}>
           Patterns are learned from your activity. Nothing is shared externally.
         </p>
       </div>
 
-      {/* Agent Behavior Settings */}
+      {/* Agent Behavior Settings with custom toggle */}
       <div className="space-y-3">
-        <Muted className="text-xs uppercase tracking-wider font-medium">
+        <span
+          className="text-[10px] uppercase tracking-widest font-semibold"
+          style={{ color: AGENT_COLORS.textMuted }}
+        >
           Agent Behavior
-        </Muted>
+        </span>
         <div className="space-y-2">
           {agentSettings.map((setting) => {
             const isEnabled = preferences[setting.id] as boolean
@@ -918,23 +1262,48 @@ function MemoryTab({
               <button
                 key={setting.id}
                 onClick={() => onToggle(setting.id, !isEnabled)}
-                className="w-full flex items-center justify-between p-3 rounded-xl border border-border/50 bg-card/30 cursor-pointer hover:bg-card/50 transition-colors"
+                className="w-full flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all"
+                style={{
+                  background: AGENT_COLORS.surface,
+                  border: `1px solid ${AGENT_COLORS.edgeLight}`,
+                }}
               >
                 <div className="flex-1 min-w-0 pr-3 text-left">
-                  <p className="text-sm font-medium">{setting.label}</p>
-                  <p className="text-xs text-muted-foreground">{setting.description}</p>
+                  <p className="text-sm font-medium" style={{ color: AGENT_COLORS.textPrimary }}>
+                    {setting.label}
+                  </p>
+                  <p className="text-xs" style={{ color: AGENT_COLORS.textMuted }}>
+                    {setting.description}
+                  </p>
                 </div>
+
+                {/* Custom NerveSwitch - dark metal knob */}
                 <div
-                  className={cn(
-                    "relative w-9 h-5 rounded-full transition-colors flex-shrink-0",
-                    isEnabled ? "bg-orange-500" : "bg-muted"
-                  )}
+                  className="relative w-11 h-6 rounded-full flex-shrink-0 transition-all"
+                  style={{
+                    background: isEnabled
+                      ? `linear-gradient(145deg, ${AGENT_COLORS.gold}40 0%, ${AGENT_COLORS.gold}20 100%)`
+                      : AGENT_COLORS.recessed,
+                    boxShadow: isEnabled
+                      ? `inset 0 1px 2px rgba(0,0,0,0.3), 0 0 8px ${AGENT_COLORS.goldGlow}`
+                      : `inset 0 2px 4px rgba(0,0,0,0.5)`,
+                    border: `1px solid ${isEnabled ? AGENT_COLORS.goldMuted : AGENT_COLORS.edgeLight}`,
+                  }}
                 >
-                  <div
-                    className={cn(
-                      "absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform",
-                      isEnabled ? "translate-x-4" : "translate-x-0.5"
-                    )}
+                  <motion.div
+                    className="absolute top-0.5 w-5 h-5 rounded-full"
+                    style={{
+                      background: isEnabled
+                        ? `linear-gradient(145deg, ${AGENT_COLORS.gold} 0%, #B8943C 100%)`
+                        : `linear-gradient(145deg, ${AGENT_COLORS.elevated} 0%, ${AGENT_COLORS.surface} 100%)`,
+                      boxShadow: isEnabled
+                        ? `0 2px 4px rgba(0,0,0,0.3), 0 0 6px ${AGENT_COLORS.goldGlow}`
+                        : `0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 ${AGENT_COLORS.edgeLight}`,
+                    }}
+                    animate={{
+                      x: isEnabled ? 20 : 2,
+                    }}
+                    transition={{ type: "spring", damping: 20, stiffness: 300 }}
                   />
                 </div>
               </button>
@@ -944,10 +1313,13 @@ function MemoryTab({
       </div>
 
       {/* Soul signature */}
-      <div className="pt-4 border-t border-border/50">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Sparkles className="h-3.5 w-3.5 text-orange-500" />
-          <span>Nerve Agent v0.1 · Direct. Opinionated. Useful.</span>
+      <div
+        className="pt-4"
+        style={{ borderTop: `1px solid ${AGENT_COLORS.edgeLight}` }}
+      >
+        <div className="flex items-center gap-2 text-xs" style={{ color: AGENT_COLORS.textMuted }}>
+          <Sparkles className="h-3.5 w-3.5" style={{ color: AGENT_COLORS.gold }} />
+          <span>Nerve Agent v0.2 · Direct. Opinionated. Useful.</span>
         </div>
       </div>
     </div>

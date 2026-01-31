@@ -1,10 +1,17 @@
 // @ts-nocheck
 // TODO: Fix type - description null handling
 import { db } from "@/lib/db"
+import {
+  getEstimateAccuracy,
+  getVelocityTrend,
+  getCommunicationHealth,
+  getPatternsForDisplay,
+} from "./memory"
 
 // =============================================================================
 // Context Builder
 // Gathers user state for the agent to understand the current situation
+// Enhanced with estimate accuracy, velocity trends, and communication health
 // =============================================================================
 
 export interface AgentContext {
@@ -55,6 +62,24 @@ export interface AgentContext {
     inProgressTasks: number
     completedTasksThisWeek: number
   }
+
+  // Enhanced context (new)
+  estimateAccuracy: {
+    averageOverrun: number
+    recentMisses: number
+    hasData: boolean
+  }
+  velocityTrend: {
+    thisWeek: number
+    lastWeek: number
+    trend: "up" | "down" | "stable"
+  }
+  communicationHealth: {
+    daysSinceLastClientUpdate: Record<string, number>
+    pendingFollowUps: number
+    projectsNeedingUpdate: string[]
+  }
+  learnedPatterns: string[]
 }
 
 export async function buildAgentContext(userId: string): Promise<AgentContext> {
@@ -138,6 +163,28 @@ export async function buildAgentContext(userId: string): Promise<AgentContext> {
     },
   })
 
+  // Fetch enhanced context data in parallel
+  const [estimateData, velocityData, commHealthData, learnedPatterns] =
+    await Promise.all([
+      getEstimateAccuracy(userId).catch(() => ({
+        averageOverrun: 0,
+        recentMisses: 0,
+        calibrations: [],
+      })),
+      getVelocityTrend(userId).catch(() => ({
+        thisWeek: 0,
+        lastWeek: 0,
+        trend: "stable" as const,
+        weeklyData: [],
+      })),
+      getCommunicationHealth(userId).catch(() => ({
+        daysSinceLastClientUpdate: {},
+        pendingFollowUps: 0,
+        projectsNeedingUpdate: [],
+      })),
+      getPatternsForDisplay(userId).catch(() => []),
+    ])
+
   // Build formatted context
   return {
     user: {
@@ -187,6 +234,24 @@ export async function buildAgentContext(userId: string): Promise<AgentContext> {
       inProgressTasks: inProgressCount,
       completedTasksThisWeek: completedThisWeek,
     },
+
+    // Enhanced context
+    estimateAccuracy: {
+      averageOverrun: estimateData.averageOverrun,
+      recentMisses: estimateData.recentMisses,
+      hasData: estimateData.calibrations.length > 0,
+    },
+    velocityTrend: {
+      thisWeek: velocityData.thisWeek,
+      lastWeek: velocityData.lastWeek,
+      trend: velocityData.trend,
+    },
+    communicationHealth: {
+      daysSinceLastClientUpdate: commHealthData.daysSinceLastClientUpdate,
+      pendingFollowUps: commHealthData.pendingFollowUps,
+      projectsNeedingUpdate: commHealthData.projectsNeedingUpdate,
+    },
+    learnedPatterns,
   }
 }
 
@@ -214,8 +279,9 @@ export function formatContextForPrompt(context: AgentContext): string {
   if (context.blockers.length > 0) {
     lines.push(`## Active Blockers (${context.blockers.length})`)
     for (const b of context.blockers) {
+      const urgencyMarker = b.daysSinceCreated > 3 ? "⚠️ " : ""
       lines.push(
-        `- **${b.title}** [${b.projectName}] - waiting on ${b.waitingOn}, ${b.daysSinceCreated} days old`
+        `- ${urgencyMarker}**${b.title}** [${b.projectName}] - waiting on ${b.waitingOn}, ${b.daysSinceCreated} days old`
       )
     }
     lines.push("")
@@ -236,6 +302,58 @@ export function formatContextForPrompt(context: AgentContext): string {
   lines.push(`- ${context.stats.activeBlockers} unresolved blockers`)
   lines.push(`- ${context.stats.inProgressTasks} tasks in progress`)
   lines.push(`- ${context.stats.completedTasksThisWeek} tasks completed this week`)
+  lines.push("")
+
+  // Enhanced context sections
+  if (context.estimateAccuracy.hasData) {
+    lines.push(`## Estimate Accuracy`)
+    if (context.estimateAccuracy.averageOverrun > 0.2) {
+      lines.push(
+        `⚠️ Estimates tend to run ${Math.round(context.estimateAccuracy.averageOverrun * 100)}% over`
+      )
+    } else if (context.estimateAccuracy.averageOverrun < -0.1) {
+      lines.push(
+        `✅ Estimates tend to be conservative (${Math.round(Math.abs(context.estimateAccuracy.averageOverrun) * 100)}% under)`
+      )
+    } else {
+      lines.push(`✅ Estimates are generally accurate`)
+    }
+    if (context.estimateAccuracy.recentMisses > 0) {
+      lines.push(`- ${context.estimateAccuracy.recentMisses} significant misses recently`)
+    }
+    lines.push("")
+  }
+
+  lines.push(`## Velocity`)
+  lines.push(`- This week: ${context.velocityTrend.thisWeek} tasks completed`)
+  lines.push(`- Last week: ${context.velocityTrend.lastWeek} tasks completed`)
+  if (context.velocityTrend.trend === "down") {
+    lines.push(`📉 Velocity is trending down`)
+  } else if (context.velocityTrend.trend === "up") {
+    lines.push(`📈 Velocity is trending up`)
+  }
+  lines.push("")
+
+  if (context.communicationHealth.projectsNeedingUpdate.length > 0) {
+    lines.push(`## Communication Health`)
+    lines.push(
+      `⚠️ Projects needing client update: ${context.communicationHealth.projectsNeedingUpdate.join(", ")}`
+    )
+    if (context.communicationHealth.pendingFollowUps > 0) {
+      lines.push(
+        `- ${context.communicationHealth.pendingFollowUps} blockers need follow-up`
+      )
+    }
+    lines.push("")
+  }
+
+  if (context.learnedPatterns.length > 0) {
+    lines.push(`## Learned Patterns`)
+    for (const pattern of context.learnedPatterns) {
+      lines.push(`- ${pattern}`)
+    }
+    lines.push("")
+  }
 
   return lines.join("\n")
 }
@@ -272,4 +390,33 @@ export function isInQuietHours(
   }
 
   return currentMinutes >= startMinutes && currentMinutes < endMinutes
+}
+
+// =============================================================================
+// Quick context for chat prompt
+// =============================================================================
+
+export function buildQuickContext(context: AgentContext) {
+  return {
+    name: context.user.name,
+    timezone: context.user.timezone,
+    preferredStyle: context.user.preferredStyle,
+    projectCount: context.stats.totalProjects,
+    activeBlockers: context.stats.activeBlockers,
+    estimateAccuracy: context.estimateAccuracy.hasData
+      ? {
+          averageOverrun: context.estimateAccuracy.averageOverrun,
+          recentMisses: context.estimateAccuracy.recentMisses,
+        }
+      : undefined,
+    velocityTrend: {
+      thisWeek: context.velocityTrend.thisWeek,
+      lastWeek: context.velocityTrend.lastWeek,
+      trend: context.velocityTrend.trend,
+    },
+    daysSinceLastClientUpdate:
+      context.communicationHealth.projectsNeedingUpdate.length > 0
+        ? Math.max(...Object.values(context.communicationHealth.daysSinceLastClientUpdate))
+        : undefined,
+  }
 }

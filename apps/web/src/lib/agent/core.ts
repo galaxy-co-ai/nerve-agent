@@ -2,13 +2,28 @@
 // TODO: Fix ContentBlock.id and JSON type issues
 import Anthropic from "@anthropic-ai/sdk"
 import { db } from "@/lib/db"
-import { buildAgentContext, formatContextForPrompt, isInQuietHours } from "./context"
+import {
+  buildAgentContext,
+  formatContextForPrompt,
+  isInQuietHours,
+  buildQuickContext,
+} from "./context"
 import { buildChatSystemPrompt, buildHeartbeatPrompt } from "./prompts"
 import { AGENT_TOOLS, AgentToolName } from "./tools"
 import { executeAction } from "./actions"
+import {
+  recordPattern,
+  getRelevantPatterns,
+  getEstimateAccuracy,
+  getVelocityTrend,
+  getCommunicationHealth,
+  detectScopeDrift,
+  findSimilarTasks,
+} from "./memory"
 
 // =============================================================================
 // Core Agent Module
+// Enhanced with new analysis tools and multi-signal intelligence
 // =============================================================================
 
 const anthropic = new Anthropic()
@@ -37,13 +52,8 @@ export async function chatWithAgent(
 ): Promise<ChatResponse> {
   // Build context
   const context = await buildAgentContext(userId)
-  const systemPrompt = buildChatSystemPrompt({
-    name: context.user.name,
-    timezone: context.user.timezone,
-    preferredStyle: context.user.preferredStyle,
-    projectCount: context.stats.totalProjects,
-    activeBlockers: context.stats.activeBlockers,
-  })
+  const quickContext = buildQuickContext(context)
+  const systemPrompt = buildChatSystemPrompt(quickContext)
 
   // Get or create conversation
   let conversation
@@ -167,7 +177,7 @@ export async function chatWithAgent(
 }
 
 // =============================================================================
-// Tool Call Executor
+// Tool Call Executor - Enhanced with new tools
 // =============================================================================
 
 async function executeToolCall(
@@ -176,6 +186,9 @@ async function executeToolCall(
   input: Record<string, unknown>
 ): Promise<unknown> {
   switch (toolName) {
+    // ---------------------------------------------------------------------------
+    // Data Retrieval Tools
+    // ---------------------------------------------------------------------------
     case "get_project_details":
       return await getProjectDetails(userId, input.project_id as string)
 
@@ -189,6 +202,16 @@ async function executeToolCall(
         input.project_id as string | undefined
       )
 
+    case "get_time_entries":
+      return await getTimeEntries(
+        userId,
+        (input.days as number) || 7,
+        input.project_id as string | undefined
+      )
+
+    // ---------------------------------------------------------------------------
+    // Action Tools
+    // ---------------------------------------------------------------------------
     case "draft_email":
       return {
         drafted: true,
@@ -210,12 +233,67 @@ async function executeToolCall(
         projectId: input.project_id,
       })
 
-    case "get_time_entries":
-      return await getTimeEntries(
-        userId,
-        (input.days as number) || 7,
+    // ---------------------------------------------------------------------------
+    // Analysis Tools (NEW)
+    // ---------------------------------------------------------------------------
+    case "analyze_estimate_accuracy":
+      return await getEstimateAccuracy(userId, {
+        taskType: input.task_type as string | undefined,
+        days: (input.days as number) || 30,
+      })
+
+    case "detect_scope_drift":
+      return await detectScopeDrift(
+        input.sprint_id as string | undefined,
         input.project_id as string | undefined
       )
+
+    case "suggest_similar_tasks":
+      return await findSimilarTasks(
+        userId,
+        input.task_title as string,
+        input.task_description as string | undefined,
+        (input.limit as number) || 5
+      )
+
+    case "track_pattern":
+      return await recordPattern(userId, {
+        type: input.pattern_type as "estimate" | "blocker" | "communication" | "workflow" | "productivity",
+        pattern: input.pattern_description as string,
+        confidence: input.confidence as "high" | "medium" | "low",
+        evidence: input.evidence as string | undefined,
+        actionableInsight: input.actionable_insight as string | undefined,
+      })
+
+    case "prepare_client_update":
+      return await prepareClientUpdate(
+        userId,
+        input.project_id as string,
+        (input.days as number) || 7,
+        (input.tone as string) || "confident",
+        input.include_blockers !== false
+      )
+
+    // ---------------------------------------------------------------------------
+    // Intelligence Tools (NEW)
+    // ---------------------------------------------------------------------------
+    case "get_velocity_trend":
+      return await getVelocityTrend(userId, {
+        weeks: (input.weeks as number) || 4,
+        projectId: input.project_id as string | undefined,
+      })
+
+    case "get_communication_health":
+      return await getCommunicationHealth(
+        userId,
+        input.project_id as string | undefined
+      )
+
+    case "get_learned_patterns":
+      return await getRelevantPatterns(userId, {
+        type: (input.pattern_type as "estimate" | "blocker" | "communication" | "workflow" | "productivity" | "all") || "all",
+        minConfidence: (input.min_confidence as "high" | "medium" | "low") || "low",
+      })
 
     default:
       return { error: `Unknown tool: ${toolName}` }
@@ -376,14 +454,131 @@ async function getTimeEntries(userId: string, days: number, projectId?: string) 
   }
 }
 
+async function prepareClientUpdate(
+  userId: string,
+  projectId: string,
+  days: number,
+  tone: string,
+  includeBlockers: boolean
+): Promise<{
+  subject: string
+  body: string
+  projectName: string
+  recentActivity: {
+    completedTasks: number
+    resolvedBlockers: number
+    activeBlockers: number
+  }
+}> {
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+
+  const project = await db.project.findFirst({
+    where: { id: projectId, userId },
+    include: {
+      sprints: {
+        where: { status: "IN_PROGRESS" },
+        include: {
+          tasks: {
+            where: {
+              OR: [
+                { status: "COMPLETED", completedAt: { gte: since } },
+                { status: "IN_PROGRESS" },
+              ],
+            },
+          },
+        },
+      },
+      blockers: {
+        where: { status: "ACTIVE" },
+      },
+    },
+  })
+
+  if (!project) {
+    return {
+      subject: "Project Update",
+      body: "Project not found",
+      projectName: "Unknown",
+      recentActivity: { completedTasks: 0, resolvedBlockers: 0, activeBlockers: 0 },
+    }
+  }
+
+  const completedTasks = project.sprints.flatMap((s) =>
+    s.tasks.filter((t) => t.status === "COMPLETED")
+  )
+  const inProgressTasks = project.sprints.flatMap((s) =>
+    s.tasks.filter((t) => t.status === "IN_PROGRESS")
+  )
+  const activeBlockers = project.blockers
+
+  // Build email body
+  let body = `Hi,\n\nHere's a quick update on ${project.name}:\n\n`
+
+  body += `## Progress\n`
+  if (completedTasks.length > 0) {
+    body += `Completed ${completedTasks.length} task(s) this period:\n`
+    for (const task of completedTasks.slice(0, 5)) {
+      body += `- ${task.title}\n`
+    }
+    if (completedTasks.length > 5) {
+      body += `- ...and ${completedTasks.length - 5} more\n`
+    }
+    body += `\n`
+  } else {
+    body += `Making progress on current sprint tasks.\n\n`
+  }
+
+  if (inProgressTasks.length > 0) {
+    body += `## Currently Working On\n`
+    for (const task of inProgressTasks.slice(0, 3)) {
+      body += `- ${task.title}\n`
+    }
+    body += `\n`
+  }
+
+  if (includeBlockers && activeBlockers.length > 0) {
+    body += `## Blockers\n`
+    for (const blocker of activeBlockers) {
+      body += `- ${blocker.title} (waiting on: ${blocker.waitingOn})\n`
+    }
+    body += `\n`
+  }
+
+  body += `Let me know if you have any questions.\n\nBest`
+
+  const subject =
+    tone === "urgent"
+      ? `[Action Needed] ${project.name} Update`
+      : tone === "cautious"
+      ? `${project.name} - Status Update`
+      : `${project.name} - Progress Update`
+
+  return {
+    subject,
+    body,
+    projectName: project.name,
+    recentActivity: {
+      completedTasks: completedTasks.length,
+      resolvedBlockers: 0,
+      activeBlockers: activeBlockers.length,
+    },
+  }
+}
+
 // =============================================================================
-// Heartbeat - Proactive Check
+// Heartbeat - Proactive Check (Enhanced with multi-signal analysis)
 // =============================================================================
 
 export async function runHeartbeat(userId: string): Promise<{
   suggestions: number
   skipped: boolean
   reason?: string
+  signals?: {
+    staleBlockers: number
+    stuckTasks: number
+    communicationGaps: number
+    velocityDrop: boolean
+  }
 }> {
   // Get preferences
   const prefs = await db.agentPreferences.findUnique({
@@ -409,7 +604,20 @@ export async function runHeartbeat(userId: string): Promise<{
 
   // Build context
   const context = await buildAgentContext(userId)
-  const prompt = buildHeartbeatPrompt(formatContextForPrompt(context))
+
+  // Pre-calculate signals for smarter analysis
+  const signals = {
+    staleBlockers: context.blockers.filter((b) => b.daysSinceCreated > 3).length,
+    stuckTasks: context.stuckTasks.length,
+    communicationGaps: context.communicationHealth.projectsNeedingUpdate.length,
+    velocityDrop: context.velocityTrend.trend === "down",
+  }
+
+  // Add signal summary to context
+  const signalSummary = buildSignalSummary(signals)
+  const enhancedContext = formatContextForPrompt(context) + "\n\n" + signalSummary
+
+  const prompt = buildHeartbeatPrompt(enhancedContext)
 
   // Call Claude
   const response = await anthropic.messages.create({
@@ -426,6 +634,7 @@ export async function runHeartbeat(userId: string): Promise<{
     proposedAction: string
     urgency: string
     entityId?: string
+    reasoning?: string
   }> = []
 
   const textBlock = response.content.find((b) => b.type === "text")
@@ -453,9 +662,42 @@ export async function runHeartbeat(userId: string): Promise<{
         description: s.description,
         proposedAction: s.proposedAction,
         urgency: s.urgency,
+        metadata: s.reasoning ? { reasoning: s.reasoning } : undefined,
       },
     })
   }
 
-  return { suggestions: suggestions.length, skipped: false }
+  return { suggestions: suggestions.length, skipped: false, signals }
+}
+
+// =============================================================================
+// Helper Functions
+// =============================================================================
+
+function buildSignalSummary(signals: {
+  staleBlockers: number
+  stuckTasks: number
+  communicationGaps: number
+  velocityDrop: boolean
+}): string {
+  const lines: string[] = ["## Signal Summary (Pre-analyzed)"]
+
+  if (signals.staleBlockers > 0) {
+    lines.push(`🚨 ${signals.staleBlockers} blockers are stale (>3 days)`)
+  }
+  if (signals.stuckTasks > 0) {
+    lines.push(`⚠️ ${signals.stuckTasks} tasks stuck with no activity`)
+  }
+  if (signals.communicationGaps > 0) {
+    lines.push(`📧 ${signals.communicationGaps} projects need client updates`)
+  }
+  if (signals.velocityDrop) {
+    lines.push(`📉 Velocity is trending down this week`)
+  }
+
+  if (lines.length === 1) {
+    lines.push("✅ No critical signals detected")
+  }
+
+  return lines.join("\n")
 }

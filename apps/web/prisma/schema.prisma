@@ -954,3 +954,48 @@ model AgentMessage {
   @@index([conversationId])
   @@index([createdAt])
 }
+
+// Agent Learned Pattern - Patterns the agent learns over time
+model AgentLearnedPattern {
+  id                String   @id @default(cuid())
+  userId            String
+
+  // Pattern identification
+  type              String   // "estimate", "blocker", "communication", "workflow", "productivity"
+  pattern           String   @db.Text
+  confidence        String   @default("medium") // "high", "medium", "low"
+
+  // Tracking
+  occurrences       Int      @default(1)
+  lastSeen          DateTime @default(now())
+  evidence          Json     @default("[]") // Array of evidence strings
+
+  // Actionable insight
+  actionableInsight String?  @db.Text
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId])
+  @@index([type])
+  @@index([confidence])
+}
+
+// Agent Estimate Calibration - Track estimate accuracy by task type
+model AgentEstimateCalibration {
+  id              String   @id @default(cuid())
+  userId          String
+  taskType        String   // e.g., "integration", "ui-component", "api", "general"
+
+  // Aggregate data
+  averageOverrun  Float    @default(0) // e.g., 0.5 = 50% over estimate
+  sampleSize      Int      @default(0)
+  recentMisses    Json     @default("[]") // Array of {taskId, taskTitle, estimated, actual, overrunPercent}
+
+  lastUpdated     DateTime @default(now())
+  createdAt       DateTime @default(now())
+
+  @@unique([userId, taskType])
+  @@index([userId])
+  @@index([lastUpdated])
+}
