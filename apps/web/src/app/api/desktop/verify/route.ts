@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       authToken,
       userId: pairingCode.userId,
-      pusherKey: process.env.NEXT_PUBLIC_PUSHER_KEY,
+      pusherKey: process.env.NEXT_PUBLIC_PUSHER_KEY || "f919f7a62de70f654108",
       pusherCluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || "us2",
     })
   } catch (error) {
