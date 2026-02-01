@@ -2,13 +2,12 @@ export const dynamic = "force-dynamic"
 
 import { AppSidebar } from "@/components/navigation/app-sidebar"
 import { CommandPalette } from "@/components/shared/command-palette"
-import { QuickNoteDialog } from "@/components/dialogs/quick-note-dialog"
 import { QuickTimeDialog } from "@/components/dialogs/quick-time-dialog"
 import { AgentDrawer } from "@/components/agent/agent-drawer"
-import { TimerWrapper } from "@/components/timer/timer-wrapper"
 import { SidebarInset } from "@/components/ui/sidebar"
 import { SidebarWrapper } from "@/components/navigation/sidebar-wrapper"
 import { AXStateProvider, fetchAXExtendedData, buildAXUser } from "@/lib/ax"
+import { TimerProvider } from "@/components/timer/timer-provider"
 import { syncUser, requireUser } from "@/lib/auth"
 import { db } from "@/lib/db"
 
@@ -60,24 +59,23 @@ export default async function DashboardLayout({
   const axUser = buildAXUser(user)
 
   return (
-    <TimerWrapper>
-      <AXStateProvider
-        initialUser={axUser}
-        initialWorkspace={axExtended.workspace}
-        initialStaleness={axExtended.staleness}
-        initialRelationships={axExtended.relationships}
-      >
+    <AXStateProvider
+      initialUser={axUser}
+      initialWorkspace={axExtended.workspace}
+      initialStaleness={axExtended.staleness}
+      initialRelationships={axExtended.relationships}
+    >
+      <TimerProvider>
         <SidebarWrapper>
           <AppSidebar />
           <SidebarInset>
             {children}
           </SidebarInset>
           <CommandPalette projects={projects} notes={notes} inProgressTasks={inProgressTasks} />
-          <QuickNoteDialog />
           <QuickTimeDialog />
           <AgentDrawer />
         </SidebarWrapper>
-      </AXStateProvider>
-    </TimerWrapper>
+      </TimerProvider>
+    </AXStateProvider>
   )
 }
