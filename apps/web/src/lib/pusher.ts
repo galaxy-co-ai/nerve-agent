@@ -10,9 +10,9 @@ const globalForPusher = globalThis as unknown as {
 }
 
 function createPusherClient(): Pusher {
-  const appId = process.env.PUSHER_APP_ID
-  const key = process.env.NEXT_PUBLIC_PUSHER_KEY
-  const secret = process.env.PUSHER_SECRET
+  const appId = process.env.PUSHER_APP_ID || "2109481"
+  const key = process.env.NEXT_PUBLIC_PUSHER_KEY || "f919f7a62de70f654108"
+  const secret = process.env.PUSHER_SECRET || "287f7cc9fb9796127f47"
   const cluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER || "us2"
 
   if (!appId || !key || !secret) {
