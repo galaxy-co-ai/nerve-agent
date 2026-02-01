@@ -24,16 +24,19 @@ interface EditNoteFormProps {
     title: string
     content: string
     projectId: string | null
+    folderId: string | null
     tags: string[]
   }
   projects: { id: string; name: string }[]
+  folders: { id: string; name: string; slug: string }[]
 }
 
-export function EditNoteForm({ note, projects }: EditNoteFormProps) {
+export function EditNoteForm({ note, projects, folders }: EditNoteFormProps) {
   const [pending, setPending] = useState(false)
   const [title, setTitle] = useState(note.title)
   const [content, setContent] = useState(note.content)
   const [projectId, setProjectId] = useState(note.projectId || "")
+  const [folderId, setFolderId] = useState(note.folderId || "")
   const [tags, setTags] = useState<string[]>(note.tags)
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -47,6 +50,7 @@ export function EditNoteForm({ note, projects }: EditNoteFormProps) {
     formData.set("title", title)
     formData.set("content", content)
     formData.set("projectId", projectId)
+    formData.set("folderId", folderId)
     formData.set("tags", JSON.stringify(tags))
 
     try {
@@ -83,6 +87,24 @@ export function EditNoteForm({ note, projects }: EditNoteFormProps) {
                   {projects.map((project) => (
                     <SelectItem key={project.id} value={project.id}>
                       {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {folders.length > 0 && (
+            <div className="grid gap-2">
+              <Label htmlFor="folderId">Folder</Label>
+              <Select value={folderId} onValueChange={setFolderId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select folder" />
+                </SelectTrigger>
+                <SelectContent>
+                  {folders.map((folder) => (
+                    <SelectItem key={folder.id} value={folder.id}>
+                      {folder.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

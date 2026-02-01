@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
+import { getInboxFolderId } from "@/lib/seed-folders"
 
 function generateSlug(title: string): string {
   return title
@@ -23,6 +24,9 @@ export async function createNote(formData: FormData) {
     throw new Error("Title and content are required")
   }
 
+  // Get inbox folder (creates folders if needed)
+  const inboxFolderId = await getInboxFolderId(user.id)
+
   // Generate unique slug
   let baseSlug = generateSlug(title)
   let slug = baseSlug
@@ -40,6 +44,7 @@ export async function createNote(formData: FormData) {
       slug,
       content,
       projectId: projectId || null,
+      folderId: inboxFolderId, // New notes go to Inbox
     },
   })
 
@@ -67,6 +72,7 @@ export async function updateNote(slug: string, formData: FormData) {
   const title = formData.get("title") as string
   const content = formData.get("content") as string
   const projectId = formData.get("projectId") as string | null
+  const folderId = formData.get("folderId") as string | null
   const tagsJson = formData.get("tags") as string | null
 
   // Parse tags
@@ -92,6 +98,9 @@ export async function updateNote(slug: string, formData: FormData) {
     }
   }
 
+  // Check if folder is being manually changed
+  const folderChanged = folderId && folderId !== note.folderId
+
   await db.note.update({
     where: { id: note.id },
     data: {
@@ -100,6 +109,8 @@ export async function updateNote(slug: string, formData: FormData) {
       content: content || note.content,
       projectId: projectId || null,
       tags: tags,
+      ...(folderId ? { folderId } : {}),
+      ...(folderChanged ? { wasManuallyMoved: true } : {}),
     },
   })
 
@@ -153,6 +164,9 @@ export async function toggleNotePin(slug: string) {
 export async function quickCreateNote(title: string, content: string, projectId?: string, tags?: string[]) {
   const user = await requireUser()
 
+  // Get inbox folder (creates folders if needed)
+  const inboxFolderId = await getInboxFolderId(user.id)
+
   let baseSlug = generateSlug(title)
   let slug = baseSlug
   let counter = 1
@@ -170,9 +184,62 @@ export async function quickCreateNote(title: string, content: string, projectId?
       content,
       projectId: projectId || null,
       tags: tags || [],
+      folderId: inboxFolderId, // New notes go to Inbox
     },
   })
 
   revalidatePath("/notes")
   return note
+}
+
+// Organize a note using AI
+export async function organizeNote(noteId: string): Promise<{
+  success: boolean
+  folderId?: string
+  folderName?: string
+  confidence?: number
+  reasoning?: string
+  autoMoved?: boolean
+  error?: string
+}> {
+  const user = await requireUser()
+
+  // Verify note belongs to user
+  const note = await db.note.findFirst({
+    where: { id: noteId, userId: user.id },
+  })
+
+  if (!note) {
+    return { success: false, error: "Note not found" }
+  }
+
+  try {
+    // Call the organize API internally
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+    const response = await fetch(`${baseUrl}/api/notes/organize`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ noteId }),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      return { success: false, error: error.error || "Failed to organize" }
+    }
+
+    const result = await response.json()
+    revalidatePath("/notes")
+
+    return {
+      success: true,
+      folderId: result.folderId,
+      folderName: result.folderName,
+      confidence: result.confidence,
+      reasoning: result.reasoning,
+      autoMoved: result.autoMoved,
+    }
+  } catch (error) {
+    console.error("Failed to organize note:", error)
+    return { success: false, error: "Failed to organize note" }
+  }
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "@fontsource-variable/geist";
 import "@fontsource-variable/geist-mono";
 import "./globals.css";
+import { Providers } from "@/components/providers";
 
 export const metadata: Metadata = {
   title: "NERVE AGENT",
@@ -16,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="font-sans antialiased bg-[var(--nerve-bg-base)] text-[var(--nerve-text-primary)]">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

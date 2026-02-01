@@ -24,17 +24,23 @@ export default async function EditNotePage({ params }: PageProps) {
   const { slug } = await params
   const user = await requireUser()
 
-  const [note, projects] = await Promise.all([
+  const [note, projects, folders] = await Promise.all([
     db.note.findFirst({
       where: { slug, userId: user.id },
       include: {
         project: { select: { id: true, name: true } },
+        folder: { select: { id: true, name: true, slug: true } },
       },
     }),
     db.project.findMany({
       where: { userId: user.id },
       orderBy: { name: "asc" },
       select: { id: true, name: true },
+    }),
+    db.noteFolder.findMany({
+      where: { userId: user.id },
+      orderBy: { order: "asc" },
+      select: { id: true, name: true, slug: true },
     }),
   ])
 
@@ -45,8 +51,12 @@ export default async function EditNotePage({ params }: PageProps) {
   // Parse tags from JSON
   const noteTags = Array.isArray(note.tags) ? note.tags as string[] : []
 
-  const noteWithTags = {
-    ...note,
+  const noteForForm = {
+    slug: note.slug,
+    title: note.title,
+    content: note.content,
+    projectId: note.projectId,
+    folderId: note.folderId,
     tags: noteTags,
   }
 
@@ -78,7 +88,7 @@ export default async function EditNotePage({ params }: PageProps) {
           <p className="text-muted-foreground">Update your note content.</p>
         </div>
 
-        <EditNoteForm note={noteWithTags} projects={projects} />
+        <EditNoteForm note={noteForForm} projects={projects} folders={folders} />
       </div>
     </>
   )

@@ -1,4 +1,5 @@
 import { db } from "./db"
+import { seedNoteFoldersForUser } from "./seed-folders"
 
 // Dev user - consistent across sessions
 const DEV_USER = {
@@ -31,6 +32,8 @@ async function ensureDevUser() {
           name: DEV_USER.name,
         },
       })
+      // Seed default note folders for new user
+      await seedNoteFoldersForUser(user.id)
     } catch {
       // If create fails (race condition), try to fetch again
       user = await db.user.findUnique({

@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select"
 import { Loader2, FileText } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useNoteOrganization } from "@/hooks/use-note-organization"
 
 interface Project {
   id: string
@@ -27,6 +28,7 @@ interface NoteComposerProps {
 
 export function NoteComposer({ projects }: NoteComposerProps) {
   const router = useRouter()
+  const { organizeNote } = useNoteOrganization()
   const [isExpanded, setIsExpanded] = useState(false)
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
@@ -54,12 +56,13 @@ export function NoteComposer({ projects }: NoteComposerProps) {
     if (!title.trim() || !content.trim()) return
 
     setIsSubmitting(true)
+    const noteTitle = title.trim()
     try {
       const response = await fetch("/api/notes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: title.trim(),
+          title: noteTitle,
           content: content.trim(),
           projectId: projectId || null,
         }),
@@ -77,7 +80,13 @@ export function NoteComposer({ projects }: NoteComposerProps) {
       setProjectId("")
       setIsExpanded(false)
 
-      // Navigate to the new note or refresh
+      // Trigger AI organization (shows toast automatically based on confidence)
+      organizeNote(note.id, noteTitle).catch((err) => {
+        // Silent fail - organization is not critical to note creation
+        console.error("Organization failed:", err)
+      })
+
+      // Navigate to the new note
       router.push(`/notes/${note.slug}`)
     } catch (error) {
       console.error("Error creating note:", error)
