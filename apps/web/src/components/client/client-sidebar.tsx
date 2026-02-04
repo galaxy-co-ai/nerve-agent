@@ -28,6 +28,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useCommandPalette } from "@/components/command-palette"
+import { ViewModeToggle } from "@/components/navigation/view-mode-toggle"
 
 // Design tokens - premium feel
 const NERVE = {
@@ -66,9 +67,10 @@ interface ClientSidebarProps {
     accessLevel: string
     contractStatus: string
   }[]
+  canToggleView?: boolean
 }
 
-export function ClientSidebar({ user, projects }: ClientSidebarProps) {
+export function ClientSidebar({ user, projects, canToggleView }: ClientSidebarProps) {
   const pathname = usePathname()
   const { toggle: toggleCommandPalette } = useCommandPalette()
 
@@ -92,12 +94,13 @@ export function ClientSidebar({ user, projects }: ClientSidebarProps) {
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
-      {/* Brand + User */}
+      {/* User + View Toggle - matches admin sidebar */}
       <SidebarHeader
-        className="p-4"
+        className="p-3 space-y-2"
         style={{
           background: `linear-gradient(180deg, ${NERVE.elevated} 0%, ${NERVE.housing} 100%)`,
           borderBottom: `1px solid ${NERVE.edgeLight}`,
+          borderTopRightRadius: "12px",
         }}
       >
         <div className="flex items-center gap-3">
@@ -112,26 +115,15 @@ export function ClientSidebar({ user, projects }: ClientSidebarProps) {
           </Avatar>
           <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
             <p className="text-sm font-medium truncate" style={{ color: NERVE.textPrimary }}>
-              {user.name || "Investor"}
+              {user.name || "Client Portal"}
             </p>
             <p className="text-xs truncate" style={{ color: NERVE.textMuted }}>
               {user.email}
             </p>
           </div>
         </div>
-        {/* Quick Search */}
-        <Button
-          variant="ghost"
-          className="w-full mt-3 justify-start gap-2 text-sm group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center"
-          style={{ color: NERVE.textSecondary }}
-          onClick={toggleCommandPalette}
-        >
-          <Search className="h-4 w-4" />
-          <span className="group-data-[collapsible=icon]:hidden">Search...</span>
-          <kbd className="ml-auto text-[10px] px-1.5 py-0.5 rounded border border-white/10 bg-white/5 group-data-[collapsible=icon]:hidden">
-            ⌘K
-          </kbd>
-        </Button>
+        {/* View mode toggle for Admin/Dev users */}
+        {canToggleView && <ViewModeToggle />}
       </SidebarHeader>
 
       <SidebarContent style={{ background: NERVE.housing }}>
@@ -222,20 +214,30 @@ export function ClientSidebar({ user, projects }: ClientSidebarProps) {
       </SidebarContent>
 
       <SidebarFooter
-        className="p-3"
+        className="px-4 py-3"
         style={{
           background: NERVE.housing,
           borderTop: `1px solid ${NERVE.edgeLight}`,
+          borderBottomRightRadius: "12px",
         }}
       >
-        <div className="text-center group-data-[collapsible=icon]:hidden">
-          <p className="text-[10px] uppercase tracking-wider" style={{ color: NERVE.textMuted }}>
-            Powered by
-          </p>
-          <p className="text-xs font-semibold" style={{ color: NERVE.gold }}>
-            NERVE AGENT
-          </p>
-        </div>
+        {/* Quick Search */}
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-2 text-sm h-9 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center"
+          style={{
+            color: NERVE.textSecondary,
+            background: NERVE.surface,
+            border: `1px solid ${NERVE.edgeLight}`,
+          }}
+          onClick={toggleCommandPalette}
+        >
+          <Search className="h-4 w-4" />
+          <span className="group-data-[collapsible=icon]:hidden">Search...</span>
+          <kbd className="ml-auto text-[10px] px-1.5 py-0.5 rounded border border-white/10 bg-white/5 group-data-[collapsible=icon]:hidden">
+            ⌘K
+          </kbd>
+        </Button>
       </SidebarFooter>
 
       <SidebarRail />

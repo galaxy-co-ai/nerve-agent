@@ -70,9 +70,12 @@ export default async function ClientLayout({
     }))
   }
 
+  // Determine if user can toggle view mode (Admin/Development only)
+  const canToggleView = hasRoleLevel(orgCtx.orgRole, "org:development")
+
   return (
     <SidebarWrapper>
-      <ClientSidebar user={user} projects={projects} />
+      <ClientSidebar user={user} projects={projects} canToggleView={canToggleView} />
       <SidebarInset>{children}</SidebarInset>
     </SidebarWrapper>
   )
