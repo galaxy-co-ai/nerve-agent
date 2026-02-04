@@ -94,6 +94,27 @@ export const PUSHER_EVENTS = {
   FILE_CHANGED: "client-file-changed",
   COMMAND_RESULT: "client-command-result",
   DESKTOP_ERROR: "client-error",
+  DIRECTORY_SCANNED: "client-directory-scanned",
+  DIRECTORY_SCAN_ERROR: "client-directory-scan-error",
+
+  // Real-time Activity (Desktop → Web)
+  ACTIVITY_EVENT: "client-activity-event",
+  TIMER_STARTED: "client-timer-started",
+  TIMER_STOPPED: "client-timer-stopped",
+  TASK_STARTED: "client-task-started",
+  TASK_COMPLETED: "client-task-completed",
+  SYNC_COMPLETE: "client-sync-complete",
+  SYNC_ERROR: "client-sync-error",
+
+  // Presence (Server → Client)
+  PRESENCE_CHANGED: "status:changed",
+
+  // Client Portal (Server → Client)
+  CLIENT_ACTIVITY_NEW: "activity:new",
+  CLIENT_MILESTONE_UPDATED: "milestone:updated",
+  CLIENT_BLOCKER_RESOLVED: "blocker:resolved",
+  CLIENT_FEEDBACK_NEW: "feedback:new",
+  CLIENT_COMMENT_NEW: "comment:new",
 
   // Web → Desktop (server events)
   READ_FILE: "web-read-file",
@@ -103,4 +124,89 @@ export const PUSHER_EVENTS = {
   NOTIFY: "web-notify",
   CLIPBOARD_READ: "web-clipboard-read",
   CLIPBOARD_WRITE: "web-clipboard-write",
+  SCAN_DIRECTORY: "web-scan-directory",
 } as const
+
+// =============================================================================
+// Type Definitions for Directory Sync
+// =============================================================================
+
+export interface DirectoryScanRequest {
+  requestId: string
+  projectId: string
+  localPath: string
+}
+
+export interface DirectoryScanResult {
+  requestId: string
+  projectId: string
+  localPath: string
+  directoryTree: Record<string, unknown>
+  fileStats: Record<string, number>
+  totalFiles: number
+  totalFolders: number
+  totalSize: number
+  techStack: string[]
+  packageJson?: Record<string, unknown>
+  readmeContent?: string
+}
+
+export interface DirectoryScanError {
+  requestId: string
+  projectId: string
+  localPath: string
+  error: string
+}
+
+// =============================================================================
+// Type Definitions for Real-time Activity
+// =============================================================================
+
+export interface ActivityEventPayload {
+  id: string
+  eventType: string
+  title: string
+  description?: string
+  projectId?: string
+  projectName?: string
+  metadata?: Record<string, unknown>
+  occurredAt: string
+}
+
+export interface TimerEventPayload {
+  taskId: string
+  taskTitle: string
+  projectId: string
+  projectName: string
+  startedAt?: string
+  stoppedAt?: string
+  durationMinutes?: number
+}
+
+export interface TaskEventPayload {
+  taskId: string
+  taskTitle: string
+  projectId: string
+  projectName: string
+  sprintNumber?: number
+  status: string
+  completedAt?: string
+}
+
+export interface SyncEventPayload {
+  syncType: "time" | "tasks" | "activity" | "full"
+  itemCount: number
+  success: boolean
+  error?: string
+  completedAt: string
+}
+
+// Union type for all activity events
+export type RealTimeEvent =
+  | { type: "activity"; payload: ActivityEventPayload }
+  | { type: "timer_started"; payload: TimerEventPayload }
+  | { type: "timer_stopped"; payload: TimerEventPayload }
+  | { type: "task_started"; payload: TaskEventPayload }
+  | { type: "task_completed"; payload: TaskEventPayload }
+  | { type: "sync_complete"; payload: SyncEventPayload }
+  | { type: "sync_error"; payload: SyncEventPayload }

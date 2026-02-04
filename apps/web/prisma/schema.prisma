@@ -14,41 +14,62 @@ datasource db {
 // ============================================================================
 
 model User {
-  id                String   @id // Clerk user ID
-  email             String   @unique
-  name              String?
-  avatarUrl         String?
+  id        String  @id // Clerk user ID
+  email     String  @unique
+  name      String?
+  avatarUrl String?
+
+  // Role-based access (Client Portal v2)
+  role            UserRole @default(DEV)
+  invitedByUserId String?
+  invitedBy       User?    @relation("InvitedClients", fields: [invitedByUserId], references: [id])
+  invitedClients  User[]   @relation("InvitedClients")
 
   // Preferences
-  defaultView       String   @default("daily") // daily, projects
-  theme             String   @default("dark")  // dark, light, system
-  weekStartsOn      Int      @default(1)       // 0=Sun, 1=Mon
+  defaultView  String @default("daily") // daily, projects
+  theme        String @default("dark") // dark, light, system
+  weekStartsOn Int    @default(1) // 0=Sun, 1=Mon
 
   // Time tracking preferences
-  workingHoursStart String   @default("09:00")
-  workingHoursEnd   String   @default("17:00")
+  workingHoursStart String @default("09:00")
+  workingHoursEnd   String @default("17:00")
 
   // Relationships
-  projects          Project[]
-  timeEntries       TimeEntry[]
-  libraryItems      LibraryItem[]
-  libraryTags       LibraryTag[]
-  designSystems     DesignSystem[]
-  notes             Note[]
-  noteFolders       NoteFolder[]
-  faqs              Faq[]
+  projects      Project[]
+  timeEntries   TimeEntry[]
+  libraryItems  LibraryItem[]
+  libraryTags   LibraryTag[]
+  designSystems DesignSystem[]
+  notes         Note[]
+  noteFolders   NoteFolder[]
+  faqs          Faq[]
 
   // Agent relationships
-  agentPreferences    AgentPreferences?
-  agentSuggestions    AgentSuggestion[]
-  agentConversations  AgentConversation[]
+  agentPreferences   AgentPreferences?
+  agentSuggestions   AgentSuggestion[]
+  agentConversations AgentConversation[]
 
   // Desktop app relationships
   desktopDevices      DesktopDevice[]
   desktopPairingCodes DesktopPairingCode[]
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  // Client portal relationships
+  clients        Client[]
+  invoices       Invoice[]
+  activityEvents ActivityEvent[]
+  comments       Comment[]
+  presence       UserPresence?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([role])
+  @@index([invitedByUserId])
+}
+
+enum UserRole {
+  DEV
+  CLIENT
 }
 
 // ============================================================================
@@ -56,55 +77,67 @@ model User {
 // ============================================================================
 
 model Project {
-  id                String        @id @default(cuid())
-  userId            String
-  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Basic info
-  name              String
-  slug              String        @unique
-  clientName        String
-  clientEmail       String?
-  description       String?
+  name        String
+  slug        String  @unique
+  clientName  String
+  clientEmail String?
+  description String?
 
   // Status
-  status            ProjectStatus @default(PLANNING)
-  phase             ProjectPhase  @default(PLAN)
-  health            Int           @default(100) // 0-100
+  status ProjectStatus @default(PLANNING)
+  phase  ProjectPhase  @default(PLAN)
+  health Int           @default(100) // 0-100
 
   // Dates
-  startDate         DateTime?
-  targetEndDate     DateTime?
-  actualEndDate     DateTime?
+  startDate     DateTime?
+  targetEndDate DateTime?
+  actualEndDate DateTime?
 
   // Financial
-  contractValue     Decimal?
-  hourlyRate        Decimal?
-  paymentStructure  String?  // "half-half", "weekly", "milestone"
+  contractValue    Decimal?
+  hourlyRate       Decimal?
+  paymentStructure String? // "half-half", "weekly", "milestone"
 
   // Client portal
-  portalEnabled     Boolean  @default(true)
-  portalToken       String?  @unique
-  portalLastAccess  DateTime?
+  portalEnabled    Boolean   @default(true)
+  portalToken      String?   @unique
+  portalLastAccess DateTime?
+
+  // Client visibility settings (fine-grained control)
+  clientVisibility Json @default("{}")
 
   // Relationships
-  sprints           Sprint[]
-  blockers          Blocker[]
-  timeEntries       TimeEntry[]
-  libraryItems      LibraryItem[]
-  notes             Note[]
-  portalFeedback    PortalFeedback[]
-  calls             Call[]
-  portalMagicLinks  PortalMagicLink[]
-  followUps         FollowUp[]
+  sprints          Sprint[]
+  blockers         Blocker[]
+  timeEntries      TimeEntry[]
+  libraryItems     LibraryItem[]
+  notes            Note[]
+  portalFeedback   PortalFeedback[]
+  calls            Call[]
+  portalMagicLinks PortalMagicLink[]
+  followUps        FollowUp[]
 
   // Framework relationships
-  frameworkDocs     ProjectFrameworkDoc[]
-  checkpoints       ProjectCheckpoint[]
-  workspaceNotes    ProjectWorkspaceNote[]
+  frameworkDocs  ProjectFrameworkDoc[]
+  checkpoints    ProjectCheckpoint[]
+  workspaceNotes ProjectWorkspaceNote[]
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  // Desktop integration
+  localDirectory ProjectLocalDirectory?
+
+  // Client portal pivot
+  clientAccess   ClientProjectAccess[]
+  invoices       Invoice[]
+  deliverables   Deliverable[]
+  activityEvents ActivityEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([status])
@@ -130,34 +163,34 @@ enum ProjectPhase {
 // ============================================================================
 
 model Sprint {
-  id                String       @id @default(cuid())
-  projectId         String
-  project           Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   // Basic info
-  number            Int          // Sprint 1, 2, 3...
-  name              String       // "Foundation", "Core Dashboard", etc.
-  description       String?
+  number      Int // Sprint 1, 2, 3...
+  name        String // "Foundation", "Core Dashboard", etc.
+  description String?
 
   // Status
-  status            SprintStatus @default(NOT_STARTED)
+  status SprintStatus @default(NOT_STARTED)
 
   // Time estimates
-  estimatedHours    Decimal
-  adjustedHours     Decimal?     // AI-adjusted estimate
-  actualHours       Decimal      @default(0)
+  estimatedHours Decimal
+  adjustedHours  Decimal? // AI-adjusted estimate
+  actualHours    Decimal  @default(0)
 
   // Dates
-  plannedStartDate  DateTime?
-  plannedEndDate    DateTime?
-  actualStartDate   DateTime?
-  actualEndDate     DateTime?
+  plannedStartDate DateTime?
+  plannedEndDate   DateTime?
+  actualStartDate  DateTime?
+  actualEndDate    DateTime?
 
   // Relationships
-  tasks             Task[]
+  tasks Task[]
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([projectId, number])
   @@index([projectId])
@@ -176,39 +209,39 @@ enum SprintStatus {
 // ============================================================================
 
 model Task {
-  id                String     @id @default(cuid())
-  sprintId          String
-  sprint            Sprint     @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+  id       String @id @default(cuid())
+  sprintId String
+  sprint   Sprint @relation(fields: [sprintId], references: [id], onDelete: Cascade)
 
   // Basic info
-  title             String
-  description       String?
-  order             Int        // Order within sprint
+  title       String
+  description String?
+  order       Int // Order within sprint
 
   // Status
-  status            TaskStatus @default(TODO)
+  status TaskStatus @default(TODO)
 
   // Categorization
-  category          String?    // "integration", "ui-component", "api", etc.
-  tags              Json       @default("[]")
+  category String? // "integration", "ui-component", "api", etc.
+  tags     Json    @default("[]")
 
   // Time estimates
-  estimatedHours    Decimal
-  adjustedHours     Decimal?   // AI-adjusted
-  actualHours       Decimal    @default(0)
+  estimatedHours Decimal
+  adjustedHours  Decimal? // AI-adjusted
+  actualHours    Decimal  @default(0)
 
   // Blocker reference
-  blockerId         String?
-  blocker           Blocker?   @relation(fields: [blockerId], references: [id])
+  blockerId String?
+  blocker   Blocker? @relation(fields: [blockerId], references: [id])
 
   // Completion
-  completedAt       DateTime?
+  completedAt DateTime?
 
   // Relationships
-  timeEntries       TimeEntry[]
+  timeEntries TimeEntry[]
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([sprintId])
   @@index([status])
@@ -226,45 +259,52 @@ enum TaskStatus {
 // ============================================================================
 
 model TimeEntry {
-  id                String     @id @default(cuid())
-  userId            String
-  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  projectId         String
-  project           Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  taskId            String?
-  task              Task?      @relation(fields: [taskId], references: [id])
+  id        String  @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  taskId    String?
+  task      Task?   @relation(fields: [taskId], references: [id])
 
   // Time
-  startTime         DateTime
-  endTime           DateTime?
-  durationMinutes   Int
+  startTime       DateTime
+  endTime         DateTime?
+  durationMinutes Int
 
   // Source
-  source            TimeSource @default(AUTO)
+  source TimeSource @default(AUTO)
 
   // Auto-tracking metadata
-  appName           String?    // "VS Code", "Figma", etc.
-  windowTitle       String?
+  appName     String? // "VS Code", "Figma", etc.
+  windowTitle String?
 
   // Manual entry
-  description       String?
+  description String?
 
   // Billing
-  billable          Boolean    @default(true)
+  billable Boolean @default(true)
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  // Blockchain verification (provably fair time tracking)
+  verificationHash String? // SHA-256 hash of entry data
+  merkleProof      Json? // Proof path for verification
+  anchoredAt       DateTime? // When anchored to blockchain
+  anchorTxHash     String? // Blockchain transaction hash
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([projectId])
   @@index([taskId])
   @@index([startTime])
+  @@index([anchoredAt])
 }
 
 enum TimeSource {
-  AUTO      // From desktop app
-  MANUAL    // Manual entry
-  ADJUSTED  // Adjusted during daily review
+  AUTO // From desktop app
+  MANUAL // Manual entry
+  ADJUSTED // Adjusted during daily review
 }
 
 // ============================================================================
@@ -272,43 +312,43 @@ enum TimeSource {
 // ============================================================================
 
 model Blocker {
-  id                String        @id @default(cuid())
-  projectId         String
-  project           Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   // Content
-  title             String
-  description       String?
+  title       String
+  description String?
 
   // Type
-  type              BlockerType   @default(HARD)
+  type BlockerType @default(HARD)
 
   // Who's responsible
-  waitingOn         String        // "client", "self", "third-party"
+  waitingOn String // "client", "self", "third-party"
 
   // Status
-  status            BlockerStatus @default(ACTIVE)
+  status BlockerStatus @default(ACTIVE)
 
   // Aging
-  resolvedAt        DateTime?
+  resolvedAt DateTime?
 
   // Auto follow-up
-  lastFollowUpAt    DateTime?
-  followUpCount     Int           @default(0)
+  lastFollowUpAt DateTime?
+  followUpCount  Int       @default(0)
 
   // Relationships
-  tasks             Task[]
+  tasks Task[]
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([projectId])
   @@index([status])
 }
 
 enum BlockerType {
-  HARD   // Needs external input
-  SOFT   // Can be worked around
+  HARD // Needs external input
+  SOFT // Can be worked around
 }
 
 enum BlockerStatus {
@@ -321,33 +361,33 @@ enum BlockerStatus {
 // ============================================================================
 
 model LibraryItem {
-  id          String          @id @default(cuid())
-  userId      String
-  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Basic info
   title       String
   description String?
-  code        String          @db.Text
-  language    String          // "typescript", "sql", "css", etc.
+  code        String  @db.Text
+  language    String // "typescript", "sql", "css", etc.
 
   // Categorization
-  type        LibraryItemType
-  tags        LibraryTag[]
+  type LibraryItemType
+  tags LibraryTag[]
 
   // Project association (optional)
-  projectId   String?
-  project     Project?        @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
   // Usage tracking
-  usageCount  Int             @default(0)
-  lastUsedAt  DateTime?
+  usageCount Int       @default(0)
+  lastUsedAt DateTime?
 
   // Metadata
-  isFavorite  Boolean         @default(false)
+  isFavorite Boolean @default(false)
 
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([type])
@@ -355,21 +395,21 @@ model LibraryItem {
 }
 
 enum LibraryItemType {
-  BLOCK    // Large implementations (auth flows, dashboards)
-  PATTERN  // Smaller snippets (hooks, utilities)
-  QUERY    // Database patterns
+  BLOCK // Large implementations (auth flows, dashboards)
+  PATTERN // Smaller snippets (hooks, utilities)
+  QUERY // Database patterns
 }
 
 model LibraryTag {
-  id          String        @id @default(cuid())
-  userId      String
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name        String
-  color       String        @default("#6366f1") // Indigo default
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name   String
+  color  String @default("#6366f1") // Indigo default
 
-  items       LibraryItem[]
+  items LibraryItem[]
 
-  createdAt   DateTime      @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([userId, name])
   @@index([userId])
@@ -380,31 +420,36 @@ model LibraryTag {
 // ============================================================================
 
 model PortalFeedback {
-  id          String              @id @default(cuid())
-  projectId   String
-  project     Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Optional client link (if feedback from registered client)
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
 
   // Author info (captured at submission time)
   authorName  String
   authorEmail String?
 
   // Content
-  content     String              @db.Text
-  pageUrl     String?
-  screenshot  String?             // URL to screenshot if provided
+  content    String  @db.Text
+  pageUrl    String?
+  screenshot String? // URL to screenshot if provided
 
   // Categorization
-  type        FeedbackType        @default(SUGGESTION)
+  type FeedbackType @default(SUGGESTION)
 
   // Status
-  status      FeedbackStatus      @default(NEW)
-  response    String?             @db.Text
+  status      FeedbackStatus @default(NEW)
+  response    String?        @db.Text
   respondedAt DateTime?
 
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([projectId])
+  @@index([clientId])
   @@index([status])
 }
 
@@ -426,16 +471,16 @@ enum FeedbackStatus {
 // ============================================================================
 
 model PortalMagicLink {
-  id          String    @id @default(cuid())
-  projectId   String
-  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  email       String
-  token       String    @unique
-  expiresAt   DateTime
-  usedAt      DateTime?
+  email     String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
 
-  createdAt   DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([projectId])
   @@index([email])
@@ -447,34 +492,34 @@ model PortalMagicLink {
 // ============================================================================
 
 model Call {
-  id            String        @id @default(cuid())
-  userId        String
-  projectId     String
-  project       Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  userId    String
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   // Basic info
-  title         String
-  callDate      DateTime
-  participants  String?       // Comma-separated names
+  title        String
+  callDate     DateTime
+  participants String? // Comma-separated names
 
   // Content
-  transcript    String        @db.Text
+  transcript String @db.Text
 
   // AI-processed fields
-  summary       String?       @db.Text
-  actionItems   Json          @default("[]")  // Array of {text, assignedTo, dueDate?}
-  decisions     Json          @default("[]")  // Array of {text, decidedBy}
-  sentiment     CallSentiment?
+  summary     String?        @db.Text
+  actionItems Json           @default("[]") // Array of {text, assignedTo, dueDate?}
+  decisions   Json           @default("[]") // Array of {text, decidedBy}
+  sentiment   CallSentiment?
 
   // Sharing
-  briefShared   Boolean       @default(false)
-  briefToken    String?       @unique         // For shareable link
+  briefShared Boolean @default(false)
+  briefToken  String? @unique // For shareable link
 
   // Relationships
-  followUps     FollowUp[]
+  followUps FollowUp[]
 
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([projectId])
@@ -492,19 +537,19 @@ enum CallSentiment {
 // ============================================================================
 
 model NoteFolder {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  name      String
-  slug      String
-  icon      String?  // Lucide icon name or emoji
-  color     String?  // Hex color for UI accent
+  name  String
+  slug  String
+  icon  String? // Lucide icon name or emoji
+  color String? // Hex color for UI accent
 
-  isSystem  Boolean  @default(false) // System folders can't be deleted
-  order     Int      @default(0)     // Display order in sidebar
+  isSystem Boolean @default(false) // System folders can't be deleted
+  order    Int     @default(0) // Display order in sidebar
 
-  notes     Note[]
+  notes Note[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -518,34 +563,34 @@ model NoteFolder {
 // ============================================================================
 
 model Note {
-  id          String    @id @default(cuid())
-  userId      String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Basic info
-  title       String
-  content     String    @db.Text
-  slug        String
+  title   String
+  content String @db.Text
+  slug    String
 
   // Project association (optional)
-  projectId   String?
-  project     Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
   // Folder organization
-  folderId          String?
-  folder            NoteFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  folderId String?
+  folder   NoteFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
 
   // AI organization metadata
-  aiConfidence      Int?        // 0-100, null if manually organized
-  aiReasoning       String?     // Why AI chose this folder
-  wasManuallyMoved  Boolean     @default(false)
+  aiConfidence     Int? // 0-100, null if manually organized
+  aiReasoning      String? // Why AI chose this folder
+  wasManuallyMoved Boolean @default(false)
 
   // Organization
-  isPinned    Boolean   @default(false)
-  tags        Json      @default("[]")  // Array of tag strings
+  isPinned Boolean @default(false)
+  tags     Json    @default("[]") // Array of tag strings
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, slug])
   @@index([userId])
@@ -558,17 +603,17 @@ model Note {
 // ============================================================================
 
 model NoteFolderCorrection {
-  id              String   @id @default(cuid())
-  userId          String
-  noteId          String
+  id     String @id @default(cuid())
+  userId String
+  noteId String
 
-  fromFolderId    String
-  toFolderId      String
-  fromFolderName  String   // Denormalized for analytics
-  toFolderName    String   // Denormalized for analytics
-  aiConfidence    Int      // What the AI's confidence was
+  fromFolderId   String
+  toFolderId     String
+  fromFolderName String // Denormalized for analytics
+  toFolderName   String // Denormalized for analytics
+  aiConfidence   Int // What the AI's confidence was
 
-  createdAt       DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([userId])
   @@index([noteId])
@@ -579,26 +624,26 @@ model NoteFolderCorrection {
 // ============================================================================
 
 model FollowUp {
-  id            String         @id @default(cuid())
-  userId        String
-  callId        String?
-  call          Call?          @relation(fields: [callId], references: [id], onDelete: SetNull)
-  projectId     String
-  project       Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  userId    String
+  callId    String?
+  call      Call?   @relation(fields: [callId], references: [id], onDelete: SetNull)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   // Content
-  title         String
-  description   String?
-  sourceType    FollowUpSource @default(CALL)
-  sourceQuote   String?        // Quote from the call that generated this
+  title       String
+  description String?
+  sourceType  FollowUpSource @default(CALL)
+  sourceQuote String? // Quote from the call that generated this
 
   // Scheduling
-  dueDate       DateTime?
-  status        FollowUpStatus @default(SUGGESTED)
-  completedAt   DateTime?
+  dueDate     DateTime?
+  status      FollowUpStatus @default(SUGGESTED)
+  completedAt DateTime?
 
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([projectId])
@@ -625,23 +670,23 @@ enum FollowUpStatus {
 // ============================================================================
 
 model Faq {
-  id          String    @id @default(cuid())
-  userId      String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Question and answer
-  question    String    @db.Text
-  answer      String    @db.Text
+  question String @db.Text
+  answer   String @db.Text
 
   // Context
-  context     String?   // What page/feature the question was asked from
+  context String? // What page/feature the question was asked from
 
   // Metadata
-  isHelpful   Boolean?  // User feedback
-  usageCount  Int       @default(1)  // How many times similar question asked
+  isHelpful  Boolean? // User feedback
+  usageCount Int      @default(1) // How many times similar question asked
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([createdAt])
@@ -652,23 +697,23 @@ model Faq {
 // ============================================================================
 
 model ProjectFrameworkDoc {
-  id          String            @id @default(cuid())
-  projectId   String
-  project     Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   // Document identification
-  docNumber   Int               // 1-12
-  docType     FrameworkDocType
+  docNumber Int // 1-12
+  docType   FrameworkDocType
 
   // Content
-  content     String            @db.Text
+  content String @db.Text
 
   // Status
-  status      FrameworkDocStatus @default(DRAFT)
-  lockedAt    DateTime?
+  status   FrameworkDocStatus @default(DRAFT)
+  lockedAt DateTime?
 
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([projectId, docNumber])
   @@index([projectId])
@@ -700,30 +745,30 @@ enum FrameworkDocStatus {
 // ============================================================================
 
 model ProjectCheckpoint {
-  id            String            @id @default(cuid())
-  projectId     String
-  project       Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   // Identification
-  checkpointId  String            // "CP-1.1", "CP-2.3", etc.
-  name          String
-  phase         Int               // 1-6
+  checkpointId String // "CP-1.1", "CP-2.3", etc.
+  name         String
+  phase        Int // 1-6
 
   // Status
-  status        CheckpointStatus  @default(PENDING)
+  status CheckpointStatus @default(PENDING)
 
   // Time tracking
   estimatedMins Int?
-  actualMins    Int               @default(0)
+  actualMins    Int       @default(0)
   startedAt     DateTime?
   completedAt   DateTime?
 
   // Relationships
-  sessions      CheckpointSession[]
-  objectives    ProjectObjective[]
+  sessions   CheckpointSession[]
+  objectives ProjectObjective[]
 
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([projectId, checkpointId])
   @@index([projectId])
@@ -742,19 +787,19 @@ enum CheckpointStatus {
 // ============================================================================
 
 model CheckpointSession {
-  id            String            @id @default(cuid())
-  checkpointId  String
-  checkpoint    ProjectCheckpoint @relation(fields: [checkpointId], references: [id], onDelete: Cascade)
+  id           String            @id @default(cuid())
+  checkpointId String
+  checkpoint   ProjectCheckpoint @relation(fields: [checkpointId], references: [id], onDelete: Cascade)
 
   // Session timing
-  startedAt     DateTime          @default(now())
-  endedAt       DateTime?
-  durationMins  Int?
+  startedAt    DateTime  @default(now())
+  endedAt      DateTime?
+  durationMins Int?
 
   // Optional notes
-  notes         String?           @db.Text
+  notes String? @db.Text
 
-  createdAt     DateTime          @default(now())
+  createdAt DateTime @default(now())
 
   @@index([checkpointId])
   @@index([startedAt])
@@ -765,23 +810,23 @@ model CheckpointSession {
 // ============================================================================
 
 model ProjectObjective {
-  id            String            @id @default(cuid())
-  checkpointId  String
-  checkpoint    ProjectCheckpoint @relation(fields: [checkpointId], references: [id], onDelete: Cascade)
+  id           String            @id @default(cuid())
+  checkpointId String
+  checkpoint   ProjectCheckpoint @relation(fields: [checkpointId], references: [id], onDelete: Cascade)
 
   // Identification
-  objectiveId   String            // "1.1.1", "2.3.2", etc.
-  name          String
-  acceptance    String            @db.Text
+  objectiveId String // "1.1.1", "2.3.2", etc.
+  name        String
+  acceptance  String @db.Text
 
   // Status
-  status        ObjectiveStatus   @default(PENDING)
+  status ObjectiveStatus @default(PENDING)
 
   // Relationships
-  steps         ProjectStep[]
+  steps ProjectStep[]
 
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([checkpointId, objectiveId])
   @@index([checkpointId])
@@ -799,21 +844,21 @@ enum ObjectiveStatus {
 // ============================================================================
 
 model ProjectStep {
-  id            String            @id @default(cuid())
-  objectiveId   String
-  objective     ProjectObjective  @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+  id          String           @id @default(cuid())
+  objectiveId String
+  objective   ProjectObjective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
 
   // Identification
-  stepId        String            // "1.1.1.1", "2.3.2.4", etc.
-  action        String            @db.Text
-  acceptance    String            @db.Text
+  stepId     String // "1.1.1.1", "2.3.2.4", etc.
+  action     String @db.Text
+  acceptance String @db.Text
 
   // Status
-  status        StepStatus        @default(PENDING)
-  completedAt   DateTime?
+  status      StepStatus @default(PENDING)
+  completedAt DateTime?
 
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([objectiveId, stepId])
   @@index([objectiveId])
@@ -830,18 +875,18 @@ enum StepStatus {
 // ============================================================================
 
 model ProjectWorkspaceNote {
-  id            String    @id @default(cuid())
-  projectId     String
-  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   // Optional checkpoint association
-  checkpointId  String?
+  checkpointId String?
 
   // Content
-  author        String    // "user" or "claude"
-  content       String    @db.Text
+  author  String // "user" or "claude"
+  content String @db.Text
 
-  createdAt     DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([projectId])
   @@index([checkpointId])
@@ -853,39 +898,39 @@ model ProjectWorkspaceNote {
 // ============================================================================
 
 model DesignSystem {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Identity
-  name        String   // "NERVE"
-  slug        String   @unique
-  description String   @db.Text
-  philosophy  String   @db.Text // 2-3 sentence aesthetic description
+  name        String // "NERVE"
+  slug        String @unique
+  description String @db.Text
+  philosophy  String @db.Text // 2-3 sentence aesthetic description
 
   // Visual
-  coverImage  String?  // URL to album cover image
-  coverColor  String?  // Fallback gradient color if no image
+  coverImage String? // URL to album cover image
+  coverColor String? // Fallback gradient color if no image
 
   // Versioning
-  version     String   @default("1.0.0")
+  version String @default("1.0.0")
 
   // Content (stored as JSON or raw text)
-  cssContent  String   @db.Text // Full CSS variables/utilities content
-  components  Json     @default("[]") // Array of {name, category, code, props, usage}
-  palette     Json     @default("{}") // Color tokens
-  typography  Json     @default("{}") // Type scale
-  utilities   Json     @default("{}") // CSS utility classes
-  primitives  Json     @default("[]") // Array of {name, description, code}
-  backgrounds Json     @default("[]") // Array of {name, description, code}
+  cssContent  String @db.Text // Full CSS variables/utilities content
+  components  Json   @default("[]") // Array of {name, category, code, props, usage}
+  palette     Json   @default("{}") // Color tokens
+  typography  Json   @default("{}") // Type scale
+  utilities   Json   @default("{}") // CSS utility classes
+  primitives  Json   @default("[]") // Array of {name, description, code}
+  backgrounds Json   @default("[]") // Array of {name, description, code}
 
   // Metadata
-  isPublic    Boolean  @default(false) // Can others see this?
-  usageCount  Int      @default(0)
-  lastUsedAt  DateTime?
+  isPublic   Boolean   @default(false) // Can others see this?
+  usageCount Int       @default(0)
+  lastUsedAt DateTime?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([slug])
@@ -897,66 +942,66 @@ model DesignSystem {
 
 // Agent Preferences - User settings for agent behavior
 model AgentPreferences {
-  id                  String   @id @default(cuid())
-  userId              String   @unique
-  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Proactive behavior
-  proactiveEnabled    Boolean  @default(true)
-  autoDraftFollowups  Boolean  @default(true)
-  morningBriefEnabled Boolean  @default(false)
-  morningBriefTime    String   @default("09:00")
+  proactiveEnabled    Boolean @default(true)
+  autoDraftFollowups  Boolean @default(true)
+  morningBriefEnabled Boolean @default(false)
+  morningBriefTime    String  @default("09:00")
 
   // Quiet hours
-  quietHoursEnabled   Boolean  @default(true)
-  quietHoursStart     String   @default("22:00")
-  quietHoursEnd       String   @default("08:00")
+  quietHoursEnabled Boolean @default(true)
+  quietHoursStart   String  @default("22:00")
+  quietHoursEnd     String  @default("08:00")
 
   // Communication style (learned + explicit)
-  preferredStyle      String   @default("concise") // concise, detailed
-  timezone            String   @default("America/New_York")
+  preferredStyle String @default("concise") // concise, detailed
+  timezone       String @default("America/New_York")
 
   // Learned patterns (JSON)
-  learnedPatterns     Json     @default("[]")
+  learnedPatterns Json @default("[]")
 
   // Auto-approve settings
-  autoApproveTypes    Json     @default("[]") // ["draft-note", "analyze-blocker"]
+  autoApproveTypes Json @default("[]") // ["draft-note", "analyze-blocker"]
 
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Agent Suggestion - Proactive suggestions waiting for user action
 model AgentSuggestion {
-  id              String              @id @default(cuid())
-  userId          String
-  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // What triggered this
-  triggerType     String              // "blocker_stale", "sprint_complete", "task_stuck", etc.
-  triggerEntityId String?             // ID of the blocker, sprint, task, etc.
+  triggerType     String // "blocker_stale", "sprint_complete", "task_stuck", etc.
+  triggerEntityId String? // ID of the blocker, sprint, task, etc.
 
   // The suggestion
-  type            String              // "follow-up", "summary", "analysis", "reminder"
-  title           String
-  description     String              @db.Text
-  projectId       String?
-  projectName     String?
+  type        String // "follow-up", "summary", "analysis", "reminder"
+  title       String
+  description String  @db.Text
+  projectId   String?
+  projectName String?
 
   // What the agent proposes to do
-  proposedAction  String              // "draft_email", "generate_summary", etc.
-  actionPayload   Json                @default("{}") // Data needed to execute
+  proposedAction String // "draft_email", "generate_summary", etc.
+  actionPayload  Json   @default("{}") // Data needed to execute
 
   // Status
-  status          AgentSuggestionStatus @default(PENDING)
-  respondedAt     DateTime?
-  dismissReason   String?
+  status        AgentSuggestionStatus @default(PENDING)
+  respondedAt   DateTime?
+  dismissReason String?
 
   // Priority
-  urgency         String              @default("normal") // "low", "normal", "urgent"
+  urgency String @default("normal") // "low", "normal", "urgent"
 
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([status])
@@ -973,23 +1018,23 @@ enum AgentSuggestionStatus {
 
 // Agent Conversation - Chat sessions with the agent
 model AgentConversation {
-  id          String          @id @default(cuid())
-  userId      String
-  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Optional context
-  projectId   String?
-  title       String?
+  projectId String?
+  title     String?
 
   // Messages
-  messages    AgentMessage[]
+  messages AgentMessage[]
 
   // Metadata
-  messageCount Int            @default(0)
+  messageCount  Int       @default(0)
   lastMessageAt DateTime?
 
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([lastMessageAt])
@@ -997,21 +1042,21 @@ model AgentConversation {
 
 // Agent Message - Individual messages in a conversation
 model AgentMessage {
-  id              String            @id @default(cuid())
-  conversationId  String
-  conversation    AgentConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  id             String            @id @default(cuid())
+  conversationId String
+  conversation   AgentConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
   // Message content
-  role            String            // "user" or "agent"
-  content         String            @db.Text
+  role    String // "user" or "agent"
+  content String @db.Text
 
   // Tool usage (for agent messages)
-  toolCalls       Json?             // [{name, input, result}]
+  toolCalls Json? // [{name, input, result}]
 
   // Metadata
-  tokenCount      Int?
+  tokenCount Int?
 
-  createdAt       DateTime          @default(now())
+  createdAt DateTime @default(now())
 
   @@index([conversationId])
   @@index([createdAt])
@@ -1019,24 +1064,24 @@ model AgentMessage {
 
 // Agent Learned Pattern - Patterns the agent learns over time
 model AgentLearnedPattern {
-  id                String   @id @default(cuid())
-  userId            String
+  id     String @id @default(cuid())
+  userId String
 
   // Pattern identification
-  type              String   // "estimate", "blocker", "communication", "workflow", "productivity"
-  pattern           String   @db.Text
-  confidence        String   @default("medium") // "high", "medium", "low"
+  type       String // "estimate", "blocker", "communication", "workflow", "productivity"
+  pattern    String @db.Text
+  confidence String @default("medium") // "high", "medium", "low"
 
   // Tracking
-  occurrences       Int      @default(1)
-  lastSeen          DateTime @default(now())
-  evidence          Json     @default("[]") // Array of evidence strings
+  occurrences Int      @default(1)
+  lastSeen    DateTime @default(now())
+  evidence    Json     @default("[]") // Array of evidence strings
 
   // Actionable insight
-  actionableInsight String?  @db.Text
+  actionableInsight String? @db.Text
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([type])
@@ -1045,17 +1090,17 @@ model AgentLearnedPattern {
 
 // Agent Estimate Calibration - Track estimate accuracy by task type
 model AgentEstimateCalibration {
-  id              String   @id @default(cuid())
-  userId          String
-  taskType        String   // e.g., "integration", "ui-component", "api", "general"
+  id       String @id @default(cuid())
+  userId   String
+  taskType String // e.g., "integration", "ui-component", "api", "general"
 
   // Aggregate data
-  averageOverrun  Float    @default(0) // e.g., 0.5 = 50% over estimate
-  sampleSize      Int      @default(0)
-  recentMisses    Json     @default("[]") // Array of {taskId, taskTitle, estimated, actual, overrunPercent}
+  averageOverrun Float @default(0) // e.g., 0.5 = 50% over estimate
+  sampleSize     Int   @default(0)
+  recentMisses   Json  @default("[]") // Array of {taskId, taskTitle, estimated, actual, overrunPercent}
 
-  lastUpdated     DateTime @default(now())
-  createdAt       DateTime @default(now())
+  lastUpdated DateTime @default(now())
+  createdAt   DateTime @default(now())
 
   @@unique([userId, taskType])
   @@index([userId])
@@ -1068,15 +1113,15 @@ model AgentEstimateCalibration {
 
 // Desktop Pairing Code - Short-lived codes for pairing desktop app
 model DesktopPairingCode {
-  id          String    @id @default(cuid())
-  userId      String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  code        String    @unique // 6-digit code
-  expiresAt   DateTime
-  usedAt      DateTime?
+  code      String    @unique // 6-digit code
+  expiresAt DateTime
+  usedAt    DateTime?
 
-  createdAt   DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([userId])
   @@index([code])
@@ -1085,20 +1130,321 @@ model DesktopPairingCode {
 
 // Desktop Device - Paired desktop app instances
 model DesktopDevice {
-  id          String    @id @default(cuid())
-  userId      String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  deviceId    String    @unique // UUID from desktop app
-  name        String    // Hostname or user-provided name
-  platform    String    // "darwin", "win32", "linux"
+  deviceId String @unique // UUID from desktop app
+  name     String // Hostname or user-provided name
+  platform String // "darwin", "win32", "linux"
 
-  authToken   String    @unique // Token for Pusher auth
-  lastSeenAt  DateTime  @default(now())
+  authToken  String   @unique // Token for Pusher auth
+  lastSeenAt DateTime @default(now())
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  // Relationships
+  linkedDirectories ProjectLocalDirectory[]
+  activityEvents    ActivityEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([lastSeenAt])
+}
+
+// ============================================================================
+// Project Local Directory - Link local directories to web projects
+// ============================================================================
+
+model ProjectLocalDirectory {
+  id        String  @id @default(cuid())
+  projectId String  @unique
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Local path on desktop
+  localPath String
+
+  // Directory metadata (synced from desktop)
+  directoryTree Json   @default("{}") // Tree structure
+  fileStats     Json   @default("{}") // { "ts": 45, "tsx": 23 }
+  totalFiles    Int    @default(0)
+  totalFolders  Int    @default(0)
+  totalSize     BigInt @default(0) // Bytes
+
+  // Tech stack detection
+  techStack     Json    @default("[]") // ["Next.js", "TypeScript", "Prisma"]
+  packageJson   Json? // Parsed package.json if exists
+  readmeContent String? @db.Text // First ~10KB of README
+
+  // Sync status
+  lastSyncedAt DateTime?
+  syncStatus   DirectorySyncStatus @default(PENDING)
+  syncError    String?
+
+  // Which device this was linked from
+  deviceId String?
+  device   DesktopDevice? @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([deviceId])
+  @@index([syncStatus])
+}
+
+enum DirectorySyncStatus {
+  PENDING // Not yet scanned
+  SCANNING // Currently being scanned
+  SYNCED // Successfully synced
+  ERROR // Scan failed
+}
+
+// ============================================================================
+// Client Management - For Client Portal Pivot
+// ============================================================================
+
+model Client {
+  id        String  @id @default(cuid())
+  userId    String // Owner of this client relationship
+  name      String
+  email     String
+  company   String?
+  phone     String?
+  avatarUrl String?
+  notes     String? @db.Text // Internal notes about client
+
+  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectAccess ClientProjectAccess[]
+  feedback      PortalFeedback[]
+  invoices      Invoice[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, email])
+  @@index([userId])
+}
+
+model ClientProjectAccess {
+  id           String    @id @default(cuid())
+  clientId     String
+  projectId    String
+  accessLevel  String    @default("VIEW") // VIEW, COMMENT, FULL
+  invitedAt    DateTime  @default(now())
+  lastViewedAt DateTime?
+
+  // Contract status for tiered documentation access
+  contractStatus   ContractStatus @default(PRE_CONTRACT)
+  contractSignedAt DateTime?
+
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, projectId])
+  @@index([projectId])
+  @@index([contractStatus])
+}
+
+enum ContractStatus {
+  PRE_CONTRACT // NDA only - limited docs
+  SIGNED // Full contract - full docs
+  DELIVERED // Project complete - archive access
+}
+
+// ============================================================================
+// Invoicing - Client Billing
+// ============================================================================
+
+model Invoice {
+  id              String        @id @default(cuid())
+  userId          String
+  clientId        String
+  projectId       String?
+  invoiceNumber   String
+  amount          Decimal
+  currency        String        @default("USD")
+  status          InvoiceStatus @default(DRAFT)
+  dueDate         DateTime?
+  paidAt          DateTime?
+  stripeInvoiceId String?
+  lineItems       Json? // Array of line items
+  notes           String?       @db.Text
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client  Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  project Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([clientId])
+  @@index([projectId])
+  @@index([status])
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+// ============================================================================
+// Deliverables - Project Milestones for Client Portal
+// ============================================================================
+
+model Deliverable {
+  id          String            @id @default(cuid())
+  projectId   String
+  title       String
+  description String?           @db.Text
+  status      DeliverableStatus @default(PLANNED)
+  dueDate     DateTime?
+  completedAt DateTime?
+  sortOrder   Int               @default(0)
+
+  // Client Portal v2 enhancements
+  clientVisible   Boolean @default(true)
+  progressPercent Int     @default(0) // 0-100
+  demoUrl         String? // Staging/preview link
+  demoPassword    String? // If demo needs auth
+  screenshots     Json    @default("[]") // Array of image URLs
+  linkedSprintIds Json    @default("[]") // Sprint IDs feeding this milestone
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([status])
+  @@index([clientVisible])
+}
+
+enum DeliverableStatus {
+  PLANNED
+  IN_PROGRESS
+  REVIEW
+  COMPLETED
+  CANCELLED
+}
+
+// ============================================================================
+// Activity Events - Real-time Activity from Desktop
+// ============================================================================
+
+model ActivityEvent {
+  id          String   @id @default(cuid())
+  userId      String
+  projectId   String?
+  deviceId    String? // Which desktop sent this
+  eventType   String // TASK_STARTED, TASK_COMPLETED, TIME_LOGGED, etc.
+  title       String
+  description String?
+  metadata    Json? // Additional event data
+  occurredAt  DateTime @default(now())
+
+  // Client visibility (Client Portal v2)
+  visibleToClient Boolean @default(false)
+  clientMessage   String? // Client-friendly description
+
+  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project?       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  device  DesktopDevice? @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([occurredAt])
+  @@index([visibleToClient])
+}
+
+// ============================================================================
+// Comment System - Threaded Comments (Client Portal v2)
+// ============================================================================
+
+model Comment {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Polymorphic - can be on any entity
+  entityType String // "project" | "deliverable" | "feedback" | "activity" | "blocker"
+  entityId   String
+
+  // Threading
+  parentId String?
+  parent   Comment?  @relation("CommentThread", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentThread")
+
+  // Content
+  content String @db.Text
+
+  // Reactions
+  reactions Json @default("[]") // [{emoji, userId, createdAt}]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([parentId])
+}
+
+// ============================================================================
+// Time Anchor - Blockchain verification for time entries (Client Portal v2)
+// ============================================================================
+
+model TimeAnchor {
+  id         String   @id @default(cuid())
+  date       DateTime @unique // One anchor per day
+  merkleRoot String // Root hash of all entries for this day
+  entryCount Int // How many time entries
+  txHash     String? // Blockchain transaction hash
+  chainId    Int? // Which chain (137 = Polygon, 8453 = Base)
+
+  createdAt DateTime @default(now())
+
+  @@index([date])
+  @@index([txHash])
+}
+
+// ============================================================================
+// User Presence - Real-time status indicator (Client Portal v2)
+// ============================================================================
+
+model UserPresence {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Current state
+  status       PresenceStatus @default(OFFLINE)
+  customStatus String? // "Shipping features 🚀"
+
+  // Context (auto-populated from activity)
+  currentProjectId String?
+  currentArea      String? // "API", "Frontend", "Design", "Testing"
+  currentTaskId    String?
+
+  // Tracking
+  lastActivityAt DateTime  @default(now())
+  focusStartedAt DateTime? // Deep work detection (2hr+ uninterrupted)
+
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([lastActivityAt])
+}
+
+enum PresenceStatus {
+  ONLINE // Active in last 15 min
+  AWAY // No activity 15-60 min
+  OFFLINE // No activity 60+ min
+  DEEP_WORK // Focus mode (manual or auto after 2hr)
+  IN_MEETING // Calendar integration
+  AFTER_HOURS // Outside working hours
+  CUSTOM // User-set custom status
 }
