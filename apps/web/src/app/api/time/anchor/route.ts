@@ -15,7 +15,7 @@
 
 import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
-import { requireDevUser } from "@/lib/auth"
+import { requireAdmin, getCurrentUser } from "@/lib/auth"
 import {
   buildMerkleTree,
   anchorToPolygon,
@@ -24,8 +24,12 @@ import {
 
 export async function POST(request: Request) {
   try {
-    // Only DEV users can trigger anchoring
-    const user = await requireDevUser()
+    // Only Admin users can trigger anchoring
+    await requireAdmin()
+    const user = await getCurrentUser()
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
 
     const body = await request.json().catch(() => ({}))
 
@@ -165,7 +169,7 @@ export async function POST(request: Request) {
 // Get anchor status for a date
 export async function GET(request: Request) {
   try {
-    await requireDevUser()
+    await requireAdmin()
 
     const { searchParams } = new URL(request.url)
     const dateParam = searchParams.get("date")
