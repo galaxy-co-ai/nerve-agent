@@ -3,6 +3,7 @@
 import { NavMain } from "@/components/navigation/nav-main"
 import { NavUser } from "@/components/navigation/nav-user"
 import { NavQuickActions } from "@/components/navigation/nav-quick-actions"
+import { ViewModeToggle } from "@/components/navigation/view-mode-toggle"
 import {
   Sidebar,
   SidebarContent,
@@ -35,7 +36,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r-0">
       {/* User at top */}
       <SidebarHeader
-        className="p-3"
+        className="p-3 space-y-2"
         style={{
           background: `linear-gradient(180deg, ${NERVE.elevated} 0%, ${NERVE.housing} 100%)`,
           borderBottom: `1px solid ${NERVE.edgeLight}`,
@@ -43,6 +44,7 @@ export function AppSidebar() {
         }}
       >
         <NavUser />
+        <ViewModeToggle />
       </SidebarHeader>
 
       {/* Main nav in middle, pushed to bottom */}
