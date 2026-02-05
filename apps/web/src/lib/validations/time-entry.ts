@@ -15,8 +15,8 @@ export const createTimeEntrySchema = z.object({
   // End time should be after start time (basic check)
   const [startH, startM] = data.startTime.split(":").map(Number)
   const [endH, endM] = data.endTime.split(":").map(Number)
-  const startMinutes = startH * 60 + startM
-  const endMinutes = endH * 60 + endM
+  const _startMinutes = startH * 60 + startM
+  const _endMinutes = endH * 60 + endM
   // Allow overnight entries (end < start means next day)
   return true
 }, { message: "Invalid time range" })

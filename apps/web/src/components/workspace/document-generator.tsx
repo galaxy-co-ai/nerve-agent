@@ -15,7 +15,6 @@ import {
   ArrowRight,
   MessageSquare,
   Save,
-  Lock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DOCUMENT_TEMPLATES } from "@/lib/framework-templates"
@@ -39,9 +38,9 @@ interface ApprovedSection {
 
 export function DocumentGenerator({
   projectSlug,
-  projectName,
+  projectName: _projectName,
   docNumber,
-  existingContent,
+  existingContent: _existingContent,
   onComplete,
   onCancel,
 }: DocumentGeneratorProps) {
@@ -149,6 +148,7 @@ export function DocumentGenerator({
       // All sections complete - save the document
       saveDocument()
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSectionIndex, currentContent, totalSections, template])
 
   const saveDocument = useCallback(async () => {

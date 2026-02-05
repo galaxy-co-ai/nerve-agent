@@ -16,7 +16,7 @@ import {
   Sparkles,
 } from "lucide-react"
 import { DOCUMENT_TEMPLATES } from "@/lib/framework-templates"
-import { cn } from "@/lib/utils"
+import { cn as _cn } from "@/lib/utils"
 import { FRAMEWORK_DOCS, type FrameworkDoc } from "@/lib/types/workspace"
 
 interface DocumentViewerProps {

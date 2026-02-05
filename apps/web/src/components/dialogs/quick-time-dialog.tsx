@@ -122,7 +122,7 @@ export function QuickTimeDialog() {
   }, [tasks])
 
   // Filter tasks by selected project
-  const filteredTasks = projectId
+  const _filteredTasks = projectId
     ? tasks.filter(t => t.sprint.project.id === projectId)
     : tasks
 

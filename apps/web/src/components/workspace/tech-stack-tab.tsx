@@ -21,7 +21,7 @@ export function TechStackTab({ techStack }: TechStackTabProps) {
 
   // Parse tech stack from markdown-style content
   // Expected format is markdown with headers and lists
-  const lines = techStack.split("\n")
+  const _lines = techStack.split("\n")
 
   return (
     <div className="space-y-3">

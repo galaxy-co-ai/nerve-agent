@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { FileText, Home, RotateCcw } from "lucide-react"
+import { FileText, RotateCcw } from "lucide-react"
 import Link from "next/link"
 
 export default function NotesError({

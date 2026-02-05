@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Play, Square, Loader2, Clock, Trash2 } from "lucide-react"
+import { Square, Loader2, Trash2 } from "lucide-react"
 import {
   SidebarGroup,
   SidebarGroupContent,

@@ -4,7 +4,7 @@
 
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState } from "react"
 import { formatDistanceToNow } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"

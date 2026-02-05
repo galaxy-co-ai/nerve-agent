@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { db } from "@/lib/db"
-import { requireUser } from "@/lib/auth"
 import { createTask, updateTaskStatus, completeTaskWithExtras, deleteTask } from "../tasks"
 import { revalidatePath } from "next/cache"
 

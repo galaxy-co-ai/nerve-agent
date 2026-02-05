@@ -70,5 +70,6 @@ export function useTrackPageVisit(item: Omit<RecentItem, "timestamp"> | null) {
     if (item) {
       addItem(item)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item?.id, item?.type]) // Only track when id or type changes
 }

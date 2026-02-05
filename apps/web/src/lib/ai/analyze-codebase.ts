@@ -148,7 +148,7 @@ export async function analyzeCodebase(
     }
 
     return analysis
-  } catch (error) {
+  } catch {
     console.error("Failed to parse AI response:", cleanJson)
     throw new Error("Failed to parse project analysis. Please try again.")
   }

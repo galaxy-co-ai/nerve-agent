@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Loader2, Play, Clock } from "lucide-react"
+import { Loader2, Play } from "lucide-react"
 import { getQuickTimeEntryData } from "@/lib/actions/time"
 
 type Project = {

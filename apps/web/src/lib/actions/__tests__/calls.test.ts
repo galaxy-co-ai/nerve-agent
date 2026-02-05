@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { db } from "@/lib/db"
 import { createCall, updateCall, deleteCall, toggleBriefShared, getCallByBriefToken } from "../calls"
-import { revalidatePath } from "next/cache"
 
 // Type the mocked db
 const mockedDb = vi.mocked(db)

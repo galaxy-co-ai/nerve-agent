@@ -4,7 +4,6 @@ import type {
   ProjectObjective,
   ProjectStep,
   CheckpointSession,
-  ProjectWorkspaceNote,
   FrameworkDocType,
   FrameworkDocStatus,
   CheckpointStatus,

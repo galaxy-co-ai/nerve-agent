@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import { db } from "@/lib/db"
 import { createNote, updateNote, deleteNote, toggleNotePin, quickCreateNote } from "../notes"
 import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
 
 // Type the mocked db
 const mockedDb = vi.mocked(db)

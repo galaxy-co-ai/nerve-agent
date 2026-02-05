@@ -13,7 +13,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { H1, Muted } from "@/components/ui/typography"
+import { H1 } from "@/components/ui/typography"
 import { Badge } from "@/components/ui/badge"
 import { FolderKanban, Clock, Link2, FileText } from "lucide-react"
 import { db } from "@/lib/db"

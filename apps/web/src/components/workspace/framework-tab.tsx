@@ -1,9 +1,8 @@
 "use client"
 
-import { CheckCircle2, Circle, Lock, FileText } from "lucide-react"
+import { CheckCircle2, Circle, Lock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
-  FRAMEWORK_DOCS,
   PHASE_NAMES,
   getDocsByPhase,
   type FrameworkDoc,
