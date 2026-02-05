@@ -16,11 +16,11 @@ export function TrackPageVisit({ id, type, title, href, projectName }: TrackPage
     // Small delay to avoid tracking during navigation
     const timeout = setTimeout(() => {
       const stored = localStorage.getItem("nerve-agent-recent-items")
-      let items: any[] = []
+      let items: unknown[] = []
 
       if (stored) {
         try {
-          items = JSON.parse(stored)
+          items = JSON.parse(stored) as unknown[]
         } catch {
           // ignore parse errors
         }
@@ -28,7 +28,10 @@ export function TrackPageVisit({ id, type, title, href, projectName }: TrackPage
 
       // Remove existing item with same id and type
       const filtered = items.filter(
-        (i: any) => !(i.id === id && i.type === type)
+        (i) => {
+          const item = i as { id?: string; type?: string }
+          return !(item.id === id && item.type === type)
+        }
       )
 
       // Add new item at the beginning

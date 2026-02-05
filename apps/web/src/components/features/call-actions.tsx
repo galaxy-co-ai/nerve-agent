@@ -66,7 +66,7 @@ export function CallActions({ callId, briefShared, briefToken }: CallActionsProp
     setIsDeleting(true)
     try {
       await deleteCall(callId)
-    } catch (error) {
+    } catch {
       setIsDeleting(false)
     }
   }

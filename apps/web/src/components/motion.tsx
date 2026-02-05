@@ -10,13 +10,11 @@ import {
   fadeIn,
   fadeInUp,
   fadeInScale,
-  staggerContainer,
   staggerItem,
   popIn,
   slideInRight,
   slideInBottom,
   pageTransition,
-  cardHover,
 } from "@/lib/animations"
 import { cn } from "@/lib/utils"
 

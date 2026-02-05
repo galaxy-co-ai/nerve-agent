@@ -48,7 +48,7 @@ async function executeTool(
     }
 
     // Generate unique slug
-    let baseSlug = projectName
+    const baseSlug = projectName
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "")

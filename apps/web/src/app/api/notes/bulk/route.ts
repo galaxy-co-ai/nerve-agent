@@ -38,7 +38,7 @@ export async function POST(request: Request) {
       if (!title || !content) continue
 
       // Generate unique slug
-      let baseSlug = generateSlug(title)
+      const baseSlug = generateSlug(title)
       let slug = baseSlug
       let counter = 1
 

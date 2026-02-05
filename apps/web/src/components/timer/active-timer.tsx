@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Play, Pause, Square, Loader2, Clock, Trash2 } from "lucide-react"
+import { Square, Loader2, Clock, Trash2 } from "lucide-react"
 
 function formatTime(seconds: number): string {
   const hours = Math.floor(seconds / 3600)

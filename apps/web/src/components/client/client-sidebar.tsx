@@ -9,6 +9,7 @@ import {
   Settings,
   ChevronRight,
   Search,
+  Phone,
 } from "lucide-react"
 import {
   Sidebar,
@@ -79,6 +80,11 @@ export function ClientSidebar({ user, projects, canToggleView }: ClientSidebarPr
       title: "Portfolio",
       href: "/client",
       icon: LayoutDashboard,
+    },
+    {
+      title: "Calls",
+      href: "/client/calls",
+      icon: Phone,
     },
     {
       title: "Messages",

@@ -12,34 +12,32 @@ import { FileText, Pin } from "lucide-react"
 interface NotesGridClientProps {
   pinnedNotes: NoteForCard[]
   regularNotes: NoteForCard[]
-  sidebar: ReactNode
+  folderRow: ReactNode
   toolbar: ReactNode
   filterPills: ReactNode
-  folderHeader: ReactNode
   folderPickerModal: ReactNode
 }
 
 export function NotesGridClient({
   pinnedNotes,
   regularNotes,
-  sidebar,
+  folderRow,
   toolbar,
   filterPills,
-  folderHeader,
   folderPickerModal,
 }: NotesGridClientProps) {
   const hasNotes = pinnedNotes.length > 0 || regularNotes.length > 0
 
   return (
     <NotesDndProvider>
-      <div className="flex flex-1 min-h-0">
-        {sidebar}
+      <div className="flex-1 flex flex-col min-h-0 p-6 overflow-y-auto">
+        {/* Folder row at top - sticky */}
+        {folderRow}
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col gap-6 p-6 min-w-0 overflow-y-auto">
+        {/* Content area */}
+        <div className="flex flex-col gap-6 mt-6">
           {toolbar}
           {filterPills}
-          {folderHeader}
 
           {!hasNotes ? (
             <NerveCard elevation={1}>
@@ -64,7 +62,7 @@ export function NotesGridClient({
                     <Pin className="h-4 w-4" />
                     Pinned
                   </h2>
-                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                     {pinnedNotes.map((note) => (
                       <DraggableNoteCard key={note.id} note={note} />
                     ))}
@@ -78,7 +76,7 @@ export function NotesGridClient({
                   {pinnedNotes.length > 0 && (
                     <h2 className="text-sm font-medium text-zinc-500">All Notes</h2>
                   )}
-                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                     {regularNotes.map((note) => (
                       <DraggableNoteCard key={note.id} note={note} />
                     ))}

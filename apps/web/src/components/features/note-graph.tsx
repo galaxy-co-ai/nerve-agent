@@ -8,7 +8,6 @@ import ReactFlow, {
   useEdgesState,
   Background,
   Controls,
-  MiniMap,
   MarkerType,
 } from "reactflow"
 import "reactflow/dist/style.css"
@@ -137,8 +136,8 @@ export function NoteGraph({ currentNote, outgoingLinks, backlinks }: NoteGraphPr
     return { initialNodes: nodes, initialEdges: edges }
   }, [currentNote, outgoingLinks, backlinks])
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
+  const [nodes, , onNodesChange] = useNodesState(initialNodes)
+  const [edges, , onEdgesChange] = useEdgesState(initialEdges)
 
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: Node) => {

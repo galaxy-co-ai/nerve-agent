@@ -49,7 +49,7 @@ export function LibraryItemActions({ item }: LibraryItemActionsProps) {
     try {
       await deleteLibraryItem(item.id)
       router.push(`/library/${item.type.toLowerCase()}s`)
-    } catch (error) {
+    } catch {
       setIsDeleting(false)
     }
   }

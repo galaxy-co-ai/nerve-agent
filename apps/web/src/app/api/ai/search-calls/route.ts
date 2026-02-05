@@ -134,7 +134,7 @@ ${JSON.stringify(callSummaries, null, 2)}`,
             }
           })
       }
-    } catch (parseError) {
+    } catch {
       console.error("Failed to parse AI search results:", result)
     }
 

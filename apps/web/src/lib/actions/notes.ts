@@ -28,7 +28,7 @@ export async function createNote(formData: FormData) {
   const inboxFolderId = await getInboxFolderId(user.id)
 
   // Generate unique slug
-  let baseSlug = generateSlug(title)
+  const baseSlug = generateSlug(title)
   let slug = baseSlug
   let counter = 1
 
@@ -88,7 +88,7 @@ export async function updateNote(slug: string, formData: FormData) {
   // Generate new slug if title changed
   let newSlug = note.slug
   if (title && title !== note.title) {
-    let baseSlug = generateSlug(title)
+    const baseSlug = generateSlug(title)
     newSlug = baseSlug
     let counter = 1
 
@@ -167,7 +167,7 @@ export async function quickCreateNote(title: string, content: string, projectId?
   // Get inbox folder (creates folders if needed)
   const inboxFolderId = await getInboxFolderId(user.id)
 
-  let baseSlug = generateSlug(title)
+  const baseSlug = generateSlug(title)
   let slug = baseSlug
   let counter = 1
 
@@ -190,6 +190,102 @@ export async function quickCreateNote(title: string, content: string, projectId?
 
   revalidatePath("/notes")
   return note
+}
+
+// Quick create idea - minimal input, auto-generated title, "idea" tag
+export async function quickCreateIdea(content: string) {
+  const user = await requireUser()
+
+  // Get inbox folder (creates folders if needed)
+  const inboxFolderId = await getInboxFolderId(user.id)
+
+  // Generate title from first line or first ~50 chars
+  const firstLine = content.split("\n")[0].trim()
+  let title = firstLine.slice(0, 50)
+  if (firstLine.length > 50) title += "..."
+  if (!title) title = "Quick Idea"
+
+  const baseSlug = generateSlug(title)
+  let slug = baseSlug
+  let counter = 1
+
+  while (await db.note.findFirst({ where: { userId: user.id, slug } })) {
+    slug = `${baseSlug}-${counter}`
+    counter++
+  }
+
+  const note = await db.note.create({
+    data: {
+      userId: user.id,
+      title,
+      slug,
+      content,
+      tags: ["idea"],
+      folderId: inboxFolderId,
+    },
+  })
+
+  revalidatePath("/notes")
+  return note
+}
+
+// Quick create URL reference - saves URL with optional notes
+export async function quickCreateUrlReference(url: string, title: string, notes?: string) {
+  const user = await requireUser()
+
+  // Get inbox folder (creates folders if needed)
+  const inboxFolderId = await getInboxFolderId(user.id)
+
+  // Build content with URL and optional notes
+  let content = `**URL:** ${url}\n\n`
+  if (notes) {
+    content += `**Notes:**\n${notes}`
+  }
+
+  const baseSlug = generateSlug(title)
+  let slug = baseSlug
+  let counter = 1
+
+  while (await db.note.findFirst({ where: { userId: user.id, slug } })) {
+    slug = `${baseSlug}-${counter}`
+    counter++
+  }
+
+  const note = await db.note.create({
+    data: {
+      userId: user.id,
+      title,
+      slug,
+      content,
+      tags: ["reference"],
+      folderId: inboxFolderId,
+    },
+  })
+
+  revalidatePath("/notes")
+  return note
+}
+
+// Get notes tagged with "meeting" or "call" for the Calls page
+export async function getMeetingNotes() {
+  const user = await requireUser()
+
+  // Prisma JSON array contains query for PostgreSQL
+  const notes = await db.note.findMany({
+    where: {
+      userId: user.id,
+      OR: [
+        { tags: { array_contains: ["meeting"] } },
+        { tags: { array_contains: ["call"] } },
+      ],
+    },
+    orderBy: { updatedAt: "desc" },
+    include: {
+      project: { select: { id: true, name: true, slug: true } },
+    },
+  })
+
+  return notes
 }
 
 // Organize a note using AI

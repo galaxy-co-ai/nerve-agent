@@ -11,7 +11,7 @@ interface NoteContentProps {
 
 export function NoteContent({ content, notes }: NoteContentProps) {
   // Parse wiki links [[Note Title]] and render them as clickable links
-  const renderContent = () => {
+  const _renderContent = () => {
     // Split content by wiki links
     const wikiLinkPattern = /\[\[([^\]]+)\]\]/g
     const parts: (string | JSX.Element)[] = []
@@ -99,7 +99,7 @@ export function NoteContent({ content, notes }: NoteContentProps) {
         // Check for code blocks
         if (paragraph.startsWith("```")) {
           const lines = paragraph.split("\n")
-          const language = lines[0].slice(3)
+          const _language = lines[0].slice(3)
           const code = lines.slice(1, -1).join("\n")
           return (
             <pre key={i} className="bg-muted rounded-lg p-4 overflow-x-auto my-4">

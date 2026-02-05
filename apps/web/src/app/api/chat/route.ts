@@ -207,7 +207,7 @@ async function executeTool(
       }
 
       // Generate unique slug
-      let baseSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
+      const baseSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
       let slug = baseSlug
       let counter = 1
       while (await db.project.findUnique({ where: { slug } })) {

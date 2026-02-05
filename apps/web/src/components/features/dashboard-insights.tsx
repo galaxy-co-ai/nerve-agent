@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { AlertCircle, Clock, Target, TrendingUp, Bell, Zap } from "lucide-react"
+import { Clock, Target, TrendingUp, Bell, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface Insight {
@@ -17,7 +17,7 @@ interface Insight {
 
 interface DashboardInsightsProps {
   inProgressTaskCount: number
-  activeBlockers: number
+  _activeBlockers: number
   overdueBlockers: { id: string; description: string | null; projectName: string }[]
   totalMinutesToday: number
   dailyTarget?: number // in minutes, default 8 hours = 480
@@ -26,7 +26,7 @@ interface DashboardInsightsProps {
 
 export function DashboardInsights({
   inProgressTaskCount,
-  activeBlockers,
+  _activeBlockers,
   overdueBlockers,
   totalMinutesToday,
   dailyTarget = 480,

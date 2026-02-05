@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Sparkles, Search, Loader2, X, Blocks, Code, Database } from "lucide-react"
+import { Sparkles, Search, Loader2, X, Blocks } from "lucide-react"
 import { LibraryItemCard } from "@/components/features/library-item-card"
 import { cn } from "@/lib/utils"
 

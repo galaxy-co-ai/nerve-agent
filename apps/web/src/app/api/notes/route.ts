@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate slug from title
-    let baseSlug = title
+    const baseSlug = title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "")

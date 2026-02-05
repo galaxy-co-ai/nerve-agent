@@ -33,7 +33,7 @@ interface NoteActionsProps {
 }
 
 export function NoteActions({ note }: NoteActionsProps) {
-  const router = useRouter()
+  const _router = useRouter()
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -45,7 +45,7 @@ export function NoteActions({ note }: NoteActionsProps) {
     setIsDeleting(true)
     try {
       await deleteNote(note.slug)
-    } catch (error) {
+    } catch {
       setIsDeleting(false)
     }
   }

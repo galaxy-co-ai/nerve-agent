@@ -33,7 +33,7 @@ export async function createProjectFromImport(
   }
 
   // Generate unique slug
-  let baseSlug = generateSlug(analysis.projectName)
+  const baseSlug = generateSlug(analysis.projectName)
   let slug = baseSlug
   let counter = 1
 

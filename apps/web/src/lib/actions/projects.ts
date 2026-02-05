@@ -33,7 +33,7 @@ export async function createProject(formData: FormData) {
   }
 
   // Generate unique slug
-  let baseSlug = generateSlug(name)
+  const baseSlug = generateSlug(name)
   let slug = baseSlug
   let counter = 1
 
@@ -94,7 +94,7 @@ export async function updateProject(slug: string, formData: FormData) {
       description: description ?? project.description,
       hourlyRate: hourlyRate ? parseFloat(hourlyRate) : project.hourlyRate,
       contractValue: contractValue ? parseFloat(contractValue) : project.contractValue,
-      status: status as any || project.status,
+      status: (status as typeof project.status) || project.status,
       portalToken,
     },
   })
@@ -136,7 +136,7 @@ export async function updateProjectStatus(slug: string, status: string) {
 
   await db.project.update({
     where: { id: project.id },
-    data: { status: status as any },
+    data: { status: status as typeof project.status },
   })
 
   revalidatePath("/projects")

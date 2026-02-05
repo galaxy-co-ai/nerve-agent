@@ -118,7 +118,7 @@ export async function updateTask(taskId: string, formData: FormData) {
   }
 
   if (status) {
-    updateData.status = status as any
+    updateData.status = status as typeof task.status
     if (status === "COMPLETED" && !task.completedAt) {
       updateData.completedAt = new Date()
     }
@@ -155,7 +155,7 @@ export async function updateTaskStatus(taskId: string, status: string) {
   }
 
   const updateData: Record<string, unknown> = {
-    status: status as any,
+    status: status as typeof task.status,
   }
 
   if (status === "COMPLETED" && !task.completedAt) {

@@ -605,6 +605,7 @@ function NeonText({ isOn }: { isOn: boolean }) {
 
   useEffect(() => {
     if (isOn) setGlowIntensity(1)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const neonGlow = glowIntensity > 0

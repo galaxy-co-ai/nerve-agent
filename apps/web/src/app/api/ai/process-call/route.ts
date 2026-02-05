@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
       }
 
       return NextResponse.json(parsed)
-    } catch (parseError) {
+    } catch {
       console.error("Failed to parse AI response:", result)
       // Return a default structure if parsing fails
       return NextResponse.json({

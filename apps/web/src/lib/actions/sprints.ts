@@ -86,7 +86,7 @@ export async function updateSprint(
       name: name || sprint.name,
       description: description ?? sprint.description,
       estimatedHours: estimatedHours ? parseFloat(estimatedHours) : sprint.estimatedHours,
-      status: (status as any) || sprint.status,
+      status: (status as typeof sprint.status) || sprint.status,
     },
   })
 
@@ -124,7 +124,7 @@ export async function updateSprintStatus(
   }
 
   const updateData: Record<string, unknown> = {
-    status: status as any,
+    status: status as typeof sprint.status,
   }
 
   // Set actual start date when starting

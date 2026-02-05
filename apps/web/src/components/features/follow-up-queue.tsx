@@ -241,7 +241,7 @@ function FollowUpItem({ followUp, onAction }: { followUp: FollowUp; onAction: ()
 }
 
 export function FollowUpQueue({ followUps, showCompleted = false }: FollowUpQueueProps) {
-  const [refreshKey, setRefreshKey] = useState(0)
+  const [_refreshKey, setRefreshKey] = useState(0)
 
   const handleAction = () => {
     setRefreshKey((k) => k + 1)
@@ -251,7 +251,7 @@ export function FollowUpQueue({ followUps, showCompleted = false }: FollowUpQueu
   const suggested = followUps.filter((f) => f.status === "SUGGESTED")
   const active = followUps.filter((f) => f.status === "SCHEDULED" || f.status === "PENDING")
   const completed = followUps.filter((f) => f.status === "COMPLETED")
-  const dismissed = followUps.filter((f) => f.status === "DISMISSED")
+  const _dismissed = followUps.filter((f) => f.status === "DISMISSED")
 
   if (followUps.length === 0) {
     return (

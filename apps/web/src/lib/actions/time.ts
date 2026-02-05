@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { requireUser } from "@/lib/auth"
+import { generateTimeEntryHash } from "@/lib/time-verification"
+import { updatePresence } from "@/lib/presence"
 
 export async function createTimeEntry(formData: FormData) {
   const user = await requireUser()
@@ -50,6 +52,17 @@ export async function createTimeEntry(formData: FormData) {
     throw new Error("End time must be after start time")
   }
 
+  // Generate verification hash for provably fair time tracking
+  const verificationHash = generateTimeEntryHash({
+    userId: user.id,
+    projectId,
+    startTime: start,
+    endTime: end,
+    durationMinutes,
+    description: description || null,
+    taskId: taskId || null,
+  })
+
   await db.timeEntry.create({
     data: {
       userId: user.id,
@@ -61,8 +74,17 @@ export async function createTimeEntry(formData: FormData) {
       source: "MANUAL",
       description: description || null,
       billable,
+      verificationHash,
     },
   })
+
+  // Update presence (user is actively working)
+  updatePresence({
+    userId: user.id,
+    projectId,
+    area: "Time Tracking",
+    taskId: taskId || null,
+  }).catch(console.error) // Fire and forget
 
   // Update task actual hours if linked
   if (taskId) {
@@ -119,6 +141,17 @@ export async function updateTimeEntry(entryId: string, formData: FormData) {
 
   const durationMinutes = Math.round((end.getTime() - start.getTime()) / 60000)
 
+  // Regenerate verification hash on update
+  const verificationHash = generateTimeEntryHash({
+    userId: user.id,
+    projectId,
+    startTime: start,
+    endTime: end,
+    durationMinutes,
+    description: description || null,
+    taskId: taskId || null,
+  })
+
   await db.timeEntry.update({
     where: { id: entryId },
     data: {
@@ -129,8 +162,21 @@ export async function updateTimeEntry(entryId: string, formData: FormData) {
       durationMinutes,
       description: description || null,
       billable,
+      verificationHash,
+      // Clear anchoring data since entry was modified
+      anchoredAt: null,
+      anchorTxHash: null,
+      merkleProof: [],
     },
   })
+
+  // Update presence
+  updatePresence({
+    userId: user.id,
+    projectId,
+    area: "Time Tracking",
+    taskId: taskId || null,
+  }).catch(console.error)
 
   revalidatePath("/time")
   revalidatePath("/dashboard")
@@ -204,6 +250,17 @@ export async function quickCreateTimeEntry(data: {
   const endTime = new Date()
   const startTime = new Date(endTime.getTime() - durationMinutes * 60 * 1000)
 
+  // Generate verification hash
+  const verificationHash = generateTimeEntryHash({
+    userId: user.id,
+    projectId,
+    startTime,
+    endTime,
+    durationMinutes,
+    description: description || null,
+    taskId: taskId || null,
+  })
+
   await db.timeEntry.create({
     data: {
       userId: user.id,
@@ -214,9 +271,18 @@ export async function quickCreateTimeEntry(data: {
       durationMinutes,
       source: "MANUAL",
       description: description || null,
-      billable: true, // Default to billable for quick entries
+      billable: true,
+      verificationHash,
     },
   })
+
+  // Update presence
+  updatePresence({
+    userId: user.id,
+    projectId,
+    area: "Time Tracking",
+    taskId: taskId || null,
+  }).catch(console.error)
 
   // Update task actual hours if linked
   if (taskId) {

@@ -3,11 +3,11 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  Code2,
   FolderKanban,
-  Home,
-  FileText,
+  LayoutDashboard,
+  Users,
   Phone,
+  Receipt,
   Settings,
   LucideIcon,
 } from "lucide-react"
@@ -45,11 +45,11 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { title: "Daily Driver", url: "/dashboard", icon: Home, intent: "navigate:dashboard" },
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, intent: "navigate:dashboard" },
   { title: "Projects", url: "/projects", icon: FolderKanban, intent: "navigate:projects" },
-  { title: "Library", url: "/library", icon: Code2, intent: "navigate:library" },
-  { title: "Notes", url: "/notes", icon: FileText, intent: "navigate:notes" },
+  { title: "Clients", url: "/clients", icon: Users, intent: "navigate:clients" },
   { title: "Calls", url: "/calls", icon: Phone, intent: "navigate:calls" },
+  { title: "Billing", url: "/billing", icon: Receipt, intent: "navigate:billing" },
   { title: "Settings", url: "/settings", icon: Settings, intent: "navigate:settings" },
 ]
 

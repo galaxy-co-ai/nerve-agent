@@ -9,7 +9,6 @@ import {
   NerveCardContent,
   NerveButton,
   NerveBadge,
-  NerveSeparator,
   NerveAlertDialog,
   NerveAlertDialogTrigger,
   NerveAlertDialogContent,
@@ -21,7 +20,8 @@ import {
   NerveAlertDialogAction,
 } from "@/components/nerve"
 import { DesktopPairingDialog } from "./desktop-pairing-dialog"
-import { useDesktopConnection, type DesktopDevice } from "@/hooks/use-desktop-connection"
+import { useDesktopConnection } from "@/hooks/use-desktop-connection"
+import type { DesktopDevice } from "@/hooks/use-desktop-connection"
 import {
   Monitor,
   Laptop,
@@ -248,7 +248,7 @@ export function DesktopStatusSection({ userId }: DesktopStatusSectionProps) {
 
             {/* Device list */}
             <div className="divide-y divide-zinc-700/50">
-              {status.devices.map((device, index) => (
+              {status.devices.map((device) => (
                 <DeviceItem
                   key={device.id}
                   device={device}

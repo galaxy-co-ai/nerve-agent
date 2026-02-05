@@ -134,13 +134,14 @@ export type AXIntent =
   // Navigation
   | "navigate:dashboard"
   | "navigate:projects"
-  | "navigate:library"
-  | "navigate:notes"
+  | "navigate:clients"
   | "navigate:calls"
+  | "navigate:billing"
   | "navigate:settings"
   | "navigate:project-detail"
-  | "navigate:note-detail"
+  | "navigate:client-detail"
   | "navigate:call-detail"
+  | "navigate:invoice-detail"
 
   // CRUD operations
   | "create:project"
