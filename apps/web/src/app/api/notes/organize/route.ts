@@ -36,7 +36,7 @@ Classification rules:
 5. "Processes" = instructional, procedural, step-by-step
 6. "Learnings" = reflective, lessons, retrospective
 
-For tags, choose 1-3 from: idea, task, reference, insight, decision
+For tags, choose 1-3 from: idea, task, reference, insight, decision, call, meeting
 
 Respond ONLY with valid JSON in this exact format:
 {

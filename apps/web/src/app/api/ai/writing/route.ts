@@ -4,7 +4,7 @@ import { requireUser } from "@/lib/auth"
 
 const anthropic = new Anthropic()
 
-type WritingAction = "continue" | "brainstorm" | "expand" | "summarize" | "rewrite" | "suggest-tags" | "generate-title"
+type WritingAction = "continue" | "brainstorm" | "expand" | "summarize" | "rewrite" | "suggest-tags" | "generate-title" | "suggest-folder"
 
 interface WritingRequest {
   action: WritingAction
@@ -13,6 +13,7 @@ interface WritingRequest {
   context?: {
     title?: string
     projectName?: string
+    folders?: Array<{ id: string; name: string }>
   }
 }
 
@@ -37,14 +38,26 @@ Improve clarity and flow while preserving the original meaning.
 No preamble - just the rewritten text.`,
 
   "suggest-tags": `You are a note organization assistant. Based on the note content, suggest relevant tags.
-Return a JSON array of 3-5 short, lowercase tag names (no # prefix).
-Consider: topics, project names, content type (meeting, idea, research, todo).
-Return ONLY the JSON array, no other text. Example: ["project-alpha", "meeting-notes", "api"]`,
+Return a JSON array of 1-3 tags from this list: idea, task, reference, insight, decision, call, meeting.
+- idea: brainstorms, speculative thoughts, possibilities
+- task: actionable items, todos
+- reference: facts, documentation, external knowledge
+- insight: realizations, lessons learned
+- decision: choices made with reasoning
+- call: phone/video call notes or transcripts
+- meeting: in-person or scheduled meeting notes
+Return ONLY the JSON array, no other text. Example: ["meeting", "decision"]`,
 
   "generate-title": `You are a note organization assistant. Based on the note content, generate a concise title.
 The title should be 2-4 words maximum, capturing the essence of the note.
 Use title case. Be specific and descriptive.
 Return ONLY the title, no quotes, no explanation. Examples: "API Auth Flow", "Meeting Notes", "Bug Fix Ideas"`,
+
+  "suggest-folder": `You are a note organization assistant. Based on the note content and title, suggest the most appropriate folder.
+The user has these folders available. You must return a JSON object with the folderId of the best match.
+Consider the note's topic, purpose, and content type when making your selection.
+Return ONLY valid JSON in this format: {"folderId": "<id>", "confidence": <0-1>, "reasoning": "<brief explanation>"}
+If no folder is clearly appropriate, suggest "inbox" or the first folder as fallback.`,
 }
 
 export async function POST(request: NextRequest) {
@@ -91,6 +104,16 @@ ${content}`
 
 ${content}`
         break
+      case "suggest-folder":
+        const foldersInfo = context?.folders ? JSON.stringify(context.folders) : "[]"
+        userMessage = `Note title: ${context?.title || "Untitled"}
+
+Available folders (pick the best match):
+${foldersInfo}
+
+Note content:
+${content}`
+        break
     }
 
     const response = await anthropic.messages.create({
@@ -116,6 +139,22 @@ ${content}`
           return NextResponse.json({ result: tags })
         }
         return NextResponse.json({ result: [] })
+      }
+    }
+
+    // For suggest-folder, parse the JSON response
+    if (action === "suggest-folder") {
+      try {
+        const folderSuggestion = JSON.parse(result)
+        return NextResponse.json({ result: folderSuggestion })
+      } catch {
+        // If parsing fails, try to extract JSON from text
+        const jsonMatch = result.match(/\{[\s\S]*\}/)
+        if (jsonMatch) {
+          const folderSuggestion = JSON.parse(jsonMatch[0])
+          return NextResponse.json({ result: folderSuggestion })
+        }
+        return NextResponse.json({ result: null })
       }
     }
 
